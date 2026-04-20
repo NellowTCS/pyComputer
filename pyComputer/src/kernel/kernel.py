@@ -20,7 +20,7 @@ class Kernel:
         self.io = IO()
         self.loader = Loader()
         self.registry = Registry()
-        self.shell = Shell()
+        self.shell = Shell(kernel=self)
 
     def initialize(self):
         print("[kernel] Initializing subsystems...")

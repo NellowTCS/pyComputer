@@ -2,18 +2,28 @@
 Loader subsystem: discovers apps, loads manifests, imports entrypoints dynamically.
 """
 
-import importlib
+import importlib.util
 import os
 import json
 
 class Loader:
-    def __init__(self, apps_path="/usr/apps/"):
-        self.apps_path = apps_path
+    def __init__(self, apps_path=None):
+        if apps_path is None:
+            # Use project root relative path for apps
+            self.apps_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../apps"))
+        else:
+            self.apps_path = apps_path
         self.apps = []
 
     def discover_apps(self):
-        # Placeholder: scan apps_path for apps
-        self.apps = []  # Would list directories in apps_path
+        self.apps = []
+        if not os.path.isdir(self.apps_path):
+            print(f"[loader] Apps path not found: {self.apps_path}")
+            return
+        for name in os.listdir(self.apps_path):
+            app_dir = os.path.join(self.apps_path, name)
+            if os.path.isdir(app_dir) and os.path.isfile(os.path.join(app_dir, "manifest.json")):
+                self.apps.append(name)
 
     def load_manifest(self, app_name):
         manifest_path = os.path.join(self.apps_path, app_name, "manifest.json")
@@ -23,6 +33,22 @@ class Loader:
         except FileNotFoundError:
             return None
 
-    def import_entrypoint(self, app_name, entry="main.py"):
-        # Placeholder for dynamic import
-        pass
+    def import_entrypoint(self, app_name):
+        app_dir = os.path.join(self.apps_path, app_name)
+        manifest = self.load_manifest(app_name)
+        if not manifest:
+            print(f"[loader] Manifest not found for app '{app_name}'")
+            return None
+        entry = manifest.get("entry", "main.py")
+        entry_path = os.path.join(app_dir, entry)
+        if not os.path.isfile(entry_path):
+            print(f"[loader] Entrypoint '{entry}' not found for app '{app_name}'")
+            return None
+        spec = importlib.util.spec_from_file_location(f"apps.{app_name}", entry_path)
+        module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(module)
+            return getattr(module, "main", None)
+        except Exception as e:
+            print(f"[loader] Failed to import app '{app_name}': {e}")
+            return None

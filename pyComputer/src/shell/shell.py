@@ -6,8 +6,9 @@ from .commands import BUILTIN_COMMANDS
 from .parser import parse_command
 
 class Shell:
-    def __init__(self):
+    def __init__(self, kernel=None):
         self.history = []
+        self.kernel = kernel
 
     def run(self):
         print("[shell] Welcome to pyComputer shell!")

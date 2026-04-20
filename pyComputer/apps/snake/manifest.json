@@ -1,0 +1,7 @@
+{
+  "name": "snake",
+  "version": "0.1.0",
+  "entry": "main.py",
+  "permissions": [],
+  "description": "A stub for the Snake game app."
+}

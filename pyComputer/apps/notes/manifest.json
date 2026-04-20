@@ -1,0 +1,7 @@
+{
+  "name": "notes",
+  "version": "0.1.0",
+  "entry": "main.py",
+  "permissions": ["fs"],
+  "description": "A simple notes app for pyComputer."
+}
