@@ -2,6 +2,9 @@
 Shell subsystem: main command loop, history, autocomplete.
 """
 
+from .commands import BUILTIN_COMMANDS
+from .parser import parse_command
+
 class Shell:
     def __init__(self):
         self.history = []
@@ -11,15 +14,26 @@ class Shell:
         while True:
             try:
                 cmd = input("$ ")
-                if cmd.strip() == "exit":
-                    print("[shell] Exiting shell.")
-                    break
+                if not cmd.strip():
+                    continue
                 self.history.append(cmd)
                 self.execute(cmd)
-            except (EOFError, KeyboardInterrupt):
+            except (EOFError, KeyboardInterrupt, SystemExit):
                 print("\n[shell] Exiting shell.")
                 break
 
     def execute(self, cmd):
-        print(f"[shell] You entered: {cmd}")
-        # Placeholder for command execution logic
+        parts = parse_command(cmd)
+        if not parts:
+            return
+        command, *args = parts
+        func = BUILTIN_COMMANDS.get(command)
+        if func:
+            try:
+                func(self, *args)
+            except SystemExit:
+                raise
+            except Exception as e:
+                print(f"[shell] Error: {e}")
+        else:
+            print(f"[shell] Unknown command: {command}")
