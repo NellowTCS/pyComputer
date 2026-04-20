@@ -1,1 +1,1 @@
-/workspaces/pyComputer/pyComputer/README.md
+/pyComputer/pyComputer/README.md
