@@ -1,1 +1,1 @@
-/pyComputer/pyComputer/README.md
+/pyComputer/README.md
