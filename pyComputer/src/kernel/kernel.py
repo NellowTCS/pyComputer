@@ -4,12 +4,13 @@ Initializes subsystems, starts boot sequence, launches shell, runs main async ev
 """
 
 import asyncio
-from pyComputer.src.kernel.boot import Boot
-from pyComputer.src.kernel.process import Process
-from pyComputer.src.kernel.scheduler import Scheduler
-from pyComputer.src.kernel.io import IO
-from pyComputer.src.kernel.loader import Loader
-from pyComputer.src.kernel.registry import Registry
+from .boot import Boot
+from .process import Process
+from .scheduler import Scheduler
+from .io import IO
+from .loader import Loader
+from .registry import Registry
+from ..shell.shell import Shell
 
 class Kernel:
     def __init__(self):
@@ -19,6 +20,7 @@ class Kernel:
         self.io = IO()
         self.loader = Loader()
         self.registry = Registry()
+        self.shell = Shell()
 
     def initialize(self):
         print("[kernel] Initializing subsystems...")
@@ -31,8 +33,7 @@ class Kernel:
 
     def launch_shell(self):
         print("[kernel] Launching shell...")
-        # Placeholder for shell launch logic
-        # Would eventually create a shell process and add to scheduler
+        self.shell.run()
 
     async def run(self):
         print("[kernel] Running main event loop...")
