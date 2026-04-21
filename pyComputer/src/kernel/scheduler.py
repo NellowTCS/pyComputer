@@ -12,6 +12,10 @@ class Scheduler:
     def add_process(self, process: Process):
         self.processes.append(process)
 
+    def wake_process(self, process: Process):
+        if process.state == "waiting":
+            process.state = "ready"
+
     async def run(self):
         while self.processes:
             for process in list(self.processes):
@@ -20,4 +24,11 @@ class Scheduler:
                     continue
                 if process.state == "ready":
                     process.start()
-                await asyncio.sleep(0)  # Yield control
+                if process.task:
+                    try:
+                        await asyncio.wait([process.task], timeout=0.01)
+                    except Exception:
+                        pass
+                if process.task and process.task.done():
+                    process.state = "terminated"
+            await asyncio.sleep(0)  # Yield to event loop
