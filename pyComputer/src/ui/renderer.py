@@ -2,6 +2,7 @@
 renderer.py: TUI renderer using tuiro, double-buffering.
 """
 
+import sys
 from tuiro import TUI
 
 class Renderer:
@@ -43,3 +44,78 @@ class Renderer:
 
     def step(self, title):
         return self.tui.step(title)
+
+    def move(self, x, y):
+        sys.stdout.write(f"\033[{y};{x}H")
+        return self
+
+    def write(self, text):
+        sys.stdout.write(text)
+        return self
+
+    def flush(self):
+        sys.stdout.flush()
+        return self
+
+    def clear(self):
+        sys.stdout.write("\033[2J\033[H")
+        return self
+
+    def clear_line(self):
+        sys.stdout.write("\033[2K")
+        return self
+
+    def hide_cursor(self):
+        sys.stdout.write("\033[?25l")
+        return self
+
+    def show_cursor(self):
+        sys.stdout.write("\033[?25h")
+        return self
+
+    def bold(self, text):
+        return f"\033[1m{text}\033[0m"
+
+    def dim(self, text):
+        return f"\033[2m{text}\033[0m"
+
+    def green(self, text):
+        return f"\033[32m{text}\033[0m"
+
+    def bright_green(self, text):
+        return f"\033[92m{text}\033[0m"
+
+    def red(self, text):
+        return f"\033[31m{text}\033[0m"
+
+    def bright_red(self, text):
+        return f"\033[91m{text}\033[0m"
+
+    def yellow(self, text):
+        return f"\033[33m{text}\033[0m"
+
+    def cyan(self, text):
+        return f"\033[36m{text}\033[0m"
+
+    def box(self, width, height, title=None):
+        lines = []
+        lines.append("╔" + "═" * (width - 2) + "╗")
+        if title:
+            title_line = f"║ {title} " + " " * (width - len(title) - 4) + "║"
+            title_line = title_line[:width-1] + "║"
+            lines.append(title_line)
+            if height > 3:
+                lines.append("╠" + "═" * (width - 2) + "╣")
+        else:
+            lines.append("║" + " " * (width - 2) + "║")
+        for _ in range(height - 2 - (1 if title else 0)):
+            lines.append("║" + " " * (width - 2) + "║")
+        lines.append("╚" + "═" * (width - 2) + "╝")
+        return "\n".join(lines)
+
+    def box_at(self, x, y, width, height, title=None):
+        box_str = self.box(width, height, title)
+        lines = box_str.split("\n")
+        for i, line in enumerate(lines):
+            self.move(x, y + i).write(line)
+        return self

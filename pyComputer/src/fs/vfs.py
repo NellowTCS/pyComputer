@@ -14,8 +14,10 @@ class VFS:
             self.root = os.path.abspath(root)
 
     def abspath(self, path):
+        if path == "/" or path == "":
+            return self.root
         if os.path.isabs(path):
-            return os.path.abspath(path)
+            return os.path.join(self.root, path.lstrip('/'))
         return os.path.abspath(os.path.join(self.root, path))
 
     def open(self, path, mode="r"):
