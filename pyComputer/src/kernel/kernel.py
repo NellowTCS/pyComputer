@@ -39,7 +39,11 @@ class Kernel:
 
     async def run(self):
         print("[kernel] Running main event loop...")
-        await self.scheduler.run()
+        try:
+            await self.scheduler.run()
+        except asyncio.CancelledError:
+            print("[kernel] Event loop cancelled.")
+
 
 
 def main():
@@ -47,7 +51,10 @@ def main():
     kernel.initialize()
     kernel.boot_sequence()
     kernel.launch_shell()
-    asyncio.run(kernel.run())
+    try:
+        asyncio.run(kernel.run())
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        print("[kernel] Shutdown complete.")
 
 if __name__ == "__main__":
     main()

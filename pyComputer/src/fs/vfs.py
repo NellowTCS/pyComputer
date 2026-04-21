@@ -6,8 +6,12 @@ import os
 import shutil
 
 class VFS:
-    def __init__(self, root="/"):
-        self.root = os.path.abspath(root)
+    def __init__(self, root=None):
+        if root is None:
+            # Use the workspace root folder as the VFS root
+            self.root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../root'))
+        else:
+            self.root = os.path.abspath(root)
 
     def abspath(self, path):
         if os.path.isabs(path):

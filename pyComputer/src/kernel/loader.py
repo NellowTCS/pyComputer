@@ -6,13 +6,15 @@ import importlib.util
 import os
 import json
 import sys
+from src.fs.vfs import VFS
 
 class Loader:
     def __init__(self, apps_path=None):
+        self.vfs = VFS()
         if apps_path is None:
-            self.apps_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../apps"))
+            self.apps_path = self.vfs.abspath("usr/apps")
         else:
-            self.apps_path = apps_path
+            self.apps_path = self.vfs.abspath(apps_path)
         self.apps = []
 
     def discover_apps(self):

@@ -24,9 +24,12 @@ class Shell:
 
     def run(self):
         print("[shell] Welcome to pyComputer shell!")
+        if not hasattr(self, "cwd"):
+            self.cwd = "/"
         while True:
             try:
-                cmd = input("$ ")
+                prompt = f"[{self.cwd}] $ "
+                cmd = input(prompt)
                 if not cmd.strip():
                     continue
                 self.history.append(cmd)

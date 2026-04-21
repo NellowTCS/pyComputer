@@ -1,5 +1,5 @@
 """
-Shell commands: built-in commands (ls, cat, edit, run, pkg, help).
+Shell commands: built-in commands
 """
 
 from .commands.help import cmd_help
@@ -11,6 +11,7 @@ from .commands.edit import cmd_edit
 from .commands.run import cmd_run
 from .commands.pkg import cmd_pkg
 from .commands.clear import cmd_clear
+from .commands.cd import cmd_cd
 
 BUILTIN_COMMANDS = {
     "help": cmd_help,
@@ -22,4 +23,5 @@ BUILTIN_COMMANDS = {
     "run": cmd_run,
     "pkg": cmd_pkg,
     "clear": cmd_clear,
+    "cd": cmd_cd,
 }

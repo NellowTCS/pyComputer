@@ -7,13 +7,14 @@ import shutil
 from ..fs.vfs import VFS
 from ..kernel.registry import Registry
 
+
 class PackageManager:
     def __init__(self, apps_path=None):
+        self.vfs = VFS()
         if apps_path is None:
-            self.apps_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../apps"))
+            self.apps_path = self.vfs.abspath("usr/apps")
         else:
-            self.apps_path = apps_path
-        self.vfs = VFS(self.apps_path)
+            self.apps_path = self.vfs.abspath(apps_path)
         self.registry = Registry()
 
     def install(self, source):
