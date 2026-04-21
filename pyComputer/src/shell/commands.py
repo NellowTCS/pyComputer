@@ -10,6 +10,7 @@ from .commands.cat import cmd_cat
 from .commands.edit import cmd_edit
 from .commands.run import cmd_run
 from .commands.pkg import cmd_pkg
+from .commands.clear import cmd_clear
 
 BUILTIN_COMMANDS = {
     "help": cmd_help,
@@ -20,4 +21,5 @@ BUILTIN_COMMANDS = {
     "edit": cmd_edit,
     "run": cmd_run,
     "pkg": cmd_pkg,
+    "clear": cmd_clear,
 }

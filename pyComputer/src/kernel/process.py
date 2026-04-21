@@ -13,8 +13,16 @@ class Process:
         self.task = None
 
     def start(self):
-        self.task = asyncio.create_task(self.coro)
-        self.state = "running"
+        if not self.task or self.task.done():
+            self.task = asyncio.create_task(self.coro)
+            self.state = "running"
+
+    def wait(self):
+        self.state = "waiting"
+
+    def wake(self):
+        if self.state == "waiting":
+            self.state = "ready"
 
     def terminate(self):
         if self.task:

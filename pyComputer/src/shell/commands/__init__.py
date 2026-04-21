@@ -8,6 +8,7 @@ from .cat import cmd_cat
 from .edit import cmd_edit
 from .run import cmd_run
 from .pkg import cmd_pkg
+from .clear import cmd_clear
 
 BUILTIN_COMMANDS = {
     "help": cmd_help,
@@ -18,4 +19,5 @@ BUILTIN_COMMANDS = {
     "edit": cmd_edit,
     "run": cmd_run,
     "pkg": cmd_pkg,
+    "clear": cmd_clear,
 }

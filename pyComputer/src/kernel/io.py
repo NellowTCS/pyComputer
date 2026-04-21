@@ -1,24 +1,28 @@
 """
-IO subsystem: routes stdin/stdout, supports TUIs.
+IO subsystem: routes stdin/stdout, supports fullscreen TUI mode.
 """
+
+import sys
 
 class IO:
     def __init__(self):
-        self.stdin = None
-        self.stdout = None
+        self.stdin = sys.stdin
+        self.stdout = sys.stdout
         self.fullscreen = False
+        self.tui_output = None
 
     def set_fullscreen(self, enable: bool):
         self.fullscreen = enable
 
+    def set_tui_output(self, output_func):
+        self.tui_output = output_func
+
     def write(self, data: str):
-        if self.stdout:
-            self.stdout.write(data)
+        if self.fullscreen and self.tui_output:
+            self.tui_output(data)
         else:
-            print(data, end="")
+            self.stdout.write(data)
+            self.stdout.flush()
 
     def read(self):
-        if self.stdin:
-            return self.stdin.read()
-        else:
-            return input()
+        return self.stdin.readline()

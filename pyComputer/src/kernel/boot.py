@@ -3,14 +3,15 @@ Boot subsystem: renders ASCII logo, prints fake hardware logs.
 """
 
 import os
+import time
 
 class Boot:
     def __init__(self, logo_path=None):
         if logo_path is None:
-            # Always resolve relative to this file's location
             self.logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../boot/logo.txt"))
         else:
             self.logo_path = logo_path
+        self.start_time = time.time()
 
     def render_logo(self):
         try:
@@ -24,3 +25,7 @@ class Boot:
         print("[boot] Initializing subsystems...")
         print("[boot] Checking memory...")
         print("[boot] All systems normal.")
+        print(f"[boot] Uptime: {self.uptime():.2f} seconds")
+
+    def uptime(self):
+        return time.time() - self.start_time

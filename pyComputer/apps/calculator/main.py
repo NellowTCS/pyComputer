@@ -1,12 +1,14 @@
 """
 Calculator app entrypoint for pyComputer
 """
+from src.ui.renderer import Renderer
 
 def main(*args):
-    print("[calculator] Welcome to Calculator!")
+    r = Renderer()
+    r.banner("Calculator")
     expr = input("Enter an expression (e.g. 2 + 2): ")
     try:
         result = eval(expr, {"__builtins__": {}})
-        print(f"Result: {result}")
+        r.success(f"Result: {result}")
     except Exception as e:
-        print(f"Error: {e}")
+        r.error(f"Error: {e}")

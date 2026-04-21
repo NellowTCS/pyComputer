@@ -1,10 +1,12 @@
 """
 Notes app entrypoint for pyComputer
 """
+from src.ui.renderer import Renderer
 
 def main(*args):
-    print("[notes] Welcome to Notes!")
+    r = Renderer()
+    r.banner("Notes")
     note = input("Type a note to save: ")
     with open("notes.txt", "a") as f:
         f.write(note + "\n")
-    print("Note saved.")
+    r.success("Note saved.")

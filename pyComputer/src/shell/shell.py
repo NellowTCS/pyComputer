@@ -4,11 +4,23 @@ Shell subsystem: main command loop, history, autocomplete.
 
 from .commands import BUILTIN_COMMANDS
 from .parser import parse_command
+import readline
 
 class Shell:
     def __init__(self, kernel=None):
         self.history = []
         self.kernel = kernel
+        self._setup_readline()
+
+    def _setup_readline(self):
+        readline.parse_and_bind('tab: complete')
+        readline.set_completer(self._completer)
+
+    def _completer(self, text, state):
+        options = [cmd for cmd in BUILTIN_COMMANDS if cmd.startswith(text)]
+        if state < len(options):
+            return options[state]
+        return None
 
     def run(self):
         print("[shell] Welcome to pyComputer shell!")

@@ -5,11 +5,11 @@ Loader subsystem: discovers apps, loads manifests, imports entrypoints dynamical
 import importlib.util
 import os
 import json
+import sys
 
 class Loader:
     def __init__(self, apps_path=None):
         if apps_path is None:
-            # Use project root relative path for apps
             self.apps_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../apps"))
         else:
             self.apps_path = apps_path
@@ -44,11 +44,19 @@ class Loader:
         if not os.path.isfile(entry_path):
             print(f"[loader] Entrypoint '{entry}' not found for app '{app_name}'")
             return None
-        spec = importlib.util.spec_from_file_location(f"apps.{app_name}", entry_path)
+        # Ensure app_dir is in sys.path for import
+        sys.path.insert(0, app_dir)
+        spec = importlib.util.spec_from_file_location(f"{app_name}_main", entry_path)
+        if spec is None or spec.loader is None:
+            print(f"[loader] Failed to create import spec for app '{app_name}'")
+            sys.path.pop(0)
+            return None
         module = importlib.util.module_from_spec(spec)
         try:
             spec.loader.exec_module(module)
+            sys.path.pop(0)
             return getattr(module, "main", None)
         except Exception as e:
+            sys.path.pop(0)
             print(f"[loader] Failed to import app '{app_name}': {e}")
             return None
