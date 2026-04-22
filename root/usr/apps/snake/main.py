@@ -1,22 +1,24 @@
 """
 Snake app entrypoint for pyComputer
 """
+
 import random
 import sys
-import termios
 import threading
 import time
 from collections import deque
 from src.ui.renderer import Renderer
+from src.ui.input import get_key as _ui_get_key, Key as UI_Key
+from src.utils.text import pad_center
 
 COLS = 30
 ROWS = 15
 BASE_TICK = 0.15
 MIN_TICK = 0.06
 
-HEAD  = "▓▓"
-BODY  = "░░"
-FOOD  = "██"
+HEAD = "▓▓"
+BODY = "░░"
+FOOD = "██"
 EMPTY = "  "
 
 r = Renderer()
@@ -24,6 +26,7 @@ r = Renderer()
 
 def render_x(col):
     return 2 + col * 2
+
 
 def render_y(row):
     return 3 + row
@@ -100,22 +103,26 @@ def draw_border():
     # box_at places each line at the correct terminal row; write(box(...)) would
     # let the newlines scroll instead of positioning each line properly
     box_w = COLS * 2 + 2  # 2 chars per cell + 2 border chars
-    box_h = ROWS + 2      # ROWS of cells + top and bottom border row
+    box_h = ROWS + 2  # ROWS of cells + top and bottom border row
     r.box_at(1, 2, box_w, box_h).flush()
+
 
 def draw_header(game):
     label = r.bold(f" SNAKE  Score: {game.score:<5}  Level: {game.level()} ")
     r.move(1, 1).write(label).flush()
 
+
 def draw_footer():
     text = safe_style(r.dim, "  Arrow keys: move  P: pause  R: restart  Q: quit  ")
     r.move(1, 4 + ROWS).write(text).flush()
+
 
 def draw_cell(col, row, char, style_fn=None):
     tx = render_x(col)
     ty = render_y(row)
     text = safe_style(style_fn, char) if style_fn else char
     r.move(tx, ty).write(text).flush()
+
 
 def full_redraw(game):
     # Use explicit cursor-home after erase so all terminals land at row 1 col 1
@@ -140,6 +147,7 @@ def full_redraw(game):
 
     r.flush()
 
+
 def partial_update(game, prev_tail, prev_food):
     draw_header(game)
 
@@ -157,6 +165,7 @@ def partial_update(game, prev_tail, prev_food):
         draw_cell(game.food[0], game.food[1], FOOD, r.bright_red)
 
     r.flush()
+
 
 def draw_overlay(game):
     # Position overlay in the vertical center of the playfield using terminal rows
@@ -177,15 +186,19 @@ def draw_overlay(game):
 
 _input_key = None
 _input_lock = threading.Lock()
-_input_thread_started = False
+_input_done = threading.Event()
+
 
 def _input_thread():
     global _input_key
-    import readchar
-    while True:
-        key = readchar.readkey()
-        with _input_lock:
-            _input_key = key
+    from src.ui.input import get_key
+
+    while not _input_done.is_set():
+        key = get_key()
+        if key:
+            with _input_lock:
+                _input_key = key
+
 
 def flush_input():
     """Discard any pending key that arrived before/during a transition."""
@@ -193,49 +206,34 @@ def flush_input():
     with _input_lock:
         _input_key = None
 
+
 def get_key():
     global _input_key
     with _input_lock:
         key = _input_key
         _input_key = None
+    # Return None instead of empty string
+    if not key:
+        return None
     return key
 
-def setup_terminal():
-    """Switch stdin to raw/no-echo mode. Returns old termios settings."""
-    fd = sys.stdin.fileno()
-    old = termios.tcgetattr(fd)
-    new = termios.tcgetattr(fd)
-    new[3] = new[3] & ~termios.ICANON & ~termios.ECHO
-    # TCSANOW: apply immediately, don't wait for drain
-    termios.tcsetattr(fd, termios.TCSANOW, new)
-    return old
-
-def restore_terminal(old_settings):
-    """Restore terminal to its pre-game state."""
-    fd = sys.stdin.fileno()
-    # TCSAFLUSH: restore immediately AND discard any input queued during the game,
-    # so the shell does not see leftover keypresses after quit
-    termios.tcsetattr(fd, termios.TCSAFLUSH, old_settings)
-    # Move cursor below the game area, reset all SGR attributes, show cursor
-    r.move(1, ROWS + 5).write("\033[0m").flush()
-    sys.stdout.write("\n")
-    sys.stdout.flush()
 
 def main(*args):
-    import readchar
+    from src.ui.input import setup_raw as setup_terminal, restore as restore_terminal
 
     game = SnakeGame()
 
-    # Save terminal state BEFORE starting input thread so readchar
-    # doesn't consume characters that belong to the shell
+    # Save terminal state BEFORE starting input thread so keypresses
+    # don't consume characters that belong to the shell
     old_settings = setup_terminal()
 
     # Start input thread after raw mode is active
     t = threading.Thread(target=_input_thread, daemon=True)
     t.start()
 
+    r.hide_cursor()
+
     try:
-        r.hide_cursor()
 
         full_redraw(game)
 
@@ -244,8 +242,8 @@ def main(*args):
         # Playfield inner height: ROWS rows starting at terminal row 3
         box_w = 28
         box_h = 3
-        scr_mid_x = 2 + COLS        # terminal col at horizontal center of playfield
-        scr_mid_y = 3 + ROWS // 2   # terminal row at vertical center of playfield
+        scr_mid_x = 2 + COLS  # terminal col at horizontal center of playfield
+        scr_mid_y = 3 + ROWS // 2  # terminal row at vertical center of playfield
         bx = scr_mid_x - box_w // 2
         by = scr_mid_y - box_h // 2
         r.box_at(bx, by, box_w, box_h)
@@ -264,31 +262,36 @@ def main(*args):
         while True:
             key = get_key()
 
-            if key == 'q':
-                break
-            elif key == 'r':
-                game.reset()
-                full_redraw(game)
-                flush_input()
-                last_tick = time.time()
-                continue
-            elif key == 'p' and not game.game_over:
-                game.paused = not game.paused
-                if game.paused:
-                    draw_overlay(game)
-                else:
+            if key is not None:
+                if key.lower() == "q":
+                    from src.ui.input import restore, cleanup
+
+                    restore(old_settings)
+                    cleanup()
+                    return
+                elif key == "r":
+                    game.reset()
                     full_redraw(game)
                     flush_input()
                     last_tick = time.time()
+                    continue
+                elif key.lower() == "p" and not game.game_over:
+                    game.paused = not game.paused
+                    if game.paused:
+                        draw_overlay(game)
+                    else:
+                        full_redraw(game)
+                        flush_input()
+                        last_tick = time.time()
 
-            if not game.paused and not game.game_over:
-                if key == readchar.key.UP:
+            if key is not None and not game.paused and not game.game_over:
+                if key == UI_Key.UP:
                     game.set_direction((0, -1))
-                elif key == readchar.key.DOWN:
+                elif key == UI_Key.DOWN:
                     game.set_direction((0, 1))
-                elif key == readchar.key.LEFT:
+                elif key == UI_Key.LEFT:
                     game.set_direction((-1, 0))
-                elif key == readchar.key.RIGHT:
+                elif key == UI_Key.RIGHT:
                     game.set_direction((1, 0))
 
             now = time.time()
@@ -306,6 +309,7 @@ def main(*args):
             time.sleep(0.01)
 
     finally:
-        # Always restore terminal, even on exception or KeyboardInterrupt
-        r.show_cursor()
+        from src.ui.input import restore as restore_terminal, cleanup
+
         restore_terminal(old_settings)
+        cleanup()

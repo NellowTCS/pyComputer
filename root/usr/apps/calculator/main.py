@@ -3,13 +3,14 @@ Calculator app entrypoint for pyComputer (full implementation)
 """
 from src.ui.renderer import Renderer
 from src.fs.vfs import VFS
+from src.utils.logging import info, error, warning
+
 import math
 
 HIST_PATH = "apps/calculator/data/history.txt"
 
 
 def ensure_hist_dir(vfs):
-    # Ensure parent directory exists
     import os
     hist_dir = os.path.dirname(HIST_PATH)
     if not vfs.exists(hist_dir):

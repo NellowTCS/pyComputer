@@ -3,12 +3,12 @@ Notes app entrypoint for pyComputer (separate text files per note)
 """
 from src.ui.renderer import Renderer
 from src.fs.vfs import VFS
-import re
+from src.utils.text import truncate
 
 NOTES_DIR = "apps/notes/data"
 
 def sanitize_filename(title):
-    # Remove invalid filename chars
+    import re
     return re.sub(r"[^a-zA-Z0-9_\- ]", "_", title).strip().replace(" ", "_")
 
 def ensure_notes_dir(vfs):

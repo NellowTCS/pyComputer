@@ -4,6 +4,7 @@ renderer.py: TUI renderer using tuiro, double-buffering.
 
 import sys
 from tuiro import TUI
+from src.ui.theme import Color, Style, RESET
 
 class Renderer:
     def __init__(self, ci_mode=False, theme="default"):
@@ -74,28 +75,28 @@ class Renderer:
         return self
 
     def bold(self, text):
-        return f"\033[1m{text}\033[0m"
+        return f"{Style.BOLD}{text}{RESET}"
 
     def dim(self, text):
-        return f"\033[2m{text}\033[0m"
+        return f"{Style.DIM}{text}{RESET}"
 
     def green(self, text):
-        return f"\033[32m{text}\033[0m"
+        return f"{Color.GREEN}{text}{RESET}"
 
     def bright_green(self, text):
-        return f"\033[92m{text}\033[0m"
+        return f"{Color.BRIGHT_GREEN}{text}{RESET}"
 
     def red(self, text):
-        return f"\033[31m{text}\033[0m"
+        return f"{Color.RED}{text}{RESET}"
 
     def bright_red(self, text):
-        return f"\033[91m{text}\033[0m"
+        return f"{Color.BRIGHT_RED}{text}{RESET}"
 
     def yellow(self, text):
-        return f"\033[33m{text}\033[0m"
+        return f"{Color.YELLOW}{text}{RESET}"
 
     def cyan(self, text):
-        return f"\033[36m{text}\033[0m"
+        return f"{Color.CYAN}{text}{RESET}"
 
     def box(self, width, height, title=None):
         lines = []

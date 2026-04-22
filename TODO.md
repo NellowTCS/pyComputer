@@ -4,20 +4,9 @@
 
 - [ ] User authentication
 
-## Filesystem
-
-- [ ] Integrate OPFS for persistent storage
-
 ## UI Framework
 
-- [ ] Widgets: text, boxes, lists, menus, dialogs, input
 - [ ] Window manager and layout
-- [ ] Keyboard input and keybindings
-- [ ] Theme system? yep probably
-
-## Networking
-
-## Shell
 
 ## Package Manager
 
@@ -25,8 +14,8 @@
 
 ## Apps
 
-- [ ] Snake game
 - [ ] Settings app
+- [ ] app stdlib
 
 ## PWA & Deployment
 

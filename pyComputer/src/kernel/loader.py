@@ -46,7 +46,10 @@ class Loader:
         if not os.path.isfile(entry_path):
             print(f"[loader] Entrypoint '{entry}' not found for app '{app_name}'")
             return None
-        # Ensure app_dir is in sys.path for import
+        # Ensure pyComputer/src and app_dir are in sys.path for import
+        src_path = os.path.join(os.path.dirname(self.apps_path), '../../pyComputer/src')
+        src_path = os.path.normpath(src_path)
+        sys.path.insert(0, src_path)
         sys.path.insert(0, app_dir)
         spec = importlib.util.spec_from_file_location(f"{app_name}_main", entry_path)
         if spec is None or spec.loader is None:
