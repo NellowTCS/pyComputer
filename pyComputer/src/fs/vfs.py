@@ -5,11 +5,14 @@ VFS: High-level FS API, path normalization, directory creation (real implementat
 import os
 import shutil
 
+
 class VFS:
     def __init__(self, root=None):
         if root is None:
             # Use the workspace root folder as the VFS root
-            self.root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../root'))
+            self.root = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "../../../root")
+            )
         else:
             self.root = os.path.abspath(root)
 
@@ -17,7 +20,7 @@ class VFS:
         if path == "/" or path == "":
             return self.root
         if os.path.isabs(path):
-            return os.path.join(self.root, path.lstrip('/'))
+            return os.path.join(self.root, path.lstrip("/"))
         return os.path.abspath(os.path.join(self.root, path))
 
     def open(self, path, mode="r"):

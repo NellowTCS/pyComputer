@@ -8,6 +8,7 @@ except ImportError:
     requests = None
 import json
 
+
 class HTTP:
     def get(self, url):
         if requests:

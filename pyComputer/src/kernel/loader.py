@@ -8,6 +8,7 @@ import json
 import sys
 from src.fs.vfs import VFS
 
+
 class Loader:
     def __init__(self, apps_path=None):
         self.vfs = VFS()
@@ -24,7 +25,9 @@ class Loader:
             return
         for name in os.listdir(self.apps_path):
             app_dir = os.path.join(self.apps_path, name)
-            if os.path.isdir(app_dir) and os.path.isfile(os.path.join(app_dir, "manifest.json")):
+            if os.path.isdir(app_dir) and os.path.isfile(
+                os.path.join(app_dir, "manifest.json")
+            ):
                 self.apps.append(name)
 
     def load_manifest(self, app_name):
@@ -47,7 +50,7 @@ class Loader:
             print(f"[loader] Entrypoint '{entry}' not found for app '{app_name}'")
             return None
         # Ensure pyComputer/src and app_dir are in sys.path for import
-        src_path = os.path.join(os.path.dirname(self.apps_path), '../../pyComputer/src')
+        src_path = os.path.join(os.path.dirname(self.apps_path), "../../pyComputer/src")
         src_path = os.path.normpath(src_path)
         sys.path.insert(0, src_path)
         sys.path.insert(0, app_dir)

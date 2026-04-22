@@ -6,6 +6,7 @@ from typing import Optional
 
 RESET = "\033[0m"
 
+
 class Color:
     BLACK = "\033[30m"
     RED = "\033[31m"
@@ -15,7 +16,7 @@ class Color:
     MAGENTA = "\033[35m"
     CYAN = "\033[36m"
     WHITE = "\033[37m"
-    
+
     BRIGHT_BLACK = "\033[90m"
     BRIGHT_RED = "\033[91m"
     BRIGHT_GREEN = "\033[92m"
@@ -24,6 +25,7 @@ class Color:
     BRIGHT_MAGENTA = "\033[95m"
     BRIGHT_CYAN = "\033[96m"
     BRIGHT_WHITE = "\033[97m"
+
 
 class Bg:
     BLACK = "\033[40m"
@@ -35,6 +37,7 @@ class Bg:
     CYAN = "\033[46m"
     WHITE = "\033[47m"
 
+
 class Style:
     BOLD = "\033[1m"
     DIM = "\033[2m"
@@ -43,6 +46,7 @@ class Style:
     BLINK = "\033[5m"
     REVERSE = "\033[7m"
     HIDDEN = "\033[8m"
+
 
 class Preset:
     def __init__(self, name: str, fg: str, bg: str = "", bold: bool = False):
@@ -58,6 +62,7 @@ class Preset:
         if self.bold:
             result = Style.BOLD + result + RESET
         return result
+
 
 class Theme:
     def __init__(self, name: str = "default"):
@@ -75,7 +80,7 @@ class Theme:
             "muted": Preset("muted", Color.BRIGHT_BLACK),
             "highlight": Preset("highlight", Color.BRIGHT_CYAN, bold=True),
             "border": Preset("border", Color.WHITE),
-            "selected": Preset("selected", Color.BLUE,Bg.BLUE, bold=True),
+            "selected": Preset("selected", Color.BLUE, Bg.BLUE, bold=True),
             "text": Preset("text", Color.WHITE),
         }
 
@@ -85,11 +90,13 @@ class Theme:
     def add(self, name: str, preset: Preset):
         self.presets[name] = preset
 
+
 default = Theme()
 
 retro = Theme("retro")
 retro.add("green", Preset("green", "\033[92m", bold=True))
 retro.add("amber", Preset("amber", "\033[93m", bold=True))
+
 
 def apply(name: str, text: str) -> str:
     preset = default.get(name)

@@ -8,6 +8,7 @@ import os
 
 from src.fs.vfs import VFS
 
+
 class Registry:
     def __init__(self, registry_path=None):
         self.vfs = VFS()
@@ -17,6 +18,7 @@ class Registry:
             self.registry_path = self.vfs.abspath(registry_path)
         # Ensure the registry directory exists
         import os
+
         reg_dir = os.path.dirname(self.registry_path)
         if not self.vfs.exists(reg_dir):
             self.vfs.mkdir(reg_dir)

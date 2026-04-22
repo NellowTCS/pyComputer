@@ -1,6 +1,7 @@
 """
 Calculator app entrypoint for pyComputer (full implementation)
 """
+
 from src.ui.renderer import Renderer
 from src.fs.vfs import VFS
 from src.utils.logging import info, error, warning
@@ -12,9 +13,11 @@ HIST_PATH = "apps/calculator/data/history.txt"
 
 def ensure_hist_dir(vfs):
     import os
+
     hist_dir = os.path.dirname(HIST_PATH)
     if not vfs.exists(hist_dir):
         vfs.mkdir(hist_dir)
+
 
 def load_history(vfs):
     ensure_hist_dir(vfs)
@@ -22,9 +25,11 @@ def load_history(vfs):
         return vfs.read(HIST_PATH).splitlines()
     return []
 
+
 def save_history(vfs, history):
     ensure_hist_dir(vfs)
     vfs.write(HIST_PATH, "\n".join(history) + "\n")
+
 
 def main(*args):
     r = Renderer()
@@ -38,7 +43,9 @@ def main(*args):
             expr = input("Enter expression (e.g. 2 + 2): ")
             try:
                 # Safe eval: only math module and numbers
-                allowed = {k: getattr(math, k) for k in dir(math) if not k.startswith("_")}
+                allowed = {
+                    k: getattr(math, k) for k in dir(math) if not k.startswith("_")
+                }
                 allowed["abs"] = abs
                 allowed["round"] = round
                 result = eval(expr, {"__builtins__": {}}, allowed)

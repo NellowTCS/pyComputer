@@ -12,6 +12,7 @@ from .io import IO
 from .loader import Loader
 from .registry import Registry
 
+
 class Kernel:
     def __init__(self):
         self.boot = Boot()
@@ -32,9 +33,11 @@ class Kernel:
 
     def launch_shell(self):
         print("[kernel] Launching shell...")
+
         # Add the shell as a process to the scheduler
         async def shell_coro():
             self.shell.run()
+
         self.scheduler.add_process(Process(shell_coro(), name="shell"))
 
     async def run(self):
@@ -43,7 +46,6 @@ class Kernel:
             await self.scheduler.run()
         except asyncio.CancelledError:
             print("[kernel] Event loop cancelled.")
-
 
 
 def main():
@@ -55,6 +57,7 @@ def main():
         asyncio.run(kernel.run())
     except (KeyboardInterrupt, asyncio.CancelledError):
         print("[kernel] Shutdown complete.")
+
 
 if __name__ == "__main__":
     main()

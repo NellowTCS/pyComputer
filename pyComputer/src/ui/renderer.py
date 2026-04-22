@@ -6,6 +6,7 @@ import sys
 from tuiro import TUI
 from src.ui.theme import Color, Style, RESET
 
+
 class Renderer:
     def __init__(self, ci_mode=False, theme="default"):
         self.tui = TUI(ci_mode=ci_mode, theme=theme)
@@ -103,7 +104,7 @@ class Renderer:
         lines.append("╔" + "═" * (width - 2) + "╗")
         if title:
             title_line = f"║ {title} " + " " * (width - len(title) - 4) + "║"
-            title_line = title_line[:width-1] + "║"
+            title_line = title_line[: width - 1] + "║"
             lines.append(title_line)
             if height > 3:
                 lines.append("╠" + "═" * (width - 2) + "╣")

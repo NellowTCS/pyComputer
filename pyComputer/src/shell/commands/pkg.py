@@ -1,5 +1,6 @@
 def cmd_pkg(shell, *args):
     from src.pkg.manager import PackageManager
+
     pm = PackageManager()
     if not args:
         pm.list()

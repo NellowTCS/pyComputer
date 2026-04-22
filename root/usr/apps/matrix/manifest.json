@@ -1,0 +1,7 @@
+{
+  "name": "matrix",
+  "version": "0.1.0",
+  "entry": "main.py",
+  "permissions": [],
+  "description": "Matrix-style (this was weirdly hard) terminal rain animation."
+}

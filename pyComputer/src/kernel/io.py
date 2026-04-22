@@ -4,6 +4,7 @@ IO subsystem: routes stdin/stdout, supports fullscreen TUI mode.
 
 import sys
 
+
 class IO:
     def __init__(self):
         self.stdin = sys.stdin

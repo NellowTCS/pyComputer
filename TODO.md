@@ -16,6 +16,7 @@
 
 - [ ] Settings app
 - [ ] app stdlib
+- [ ] simple TUI IDE for apps
 
 ## PWA & Deployment
 

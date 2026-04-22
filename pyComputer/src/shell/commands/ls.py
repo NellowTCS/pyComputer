@@ -1,5 +1,6 @@
 from src.fs.vfs import VFS
 
+
 def cmd_ls(shell, *args):
     vfs = VFS()
     cwd = getattr(shell, "cwd", "/")

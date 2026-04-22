@@ -9,6 +9,7 @@ import time
 from collections import deque
 from src.ui.renderer import Renderer
 from src.ui.input import get_key as _ui_get_key, Key as UI_Key
+from src.ui.widgets import Dialog
 from src.utils.text import pad_center
 
 COLS = 30
@@ -168,20 +169,58 @@ def partial_update(game, prev_tail, prev_food):
 
 
 def draw_overlay(game):
-    # Position overlay in the vertical center of the playfield using terminal rows
-    box_w = 32
-    cy = 3 + ROWS // 2 - 2  # terminal row: playfield starts at row 3
+    # Use Dialog widget for overlays
+    # Center dialog in playfield, pad so it doesn't overwrite borders
+    def wrap_message(msg, width):
+        # Split message into lines, wrap each to width
+        import textwrap
+
+        lines = []
+        for part in msg.split("\n"):
+            lines.extend(textwrap.wrap(part, width=width))
+        return lines
 
     if game.game_over:
-        r.box_at(2, cy, box_w, 5)
-        r.move(4, cy + 1).write(r.bold("        GAME OVER        ")).flush()
-        r.move(4, cy + 2).write(r.bold(f"   Final score: {game.score:<5}   ")).flush()
-        r.move(4, cy + 3).write(safe_style(r.dim, "   R: restart   Q: quit   ")).flush()
+        box_w = min(36, COLS * 2 - 4)
+        box_h = 7
+        # Wrap message to fit inside dialog
+        msg_lines = wrap_message(f"Final score: {game.score}", box_w - 2)
+        msg_lines += wrap_message("R: restart   Q: quit", box_w - 2)
+        dialog = Dialog(
+            title="GAME OVER",
+            message="\n".join(msg_lines),
+            buttons=[],
+            x=0,
+            y=0,
+            width=box_w,
+            height=box_h,
+        )
+        lines = dialog.render().splitlines()
+        pad_x = 2 + (COLS * 2 - box_w) // 2
+        pad_y = 3 + (ROWS - box_h) // 2
+        for i, line in enumerate(lines):
+            # Pad or trim line to box_w
+            r.move(pad_x, pad_y + i).write(line[:box_w].ljust(box_w))
+        r.flush()
     elif game.paused:
-        r.box_at(2 + COLS - 10, cy + 1, 20, 3)
-        r.move(2 + COLS - 8, cy + 2).write(r.bold("     PAUSED     ")).flush()
-
-    r.flush()
+        box_w = min(24, COLS * 2 - 4)
+        box_h = 5
+        msg_lines = wrap_message("P: resume   Q: quit", box_w - 2)
+        dialog = Dialog(
+            title="PAUSED",
+            message="\n".join(msg_lines),
+            buttons=[],
+            x=0,
+            y=0,
+            width=box_w,
+            height=box_h,
+        )
+        lines = dialog.render().splitlines()
+        pad_x = 2 + (COLS * 2 - box_w) // 2
+        pad_y = 3 + (ROWS - box_h) // 2
+        for i, line in enumerate(lines):
+            r.move(pad_x, pad_y + i).write(line[:box_w].ljust(box_w))
+        r.flush()
 
 
 _input_key = None
@@ -228,6 +267,7 @@ def main(*args):
     old_settings = setup_terminal()
 
     # Start input thread after raw mode is active
+    _input_done.clear()
     t = threading.Thread(target=_input_thread, daemon=True)
     t.start()
 
@@ -309,6 +349,9 @@ def main(*args):
             time.sleep(0.01)
 
     finally:
+        # Signal input thread to stop and wait for it
+        _input_done.set()
+        t.join(timeout=0.2)
         from src.ui.input import restore as restore_terminal, cleanup
 
         restore_terminal(old_settings)

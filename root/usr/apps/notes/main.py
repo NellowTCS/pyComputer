@@ -1,19 +1,24 @@
 """
 Notes app entrypoint for pyComputer (separate text files per note)
 """
+
 from src.ui.renderer import Renderer
 from src.fs.vfs import VFS
 from src.utils.text import truncate
 
 NOTES_DIR = "apps/notes/data"
 
+
 def sanitize_filename(title):
     import re
+
     return re.sub(r"[^a-zA-Z0-9_\- ]", "_", title).strip().replace(" ", "_")
+
 
 def ensure_notes_dir(vfs):
     if not vfs.exists(NOTES_DIR):
         vfs.mkdir(NOTES_DIR)
+
 
 def list_notes(vfs):
     ensure_notes_dir(vfs)
@@ -24,6 +29,7 @@ def list_notes(vfs):
             notes.append(f[:-4])
     return sorted(notes)
 
+
 def read_note(vfs, title):
     fname = sanitize_filename(title) + ".txt"
     path = f"{NOTES_DIR}/{fname}"
@@ -31,16 +37,19 @@ def read_note(vfs, title):
         return vfs.read(path)
     return ""
 
+
 def write_note(vfs, title, body):
     fname = sanitize_filename(title) + ".txt"
     path = f"{NOTES_DIR}/{fname}"
     vfs.write(path, body)
+
 
 def delete_note(vfs, title):
     fname = sanitize_filename(title) + ".txt"
     path = f"{NOTES_DIR}/{fname}"
     if vfs.exists(path):
         vfs.remove(path)
+
 
 def main(*args):
     r = Renderer()
@@ -49,7 +58,7 @@ def main(*args):
         r.banner("Notes")
         note_titles = list_notes(vfs)
         r.info(f"You have {len(note_titles)} notes.")
-        r.table([[str(i+1), t[:40]] for i, t in enumerate(note_titles)])
+        r.table([[str(i + 1), t[:40]] for i, t in enumerate(note_titles)])
         r.info("Options: [A]dd  [V]iew  [E]dit  [D]elete  [Q]uit")
         choice = input("Choose: ").strip().lower()
         if choice == "a":
@@ -63,7 +72,7 @@ def main(*args):
         elif choice == "v":
             idx = input("View note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
-                title = note_titles[int(idx)-1]
+                title = note_titles[int(idx) - 1]
                 body = read_note(vfs, title)
                 r.banner(title)
                 r.info(body)
@@ -72,7 +81,7 @@ def main(*args):
         elif choice == "e":
             idx = input("Edit note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
-                title = note_titles[int(idx)-1]
+                title = note_titles[int(idx) - 1]
                 body = read_note(vfs, title)
                 new_title = input(f"New title (blank to keep '{title}'): ")
                 if not new_title:
@@ -89,7 +98,7 @@ def main(*args):
         elif choice == "d":
             idx = input("Delete note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
-                title = note_titles[int(idx)-1]
+                title = note_titles[int(idx) - 1]
                 delete_note(vfs, title)
                 r.success("Note deleted.")
             else:

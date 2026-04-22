@@ -5,6 +5,7 @@ Process subsystem: defines Process objects, wraps coroutines, tracks state.
 import asyncio
 from typing import Coroutine, Any
 
+
 class Process:
     def __init__(self, coro: Coroutine, name: str = "process"):
         self.coro = coro

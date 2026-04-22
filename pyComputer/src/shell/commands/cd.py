@@ -1,8 +1,10 @@
 """
 cd.py: Change directory command for shell
 """
+
 from src.fs.vfs import VFS
 import os
+
 
 def cmd_cd(shell, *args):
     vfs = VFS()
