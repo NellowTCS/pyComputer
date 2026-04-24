@@ -4,10 +4,17 @@ import '@xterm/xterm/css/xterm.css';
 import { FILES } from './pycomputer_bundled.js';
 
 async function loadPyodide() {
-  const { loadPyodide } = await import('https://cdn.jsdelivr.net/npm/pyodide@0.29.3/+esm');
+  const { loadPyodide } = await import('https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.mjs');
   return loadPyodide({
-    indexURL: "https://cdn.jsdelivr.net/npm/pyodide@0.29.3/"
+    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/"
   });
+}
+
+async function installPythonPackages(pyodide, packages) {
+  await pyodide.loadPackage('micropip');
+  await pyodide.runPythonAsync('import micropip');
+  const packagesJson = JSON.stringify(packages);
+  await pyodide.runPythonAsync(`import micropip\nawait micropip.install(${packagesJson})`);
 }
 
 const statusEl = document.getElementById("status");
@@ -33,12 +40,19 @@ fitAddon.fit();
 
 window.addEventListener("resize", () => fitAddon.fit());
 
+window.pythonLineBuffer = [];
+
 window.termWrite = (data) => {
   const normalized = data
     .replace(/\r\n/g, "\n")
     .replace(/\r/g, "\n")
     .replace(/\n/g, "\r\n");
   term.write(normalized);
+};
+
+let rawInputMode = false;
+window.setRawInput = (enabled) => {
+  rawInputMode = enabled;
 };
 
 let pyodide = null;
@@ -65,6 +79,14 @@ function getLine() {
 }
 
 term.onData((data) => {
+  if (rawInputMode) {
+    try {
+      const inputMod = pyodide.pyimport("src.ui.input");
+      inputMod.web_input_queue.append(data);
+    } catch (_) {}
+    return;
+  }
+
   for (const ch of data) {
     if (ch === "\r") {
       term.write("\r\n");
@@ -96,6 +118,13 @@ async function run() {
   
   term.write("\r\n");
   
+  try {
+    await installPythonPackages(pyodide, ["tuiro", "requests"]);
+    term.write("[web] Installed web dependencies: tuiro, requests\r\n");
+  } catch (e) {
+    term.write(`[web] Warning: failed to install web deps: ${e}\r\n`);
+  }
+  
   // Build Python code that writes each file and initializes the kernel
   let code = `import os
 import json
@@ -107,6 +136,16 @@ class TermIO:
         js.termWrite(data)
     def flush(self):
         pass
+    def isatty(self):
+        return False
+    def fileno(self):
+        raise IOError("no fileno in web environment")
+    @property
+    def encoding(self):
+        return "utf-8"
+    @property
+    def errors(self):
+        return "replace"
 
 sys.stdout = TermIO()
 sys.stderr = TermIO()

@@ -4,13 +4,12 @@ Snake app entrypoint for pyComputer
 
 import random
 import sys
-import threading
 import time
 from collections import deque
 from src.ui.renderer import Renderer
-from src.ui.input import get_key as _ui_get_key, Key as UI_Key
+from src.ui.input import get_key as _ui_get_key, Key as UI_Key, web_input_queue
 from src.ui.widgets import Dialog
-from src.utils.text import pad_center
+from src.utils.platform import is_web
 
 COLS = 30
 ROWS = 15
@@ -34,7 +33,6 @@ def render_y(row):
 
 
 def safe_style(style_fn, text):
-    """Call a Renderer style method safely; return plain text on failure."""
     try:
         result = style_fn(text)
         if isinstance(result, str):
@@ -101,10 +99,8 @@ class SnakeGame:
 
 
 def draw_border():
-    # box_at places each line at the correct terminal row; write(box(...)) would
-    # let the newlines scroll instead of positioning each line properly
-    box_w = COLS * 2 + 2  # 2 chars per cell + 2 border chars
-    box_h = ROWS + 2  # ROWS of cells + top and bottom border row
+    box_w = COLS * 2 + 2
+    box_h = ROWS + 2
     r.box_at(1, 2, box_w, box_h).flush()
 
 
@@ -126,7 +122,6 @@ def draw_cell(col, row, char, style_fn=None):
 
 
 def full_redraw(game):
-    # Use explicit cursor-home after erase so all terminals land at row 1 col 1
     sys.stdout.write("\033[2J\033[1;1H")
     sys.stdout.flush()
     draw_border()
@@ -169,12 +164,8 @@ def partial_update(game, prev_tail, prev_food):
 
 
 def draw_overlay(game):
-    # Use Dialog widget for overlays
-    # Center dialog in playfield, pad so it doesn't overwrite borders
     def wrap_message(msg, width):
-        # Split message into lines, wrap each to width
         import textwrap
-
         lines = []
         for part in msg.split("\n"):
             lines.extend(textwrap.wrap(part, width=width))
@@ -183,23 +174,18 @@ def draw_overlay(game):
     if game.game_over:
         box_w = min(36, COLS * 2 - 4)
         box_h = 7
-        # Wrap message to fit inside dialog
         msg_lines = wrap_message(f"Final score: {game.score}", box_w - 2)
         msg_lines += wrap_message("R: restart   Q: quit", box_w - 2)
         dialog = Dialog(
             title="GAME OVER",
             message="\n".join(msg_lines),
             buttons=[],
-            x=0,
-            y=0,
-            width=box_w,
-            height=box_h,
+            x=0, y=0, width=box_w, height=box_h,
         )
         lines = dialog.render().splitlines()
         pad_x = 2 + (COLS * 2 - box_w) // 2
         pad_y = 3 + (ROWS - box_h) // 2
         for i, line in enumerate(lines):
-            # Pad or trim line to box_w
             r.move(pad_x, pad_y + i).write(line[:box_w].ljust(box_w))
         r.flush()
     elif game.paused:
@@ -210,10 +196,7 @@ def draw_overlay(game):
             title="PAUSED",
             message="\n".join(msg_lines),
             buttons=[],
-            x=0,
-            y=0,
-            width=box_w,
-            height=box_h,
+            x=0, y=0, width=box_w, height=box_h,
         )
         lines = dialog.render().splitlines()
         pad_x = 2 + (COLS * 2 - box_w) // 2
@@ -223,79 +206,44 @@ def draw_overlay(game):
         r.flush()
 
 
-_input_key = None
-_input_lock = threading.Lock()
-_input_done = threading.Event()
-
-
-def _input_thread():
-    global _input_key
-    from src.ui.input import get_key
-
-    while not _input_done.is_set():
-        key = get_key()
-        if key:
-            with _input_lock:
-                _input_key = key
+def get_key():
+    if is_web():
+        if web_input_queue:
+            return web_input_queue.pop(0)
+        return None
+    return _ui_get_key()
 
 
 def flush_input():
-    """Discard any pending key that arrived before/during a transition."""
-    global _input_key
-    with _input_lock:
-        _input_key = None
-
-
-def get_key():
-    global _input_key
-    with _input_lock:
-        key = _input_key
-        _input_key = None
-    # Return None instead of empty string
-    if not key:
-        return None
-    return key
+    if is_web():
+        web_input_queue.clear()
+    
 
 
 def main(*args):
-    from src.ui.input import setup_raw as setup_terminal, restore as restore_terminal
+    from src.ui.input import setup_raw as setup_terminal, restore as restore_terminal, cleanup
 
     game = SnakeGame()
-
-    # Save terminal state BEFORE starting input thread so keypresses
-    # don't consume characters that belong to the shell
     old_settings = setup_terminal()
-
-    # Start input thread after raw mode is active
-    _input_done.clear()
-    t = threading.Thread(target=_input_thread, daemon=True)
-    t.start()
-
     r.hide_cursor()
 
     try:
-
         full_redraw(game)
 
-        # Center the start box in the playfield in terminal coordinates
-        # Playfield inner width: COLS*2 cols starting at terminal col 2
-        # Playfield inner height: ROWS rows starting at terminal row 3
         box_w = 28
         box_h = 3
-        scr_mid_x = 2 + COLS  # terminal col at horizontal center of playfield
-        scr_mid_y = 3 + ROWS // 2  # terminal row at vertical center of playfield
+        scr_mid_x = 2 + COLS
+        scr_mid_y = 3 + ROWS // 2
         bx = scr_mid_x - box_w // 2
         by = scr_mid_y - box_h // 2
         r.box_at(bx, by, box_w, box_h)
         r.move(bx + 2, by + 1).write(r.bold(" Press any key to start ")).flush()
 
-        # Drain any keys buffered before raw mode took effect
         flush_input()
         while get_key() is None:
             time.sleep(0.05)
 
         full_redraw(game)
-        # Flush again so the "start" keypress doesn't register as a move
         flush_input()
         last_tick = time.time()
 
@@ -304,9 +252,7 @@ def main(*args):
 
             if key is not None:
                 if key.lower() == "q":
-                    from src.ui.input import restore, cleanup
-
-                    restore(old_settings)
+                    restore_terminal(old_settings)
                     cleanup()
                     return
                 elif key == "r":
@@ -349,10 +295,5 @@ def main(*args):
             time.sleep(0.01)
 
     finally:
-        # Signal input thread to stop and wait for it
-        _input_done.set()
-        t.join(timeout=0.2)
-        from src.ui.input import restore as restore_terminal, cleanup
-
         restore_terminal(old_settings)
         cleanup()

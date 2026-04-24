@@ -4,4 +4,7 @@ version = "0.1.0"
 description = "A text-based and TUI computer made in Python."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "requests>=2.33.1",
+    "tuiro>=0.1.1",
+]

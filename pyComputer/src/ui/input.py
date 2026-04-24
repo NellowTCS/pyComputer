@@ -3,9 +3,62 @@ input.py: Keyboard events, keybindings, input handling.
 """
 
 import sys
-import tty
-import termios
+import os
+import ctypes
+import ctypes.util
 from typing import Callable, Optional
+from src.utils.platform import is_web
+
+web_input_queue: list = []
+
+if sys.platform != "win32" and not is_web():
+    _libc_name = ctypes.util.find_library("c")
+    _libc = ctypes.CDLL(_libc_name, use_errno=True)
+
+    NCCS = 32
+    TCSANOW = 0
+    TCSADRAIN = 1
+    ICANON = 0o000002
+    ECHO = 0o000010
+    VMIN = 6
+    VTIME = 5
+
+    class Termios(ctypes.Structure):
+        _fields_ = [
+            ("c_iflag", ctypes.c_uint32),
+            ("c_oflag", ctypes.c_uint32),
+            ("c_cflag", ctypes.c_uint32),
+            ("c_lflag", ctypes.c_uint32),
+            ("c_line", ctypes.c_uint8),
+            ("c_cc", ctypes.c_uint8 * NCCS),
+            ("c_ispeed", ctypes.c_uint32),
+            ("c_ospeed", ctypes.c_uint32),
+        ]
+
+    _libc.tcgetattr.argtypes = [ctypes.c_int, ctypes.POINTER(Termios)]
+    _libc.tcgetattr.restype = ctypes.c_int
+    _libc.tcsetattr.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.POINTER(Termios)]
+    _libc.tcsetattr.restype = ctypes.c_int
+
+    def _tcgetattr(fd: int) -> Termios:
+        t = Termios()
+        if _libc.tcgetattr(fd, ctypes.byref(t)) != 0:
+            raise OSError(ctypes.get_errno(), "tcgetattr failed")
+        return t
+
+    def _tcsetattr(fd: int, when: int, t: Termios):
+        if _libc.tcsetattr(fd, when, ctypes.byref(t)) != 0:
+            raise OSError(ctypes.get_errno(), "tcsetattr failed")
+
+    def _setraw(fd: int, old: Termios) -> None:
+        raw = Termios()
+        ctypes.memmove(
+            ctypes.addressof(raw), ctypes.addressof(old), ctypes.sizeof(Termios)
+        )
+        raw.c_lflag &= ~(ICANON | ECHO)
+        raw.c_cc[VMIN] = 1
+        raw.c_cc[VTIME] = 0
+        _tcsetattr(fd, TCSANOW, raw)
 
 
 class Key:
@@ -29,6 +82,11 @@ class Key:
 
 
 def get_key() -> Optional[str]:
+    if is_web():
+        if web_input_queue:
+            return web_input_queue.pop(0)
+        return None
+
     if sys.platform == "win32":
         try:
             import msvcrt
@@ -44,16 +102,30 @@ def get_key() -> Optional[str]:
 
     try:
         fd = sys.stdin.fileno()
-        old = termios.tcgetattr(fd)
-        tty.setraw(fd)
+        # Non-blocking read: if no byte is ready, return None immediately
+        import fcntl
+
+        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+        fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
         try:
-            ch = sys.stdin.read(1)
-            if ch == "\x1b":
-                if sys.stdin.read(1) == "[":
-                    return ch + "[" + sys.stdin.read(1)
-            return ch
+            ch = os.read(fd, 1).decode("utf-8", errors="replace")
+        except BlockingIOError:
+            return None
         finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old)
+            fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+        if ch == "\x1b":
+            try:
+                fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+                nxt = os.read(fd, 1).decode("utf-8", errors="replace")
+                if nxt == "[":
+                    seq = os.read(fd, 1).decode("utf-8", errors="replace")
+                    return ch + "[" + seq
+                return ch + nxt
+            except BlockingIOError:
+                return ch
+            finally:
+                fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+        return ch
     except:
         return None
 
@@ -146,26 +218,39 @@ def keybind(keys: dict[str, Callable]) -> KeyMap:
 
 
 def setup_raw():
-    import termios
+    if is_web():
+        try:
+            import js
 
+            js.setRawInput(True)
+        except Exception:
+            pass
+        return None
+    if sys.platform == "win32":
+        return None
     fd = sys.stdin.fileno()
-    old = termios.tcgetattr(fd)
-    new = termios.tcgetattr(fd)
-    new[3] = new[3] & ~termios.ICANON & ~termios.ECHO
-    termios.tcsetattr(fd, termios.TCSANOW, new)
+    old = _tcgetattr(fd)
+    _setraw(fd, old)
     return old
 
 
 def restore(settings):
-    import termios
-    import sys
+    if is_web():
+        try:
+            import js
 
+            js.setRawInput(False)
+        except Exception:
+            pass
+        return
+    if settings is None:
+        return
+    if sys.platform == "win32":
+        return
     fd = sys.stdin.fileno()
-    termios.tcsetattr(fd, termios.TCSADRAIN, settings)
+    _tcsetattr(fd, TCSADRAIN, settings)
 
 
 def cleanup():
-    import sys
-
     sys.stdout.write("\033[2J\033[H\033[?25h\r\n")
     sys.stdout.flush()
