@@ -2,18 +2,18 @@
 Boot subsystem: renders ASCII logo, prints fake hardware logs.
 """
 
-import os
 import time
+
+from src.fs.vfs import VFS
 
 
 class Boot:
     def __init__(self, logo_path=None):
+        self.vfs = VFS()
         if logo_path is None:
-            self.logo_path = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "../../boot/logo.txt")
-            )
+            self.logo_path = self.vfs.abspath("boot/logo.txt")
         else:
-            self.logo_path = logo_path
+            self.logo_path = self.vfs.abspath(logo_path)
         self.start_time = time.time()
 
     def render_logo(self):

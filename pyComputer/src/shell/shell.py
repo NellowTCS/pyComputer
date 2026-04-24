@@ -4,18 +4,24 @@ Shell subsystem: main command loop, history, autocomplete.
 
 from .commands import BUILTIN_COMMANDS
 from .parser import parse_command
-import readline
+
+try:
+    import readline
+except ImportError:
+    readline = None
 
 
 class Shell:
     def __init__(self, kernel=None):
         self.history = []
         self.kernel = kernel
-        self._setup_readline()
+        if readline is not None:
+            self._setup_readline()
 
     def _setup_readline(self):
-        readline.parse_and_bind("tab: complete")
-        readline.set_completer(self._completer)
+        if hasattr(readline, 'parse_and_bind') and hasattr(readline, 'set_completer'):
+            readline.parse_and_bind("tab: complete")
+            readline.set_completer(self._completer)
 
     def _completer(self, text, state):
         options = [cmd for cmd in BUILTIN_COMMANDS if cmd.startswith(text)]

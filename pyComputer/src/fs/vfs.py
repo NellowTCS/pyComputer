@@ -5,14 +5,26 @@ VFS: High-level FS API, path normalization, directory creation (real implementat
 import os
 import shutil
 
+from src.utils.platform import is_web
+
 
 class VFS:
     def __init__(self, root=None):
         if root is None:
-            # Use the workspace root folder as the VFS root
-            self.root = os.path.abspath(
+            repo_root = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "../../../root")
             )
+            if is_web():
+                web_root = "/root"
+                pycomputer_root = "/pyComputer/root"
+                if os.path.exists(web_root):
+                    self.root = web_root
+                elif os.path.exists(pycomputer_root):
+                    self.root = pycomputer_root
+                else:
+                    self.root = repo_root
+            else:
+                self.root = repo_root
         else:
             self.root = os.path.abspath(root)
 

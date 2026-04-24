@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pyComputer Web Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0a0a0a;
+      color: #00ff41;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #header {
+      background: linear-gradient(90deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+      padding: 12px 20px;
+      border-bottom: 1px solid #2d333b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #header h1::before {
+      content: "⬢";
+      color: #00ff41;
+    }
+    #status {
+      font-size: 12px;
+      color: #8b949e;
+    }
+    #status.loading {
+      color: #f0883e;
+    }
+    #status.ready {
+      color: #3fb950;
+    }
+    #terminal-container {
+      flex: 1;
+      padding: 10px;
+      background: #0a0a0a;
+    }
+    #terminal {
+      height: 100%;
+    }
+    .xterm {
+      padding: 8px;
+    }
+    .xterm-viewport {
+      background-color: transparent !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>pyComputer</h1>
+    <div id="status" class="loading">Loading Pyodide...</div>
+  </div>
+  <div id="terminal-container">
+    <div id="terminal"></div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
