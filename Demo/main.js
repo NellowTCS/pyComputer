@@ -20,6 +20,35 @@ async function installPythonPackages(pyodide, packages) {
 const statusEl = document.getElementById("status");
 const termEl = document.getElementById("terminal");
 
+const themes = {
+  default: { bg: "#0a0a0a", fg: "#ffffff", cursor: "#ffffff", selection: "rgba(255, 255, 255, 0.3)" },
+  retro: { bg: "#0a0a0a", fg: "#00ff41", cursor: "#00ff41", selection: "rgba(0, 255, 65, 0.3)" },
+  light: { bg: "#ffffff", fg: "#000000", cursor: "#000000", selection: "rgba(0, 0, 0, 0.2)" },
+  dark: { bg: "#0a0a0a", fg: "#ffffff", cursor: "#ffffff", selection: "rgba(255, 255, 255, 0.3)" },
+  mono: { bg: "#0a0a0a", fg: "#cccccc", cursor: "#cccccc", selection: "rgba(255, 255, 255, 0.2)" },
+  pastel: { bg: "#1e1e2e", fg: "#cba6f7", cursor: "#cba6f7", selection: "rgba(203, 166, 247, 0.3)" },
+};
+
+let currentWebTheme = 'default';
+
+function setWebTheme(name) {
+  currentWebTheme = name;
+  const t = themes[name] || themes.default;
+  document.body.style.background = t.bg;
+  document.body.style.color = t.fg;
+  document.documentElement.style.setProperty('--term-bg', t.bg);
+  const termContainer = document.getElementById('terminal-container');
+  if (termContainer) termContainer.style.background = t.bg;
+  if (window.term) {
+    window.term.options.theme = { background: t.bg, foreground: t.fg, cursor: t.cursor, selection: t.selection };
+  }
+  document.querySelectorAll('#theme-buttons button').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`#theme-buttons button[data-theme="${name}"]`);
+  if (btn) btn.classList.add('active');
+}
+
+window.setWebTheme = setWebTheme;
+
 const term = new Terminal({
   cursorBlink: true,
   cursorStyle: "block",
@@ -27,9 +56,9 @@ const term = new Terminal({
   fontFamily: "'Fira Code', 'Consolas', monospace",
   theme: {
     background: "#0a0a0a",
-    foreground: "#00ff41",
-    cursor: "#00ff41",
-    selection: "rgba(0, 255, 65, 0.3)"
+    foreground: "#ffffff",
+    cursor: "#ffffff",
+    selection: "rgba(255, 255, 255, 0.3)"
   }
 });
 window.term = term;
@@ -184,6 +213,15 @@ for filepath, content in FILES.items():
         except: pass
     with open(target_path, 'w') as f:
         f.write(content)
+
+# Load settings and sync web theme (but don't override if already set)
+import json
+try:
+    with open('/root/apps/settings/config.json') as f:
+        web_settings = json.load(f)
+        # Let browser handle theme initially - don't override
+except:
+    pass
 
 print(f"Extracted {len(FILES)} files")
 

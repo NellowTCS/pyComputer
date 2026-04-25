@@ -74,7 +74,7 @@
     #terminal-container {
       flex: 1;
       padding: 10px;
-      background: #0a0a0a;
+      background: var(--term-bg, #0a0a0a);
     }
     #terminal {
       height: 100%;
@@ -92,9 +92,9 @@
     <h1>pyComputer</h1>
     <div style="display: flex; align-items: center; gap: 20px;">
       <div id="theme-buttons">
-        <button data-theme="auto" onclick="setTheme('auto')">Auto</button>
-        <button data-theme="dark" onclick="setTheme('dark')">Dark</button>
-        <button data-theme="light" onclick="setTheme('light')">Light</button>
+        <button id="btn-auto" data-theme="auto" onclick="setTheme('auto')">Auto</button>
+        <button id="btn-light" data-theme="light" onclick="setTheme('light')">Light</button>
+        <button id="btn-dark" data-theme="dark" onclick="setTheme('dark')">Dark</button>
       </div>
       <div id="status" class="loading">Loading Pyodide...</div>
     </div>
@@ -106,28 +106,47 @@
   <script type="module" src="./main.js"></script>
   <script>
     const themes = {
-      auto: { bg: "#0a0a0a", fg: "#00ff41", cursor: "#00ff41", selection: "rgba(0, 255, 65, 0.3)", header: "#0d1117", border: "#2d333b", btn: "#30363d", btnActive: "#21262d", accent: "#58a6ff", muted: "#8b949e" },
-      dark: { bg: "#0a0a0a", fg: "#00ff41", cursor: "#00ff41", selection: "rgba(0, 255, 65, 0.3)", header: "#0d1117", border: "#2d333b", btn: "#30363d", btnActive: "#21262d", accent: "#58a6ff", muted: "#8b949e" },
-      light: { bg: "#ffffff", fg: "#1a1a1a", cursor: "#1a1a1a", selection: "rgba(0, 0, 0, 0.2)", header: "#f0f0f0", border: "#d0d0d0", btn: "#e0e0e0", btnActive: "#d0d0d0", accent: "#0066cc", muted: "#666666" }
+      light: { bg: "#ffffff", fg: "#000000", cursor: "#000000", selection: "rgba(0, 0, 0, 0.2)", header: "#f0f0f0", border: "#d0d0d0", btn: "#e0e0e0", btnActive: "#d0d0d0", accent: "#0066cc", muted: "#666666" },
+      dark: { bg: "#0a0a0a", fg: "#ffffff", cursor: "#ffffff", selection: "rgba(255, 255, 255, 0.3)", header: "#0d1117", border: "#2d333b", btn: "#30363d", btnActive: "#21262d", accent: "#58a6ff", muted: "#8b949e" }
     };
-    let currentTheme = 'auto';
-    function setTheme(theme) {
-      currentTheme = theme;
-      const t = theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? themes.dark : themes.light) : themes[theme];
-      document.querySelectorAll('#theme-buttons button').forEach(b => b.classList.remove('active'));
-      document.querySelector(`#theme-buttons button[data-theme="${theme}"]`).classList.add('active');
+    function getSystemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    function applyTheme(name) {
+      const t = themes[name] || themes.light;
       document.body.style.background = t.bg;
       document.body.style.color = t.fg;
       document.getElementById('header').style.background = `linear-gradient(90deg, ${t.header} 0%, ${t.header} 50%, ${t.header} 100%)`;
       document.getElementById('header').style.borderColor = t.border;
       if (window.term) {
         window.term.options.theme = { background: t.bg, foreground: t.fg, cursor: t.cursor, selection: t.selection };
-        window.term.render();
+      }
+      if (window.setWebTheme) window.setWebTheme(name);
+    }
+    function highlightBtn(theme) {
+      document.querySelectorAll('#theme-buttons button').forEach(b => b.classList.remove('active'));
+      if (theme === 'auto') {
+        document.getElementById('btn-auto').classList.add('active');
+      } else if (theme === 'light') {
+        document.getElementById('btn-light').classList.add('active');
+      } else if (theme === 'dark') {
+        document.getElementById('btn-dark').classList.add('active');
       }
     }
-    document.querySelector('#theme-buttons button[data-theme="auto"]').classList.add('active');
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (currentTheme === 'auto') setTheme('auto'); });
+    function setTheme(theme) {
+      if (theme === 'auto') {
+        applyTheme(getSystemTheme());
+        highlightBtn('auto');
+      } else {
+        applyTheme(theme);
+        highlightBtn(theme);
+      }
+    }
     window.setTheme = setTheme;
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      applyTheme(getSystemTheme());
+    });
+    setTheme('auto');
   </script>
 </body>
 </html>

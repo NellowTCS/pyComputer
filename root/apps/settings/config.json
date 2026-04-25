@@ -1,8 +1,1 @@
-{
-  "theme": "retro",
-  "username": "user",
-  "show_splash": true,
-  "confirm_actions": true,
-  "editor_width": 40,
-  "password": ""
-}
+{"theme": "default", "username": "user", "show_splash": true, "confirm_actions": true, "editor_width": 40, "password": ""}

@@ -1,12 +1,7 @@
 # TODO.md
 
-## Kernel & Core
-
-- [x] User authentication
-
 ## Apps
 
-- [x] Settings app
 - [ ] simple TUI IDE for apps (multiline like VSCode basically)
 
 ## Future

@@ -70,6 +70,12 @@ r = Renderer()
 
 def set_theme(theme: str):
     r.set_theme(theme)
+    try:
+        import js
+        if hasattr(js, 'setWebTheme'):
+            js.setWebTheme(theme)
+    except Exception:
+        pass
 
 def get_theme() -> str:
     return r.get_theme()
