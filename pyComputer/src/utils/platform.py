@@ -22,3 +22,23 @@ def is_web() -> bool:
 def is_native() -> bool:
     """Return True if running in a normal native Python runtime."""
     return not is_web()
+
+
+def pyc_input(prompt: str = "") -> str:
+    """
+    Cross-platform input() replacement that works on web and native.
+    Use this everywhere instead of input() for web compatibility.
+    """
+    if is_native():
+        return input(prompt)
+
+    import sys
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+
+    try:
+        import js
+        from pyodide.ffi import run_sync
+        return run_sync(js.pyc_readline())
+    except Exception:
+        return ""

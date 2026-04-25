@@ -31,6 +31,8 @@ def save_history(vfs, history):
     vfs.write(HIST_PATH, "\n".join(history) + "\n")
 
 
+from src.utils.platform import pyc_input
+
 def main(*args):
     r = Renderer()
     vfs = VFS()
@@ -38,9 +40,9 @@ def main(*args):
     while True:
         r.banner("Calculator")
         r.info("Options: [C]alc  [H]istory  [Q]uit")
-        choice = input("Choose: ").strip().lower()
+        choice = pyc_input("Choose: ").strip().lower()
         if choice == "c":
-            expr = input("Enter expression (e.g. 2 + 2): ")
+            expr = pyc_input("Enter expression (e.g. 2 + 2): ")
             try:
                 # Safe eval: only math module and numbers
                 allowed = {
@@ -61,7 +63,7 @@ def main(*args):
                     r.info(line)
             else:
                 r.info("No history yet.")
-            input("Press Enter to continue...")
+            pyc_input("Press Enter to continue...")
         elif choice == "q":
             r.info("Exiting Calculator app.")
             break

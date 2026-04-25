@@ -60,6 +60,17 @@ let inputQueue = [];
 let currentLine = "";
 let resolveLine = null;
 
+// Expose pyc_readline for Python to use
+window.pyc_readline = () => {
+  return new Promise((resolve) => {
+    if (inputQueue.length > 0) {
+      resolve(inputQueue.shift());
+    } else {
+      resolveLine = resolve;
+    }
+  });
+};
+
 function enqueueLine(line) {
   if (resolveLine) {
     resolveLine(line);

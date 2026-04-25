@@ -51,6 +51,8 @@ def delete_note(vfs, title):
         vfs.remove(path)
 
 
+from src.utils.platform import pyc_input
+
 def main(*args):
     r = Renderer()
     vfs = VFS()
@@ -60,17 +62,17 @@ def main(*args):
         r.info(f"You have {len(note_titles)} notes.")
         r.table([[str(i + 1), t[:40]] for i, t in enumerate(note_titles)])
         r.info("Options: [A]dd  [V]iew  [E]dit  [D]elete  [Q]uit")
-        choice = input("Choose: ").strip().lower()
+        choice = pyc_input("Choose: ").strip().lower()
         if choice == "a":
-            title = input("Note title (File name): ")
+            title = pyc_input("Note title (File name): ")
             if not title:
                 r.error("Title cannot be empty.")
                 continue
-            body = input("Note body: ")
+            body = pyc_input("Note body: ")
             write_note(vfs, title, body)
             r.success("Note added.")
         elif choice == "v":
-            idx = input("View note #: ")
+            idx = pyc_input("View note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
                 title = note_titles[int(idx) - 1]
                 body = read_note(vfs, title)
@@ -79,14 +81,14 @@ def main(*args):
             else:
                 r.error("Invalid note number.")
         elif choice == "e":
-            idx = input("Edit note #: ")
+            idx = pyc_input("Edit note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
                 title = note_titles[int(idx) - 1]
                 body = read_note(vfs, title)
-                new_title = input(f"New title (blank to keep '{title}'): ")
+                new_title = pyc_input(f"New title (blank to keep '{title}'): ")
                 if not new_title:
                     new_title = title
-                new_body = input(f"New body (blank to keep current): ")
+                new_body = pyc_input(f"New body (blank to keep current): ")
                 if not new_body:
                     new_body = body
                 if new_title != title:
@@ -96,7 +98,7 @@ def main(*args):
             else:
                 r.error("Invalid note number.")
         elif choice == "d":
-            idx = input("Delete note #: ")
+            idx = pyc_input("Delete note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
                 title = note_titles[int(idx) - 1]
                 delete_note(vfs, title)
