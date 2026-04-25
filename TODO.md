@@ -6,12 +6,10 @@
 
 ## Package Manager
 
-- [ ] Manifest schema and validation
+- [x] Manifest schema and validation
 
 ## Apps
 
-- [X] app stdlib
-- [X] pyfetch command (aka neofetch)
 - [ ] Settings app
 - [ ] simple TUI IDE for apps (multiline like VSCode basically)
 
