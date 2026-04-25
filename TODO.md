@@ -4,10 +4,6 @@
 
 - [ ] User authentication
 
-## UI Framework
-
-- [ ] Window manager and layout
-
 ## Package Manager
 
 - [ ] Manifest schema and validation
@@ -18,15 +14,13 @@
 - [ ] app stdlib
 - [ ] simple TUI IDE for apps
 
-## PWA & Deployment
-
-- [ ] Service worker for offline boot
-- [ ] Bundle HTML shell, Pyodide, kernel, UI, etc
-- [ ] Dynamic loading for apps, settings, user files
-
 ## Maybe future
 
 - [ ] Theming/skins
 - [ ] Save/load sessions
 - [ ] Networking features (chat, multiplayer games)
 - [ ] App store/discovery
+- [ ] Window manager and layout
+- [ ] Service worker for offline boot
+- [ ] Bundle HTML shell, Pyodide, kernel, UI, etc
+- [ ] Dynamic loading for apps, settings, user files
