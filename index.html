@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pyComputer Web Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0a0a0a;
+      color: #00ff41;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #header {
+      background: linear-gradient(90deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+      padding: 12px 20px;
+      border-bottom: 1px solid #2d333b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #header h1::before {
+      content: "⬢";
+      color: #00ff41;
+    }
+    #status {
+      font-size: 12px;
+      color: #8b949e;
+    }
+    #status.loading {
+      color: #f0883e;
+    }
+    #status.ready {
+      color: #3fb950;
+    }
+    #theme-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    #theme-buttons button {
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+    #theme-buttons button:hover {
+      border-color: #8b949e;
+      color: #e6edf3;
+    }
+    #theme-buttons button.active {
+      background: #21262d;
+      border-color: #58a6ff;
+      color: #58a6ff;
+    }
+    #terminal-container {
+      flex: 1;
+      padding: 10px;
+      background: var(--term-bg, #0a0a0a);
+    }
+    #terminal {
+      height: 100%;
+    }
+    .xterm {
+      padding: 8px;
+    }
+    .xterm-viewport {
+      background-color: transparent !important;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-DkJ8utiq.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DYP7pi_n.css">
+</head>
+<body>
+  <div id="header">
+    <h1>pyComputer</h1>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div id="theme-buttons">
+        <button id="btn-auto" data-theme="auto" onclick="setTheme('auto')">Auto</button>
+        <button id="btn-light" data-theme="light" onclick="setTheme('light')">Light</button>
+        <button id="btn-dark" data-theme="dark" onclick="setTheme('dark')">Dark</button>
+      </div>
+      <div id="status" class="loading">Loading Pyodide...</div>
+    </div>
+  </div>
+  <div id="terminal-container">
+    <div id="terminal"></div>
+  </div>
+
+  <script>
+    const themes = {
+      light: { bg: "#ffffff", fg: "#000000", cursor: "#000000", selection: "rgba(0, 0, 0, 0.2)", header: "#f0f0f0", border: "#d0d0d0", btn: "#e0e0e0", btnActive: "#d0d0d0", accent: "#0066cc", muted: "#666666" },
+      dark: { bg: "#0a0a0a", fg: "#ffffff", cursor: "#ffffff", selection: "rgba(255, 255, 255, 0.3)", header: "#0d1117", border: "#2d333b", btn: "#30363d", btnActive: "#21262d", accent: "#58a6ff", muted: "#8b949e" }
+    };
+    function getSystemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    function applyTheme(name) {
+      const t = themes[name] || themes.light;
+      document.body.style.background = t.bg;
+      document.body.style.color = t.fg;
+      document.getElementById('header').style.background = `linear-gradient(90deg, ${t.header} 0%, ${t.header} 50%, ${t.header} 100%)`;
+      document.getElementById('header').style.borderColor = t.border;
+      if (window.term) {
+        window.term.options.theme = { background: t.bg, foreground: t.fg, cursor: t.cursor, selection: t.selection };
+      }
+      if (window.setWebTheme) window.setWebTheme(name);
+    }
+    function highlightBtn(theme) {
+      document.querySelectorAll('#theme-buttons button').forEach(b => b.classList.remove('active'));
+      if (theme === 'auto') {
+        document.getElementById('btn-auto').classList.add('active');
+      } else if (theme === 'light') {
+        document.getElementById('btn-light').classList.add('active');
+      } else if (theme === 'dark') {
+        document.getElementById('btn-dark').classList.add('active');
+      }
+    }
+    function setTheme(theme) {
+      if (theme === 'auto') {
+        applyTheme(getSystemTheme());
+        highlightBtn('auto');
+      } else {
+        applyTheme(theme);
+        highlightBtn(theme);
+      }
+    }
+    window.setTheme = setTheme;
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      applyTheme(getSystemTheme());
+    });
+    setTheme('auto');
+  </script>
+</body>
+</html>
