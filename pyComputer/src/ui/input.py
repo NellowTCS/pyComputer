@@ -113,18 +113,37 @@ def get_key() -> Optional[str]:
             return None
         finally:
             fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+            
         if ch == "\x1b":
+            # Start of an escape sequence
+            seq = ch
+            # Set to non-blocking to read the rest of the sequence
+            fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
             try:
-                fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+                # Read first char after ESC
                 nxt = os.read(fd, 1).decode("utf-8", errors="replace")
+                seq += nxt
                 if nxt == "[":
-                    seq = os.read(fd, 1).decode("utf-8", errors="replace")
-                    return ch + "[" + seq
-                return ch + nxt
+                    # CSI sequence - read until terminator (alpha or ~)
+                    while True:
+                        try:
+                            c = os.read(fd, 1).decode("utf-8", errors="replace")
+                            seq += c
+                            if c.isalpha() or c in ("~",):
+                                break
+                        except BlockingIOError:
+                            break
+                elif nxt == "O":
+                    # SS3 sequence - usually 1 more char
+                    try:
+                        seq += os.read(fd, 1).decode("utf-8", errors="replace")
+                    except BlockingIOError:
+                        pass
             except BlockingIOError:
-                return ch
+                pass
             finally:
                 fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+            return seq
         return ch
     except:
         return None

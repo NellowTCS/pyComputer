@@ -1,0 +1,7 @@
+{
+  "name": "ide",
+  "version": "0.1.0",
+  "entry": "main.py",
+  "permissions": ["fs"],
+  "description": "A proper TUI IDE with editor, file tree, toolbar, and run output."
+}
