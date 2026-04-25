@@ -2,9 +2,22 @@
 Boot subsystem: renders ASCII logo, prints fake hardware logs.
 """
 
+import os
 import time
 
 from src.fs.vfs import VFS
+
+
+def _load_settings():
+    settings_path = os.path.join(os.path.dirname(__file__), "../../../root/apps/settings/config.json")
+    if os.path.exists(settings_path):
+        try:
+            import json
+            with open(settings_path) as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
 
 
 class Boot:
@@ -15,8 +28,12 @@ class Boot:
         else:
             self.logo_path = self.vfs.abspath(logo_path)
         self.start_time = time.time()
+        self.settings = _load_settings()
 
     def render_logo(self):
+        if not self.settings.get("show_splash", True):
+            print("\033[2J\033[H", end="")
+            return
         try:
             with open(self.logo_path) as f:
                 print(f.read())

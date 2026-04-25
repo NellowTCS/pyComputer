@@ -32,6 +32,7 @@ const term = new Terminal({
     selection: "rgba(0, 255, 65, 0.3)"
   }
 });
+window.term = term;
 
 const fitAddon = new FitAddon();
 term.loadAddon(fitAddon);

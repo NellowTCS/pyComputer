@@ -2,15 +2,11 @@
 
 ## Kernel & Core
 
-- [ ] User authentication
-
-## Package Manager
-
-- [x] Manifest schema and validation
+- [x] User authentication
 
 ## Apps
 
-- [ ] Settings app
+- [x] Settings app
 - [ ] simple TUI IDE for apps (multiline like VSCode basically)
 
 ## Future

@@ -5,11 +5,44 @@ renderer.py: TUI renderer using tuiro, double-buffering.
 import sys
 from tuiro import TUI
 from src.ui.theme import Color, Style, RESET
+from src.ui.palettes import RetroPalette, LightPalette, DarkPalette
+
+
+_current_theme = "default"
+
+_TUIRO_THEMES = ["default", "mono", "pastel"]
+
+_CUSTOM_THEMES = {
+    "retro": RetroPalette,
+    "light": LightPalette,
+    "dark": DarkPalette,
+}
 
 
 class Renderer:
     def __init__(self, ci_mode=False, theme="default"):
-        self.tui = TUI(ci_mode=ci_mode, theme=theme)
+        if theme in _CUSTOM_THEMES:
+            self.tui = TUI(ci_mode=ci_mode, theme=_CUSTOM_THEMES[theme]())
+        else:
+            self.tui = TUI(ci_mode=ci_mode, theme=theme)
+        global _current_theme
+        _current_theme = theme
+
+    def set_theme(self, theme_name):
+        global _current_theme
+        if theme_name in _CUSTOM_THEMES:
+            _current_theme = theme_name
+            self.tui = TUI(theme=_CUSTOM_THEMES[theme_name])
+        elif theme_name in _TUIRO_THEMES:
+            _current_theme = theme_name
+            self.tui = TUI(theme=theme_name)
+        else:
+            _current_theme = "default"
+            self.tui = TUI(theme="default")
+
+    def get_theme(self):
+        global _current_theme
+        return _current_theme
 
     def section(self, title):
         self.tui.section(title)

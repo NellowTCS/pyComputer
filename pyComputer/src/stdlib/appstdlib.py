@@ -29,7 +29,9 @@ __all__ = [
     # Logging
     "Logger", "Level",
     # Other
-    "print_exception", "sleep", "get_env", "set_env", "app_exit", "print_table", "print_banner", "ask_choice"
+    "print_exception", "sleep", "get_env", "set_env", "app_exit", "print_table", "print_banner", "ask_choice",
+    # Renderer
+    "r", "set_theme",
 ]
 
 def print_exception(e: Exception):
@@ -65,6 +67,12 @@ def ask_choice(prompt: str, choices: list) -> str:
         warning(f"Invalid choice: {ans}")
 
 r = Renderer()
+
+def set_theme(theme: str):
+    r.set_theme(theme)
+
+def get_theme() -> str:
+    return r.get_theme()
 
 # I/O
 def input(prompt: str = "") -> str:

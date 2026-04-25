@@ -11,6 +11,7 @@ from .pkg import cmd_pkg
 from .clear import cmd_clear
 from .cd import cmd_cd
 from .pyfetch import cmd_pyfetch
+from .rm import cmd_rm
 
 BUILTIN_COMMANDS = {
     "help": cmd_help,
@@ -24,4 +25,5 @@ BUILTIN_COMMANDS = {
     "clear": cmd_clear,
     "cd": cmd_cd,
     "pyfetch": cmd_pyfetch,
+    "rm": cmd_rm,
 }
