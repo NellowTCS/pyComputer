@@ -10,11 +10,12 @@
 
 ## Apps
 
+- [X] app stdlib
+- [X] pyfetch command (aka neofetch)
 - [ ] Settings app
-- [ ] app stdlib
-- [ ] simple TUI IDE for apps
+- [ ] simple TUI IDE for apps (multiline like VSCode basically)
 
-## Maybe future
+## Future
 
 - [ ] Theming/skins
 - [ ] Save/load sessions

@@ -10,6 +10,7 @@ try:
 except ImportError:
     readline = None
 
+from src.utils.platform import pyc_input
 
 class Shell:
     def __init__(self, kernel=None):
@@ -36,7 +37,7 @@ class Shell:
         while True:
             try:
                 prompt = f"[{self.cwd}] $ "
-                cmd = input(prompt)
+                cmd = pyc_input(prompt)
                 if not cmd.strip():
                     continue
                 self.history.append(cmd)

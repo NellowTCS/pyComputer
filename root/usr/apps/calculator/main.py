@@ -2,9 +2,8 @@
 Calculator app entrypoint for pyComputer (full implementation)
 """
 
-from src.ui.renderer import Renderer
 from src.fs.vfs import VFS
-from src.utils.logging import info, error, warning
+from src.stdlib.appstdlib import input, info, error, success, banner, pause
 
 import math
 
@@ -31,18 +30,15 @@ def save_history(vfs, history):
     vfs.write(HIST_PATH, "\n".join(history) + "\n")
 
 
-from src.utils.platform import pyc_input
-
 def main(*args):
-    r = Renderer()
     vfs = VFS()
     history = load_history(vfs)
     while True:
-        r.banner("Calculator")
-        r.info("Options: [C]alc  [H]istory  [Q]uit")
-        choice = pyc_input("Choose: ").strip().lower()
+        banner("Calculator")
+        info("Options: [C]alc  [H]istory  [Q]uit")
+        choice = input("Choose: ").strip().lower()
         if choice == "c":
-            expr = pyc_input("Enter expression (e.g. 2 + 2): ")
+            expr = input("Enter expression (e.g. 2 + 2): ")
             try:
                 # Safe eval: only math module and numbers
                 allowed = {
@@ -51,21 +47,21 @@ def main(*args):
                 allowed["abs"] = abs
                 allowed["round"] = round
                 result = eval(expr, {"__builtins__": {}}, allowed)
-                r.success(f"Result: {result}")
+                success(f"Result: {result}")
                 history.append(f"{expr} = {result}")
                 save_history(vfs, history)
             except Exception as e:
-                r.error(f"Error: {e}")
+                error(f"Error: {e}")
         elif choice == "h":
-            r.banner("History")
+            banner("History")
             if history:
                 for line in history[-20:]:
-                    r.info(line)
+                    info(line)
             else:
-                r.info("No history yet.")
-            pyc_input("Press Enter to continue...")
+                info("No history yet.")
+            pause()
         elif choice == "q":
-            r.info("Exiting Calculator app.")
+            info("Exiting Calculator app.")
             break
         else:
-            r.error("Unknown option.")
+            error("Unknown option.")

@@ -2,9 +2,9 @@
 Notes app entrypoint for pyComputer (separate text files per note)
 """
 
-from src.ui.renderer import Renderer
 from src.fs.vfs import VFS
 from src.utils.text import truncate
+from src.stdlib.appstdlib import input, info, error, success, banner, table
 
 NOTES_DIR = "apps/notes/data"
 
@@ -51,62 +51,60 @@ def delete_note(vfs, title):
         vfs.remove(path)
 
 
-from src.utils.platform import pyc_input
-
 def main(*args):
-    r = Renderer()
+
     vfs = VFS()
     while True:
-        r.banner("Notes")
+        banner("Notes")
         note_titles = list_notes(vfs)
-        r.info(f"You have {len(note_titles)} notes.")
-        r.table([[str(i + 1), t[:40]] for i, t in enumerate(note_titles)])
-        r.info("Options: [A]dd  [V]iew  [E]dit  [D]elete  [Q]uit")
-        choice = pyc_input("Choose: ").strip().lower()
+        info(f"You have {len(note_titles)} notes.")
+        table([[str(i + 1), t[:40]] for i, t in enumerate(note_titles)])
+        info("Options: [A]dd  [V]iew  [E]dit  [D]elete  [Q]uit")
+        choice = input("Choose: ").strip().lower()
         if choice == "a":
-            title = pyc_input("Note title (File name): ")
+            title = input("Note title (File name): ")
             if not title:
-                r.error("Title cannot be empty.")
+                error("Title cannot be empty.")
                 continue
-            body = pyc_input("Note body: ")
+            body = input("Note body: ")
             write_note(vfs, title, body)
-            r.success("Note added.")
+            success("Note added.")
         elif choice == "v":
-            idx = pyc_input("View note #: ")
+            idx = input("View note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
                 title = note_titles[int(idx) - 1]
                 body = read_note(vfs, title)
-                r.banner(title)
-                r.info(body)
+                banner(title)
+                info(body)
             else:
-                r.error("Invalid note number.")
+                error("Invalid note number.")
         elif choice == "e":
-            idx = pyc_input("Edit note #: ")
+            idx = input("Edit note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
                 title = note_titles[int(idx) - 1]
                 body = read_note(vfs, title)
-                new_title = pyc_input(f"New title (blank to keep '{title}'): ")
+                new_title = input(f"New title (blank to keep '{title}'): ")
                 if not new_title:
                     new_title = title
-                new_body = pyc_input(f"New body (blank to keep current): ")
+                new_body = input(f"New body (blank to keep current): ")
                 if not new_body:
                     new_body = body
                 if new_title != title:
                     delete_note(vfs, title)
                 write_note(vfs, new_title, new_body)
-                r.success("Note updated.")
+                success("Note updated.")
             else:
-                r.error("Invalid note number.")
+                error("Invalid note number.")
         elif choice == "d":
-            idx = pyc_input("Delete note #: ")
+            idx = input("Delete note #: ")
             if idx.isdigit() and 1 <= int(idx) <= len(note_titles):
                 title = note_titles[int(idx) - 1]
                 delete_note(vfs, title)
-                r.success("Note deleted.")
+                success("Note deleted.")
             else:
-                r.error("Invalid note number.")
+                error("Invalid note number.")
         elif choice == "q":
-            r.info("Exiting Notes app.")
+            info("Exiting Notes app.")
             break
         else:
-            r.error("Unknown option.")
+            error("Unknown option.")
