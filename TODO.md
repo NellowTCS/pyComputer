@@ -1,9 +1,5 @@
 # TODO.md
 
-## Apps
-
-- [ ] simple TUI IDE for apps (multiline like VSCode basically)
-
 ## Future
 
 - [ ] Theming/skins
