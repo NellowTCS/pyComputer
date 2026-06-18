@@ -209,3 +209,5 @@ __marimo__/
 
 node_modules/
 dist/
+
+.DS_Store
