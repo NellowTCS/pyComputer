@@ -72,7 +72,7 @@ SYNTAX_KEYWORDS = {
 
 def syntax_highlight_line(line):
     """Very simple token-by-token syntax highlighting."""
-    # We do a basic pass — strings, comments, keywords, numbers
+    # We do a basic pass, strings, comments, keywords, numbers
     result = []
     i = 0
     in_string = None
