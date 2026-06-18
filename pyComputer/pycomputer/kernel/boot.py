@@ -3,13 +3,34 @@ Boot subsystem: renders ASCII logo, prints fake hardware logs.
 """
 
 import os
+import shutil
 import time
 
 from pycomputer.fs.vfs import VFS
 
 
+def _data_dir():
+    return os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../../data")
+    )
+
+
+def _root_dir():
+    return os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../../root")
+    )
+
+
+def ensure_data_dir():
+    data = _data_dir()
+    root = _root_dir()
+    if not os.path.isdir(data):
+        print("[boot] Initializing data disk from golden master...")
+        shutil.copytree(root, data)
+
+
 def _load_settings():
-    settings_path = os.path.join(os.path.dirname(__file__), "../../../root/apps/settings/config.json")
+    settings_path = os.path.join(_data_dir(), "apps/settings/config.json")
     if os.path.exists(settings_path):
         try:
             import json

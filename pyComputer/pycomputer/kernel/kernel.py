@@ -8,7 +8,7 @@ import hashlib
 import os
 import json
 from ..shell.shell import Shell
-from .boot import Boot
+from .boot import Boot, ensure_data_dir, _data_dir
 from .process import Process
 from .scheduler import Scheduler
 from .io import IO
@@ -18,7 +18,7 @@ from ..ui.renderer import Renderer
 
 
 def _load_settings():
-    settings_path = os.path.join(os.path.dirname(__file__), "../../../root/apps/settings/config.json")
+    settings_path = os.path.join(_data_dir(), "apps/settings/config.json")
     if os.path.exists(settings_path):
         try:
             with open(settings_path) as f:
@@ -28,7 +28,7 @@ def _load_settings():
     return {"theme": "default"}
 
 
-_settings = _load_settings()
+_settings = None
 
 
 def _require_login():
@@ -82,6 +82,7 @@ class Kernel:
 
 
 def main():
+    ensure_data_dir()
     global _settings
     _settings = _load_settings()
     theme = _settings.get("theme", "default")
