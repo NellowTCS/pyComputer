@@ -10,7 +10,6 @@
 _/          _/_/                                        _/                                                      
 ```
 
-
 ## Web Demo
 
 Try pyComputer instantly in your browser: [nellowtcs.me/pyComputer](https://nellowtcs.me/pyComputer)
@@ -18,7 +17,6 @@ Try pyComputer instantly in your browser: [nellowtcs.me/pyComputer](https://nell
 ## Overview
 
 **pyComputer** is a Python-based virtual computer environment that simulates a full operating system experience, complete with a shell, virtual file system, package management, and user applications. Includes a built-in IDE and a variety of demo apps.
-
 
 ## Features
 
@@ -31,7 +29,6 @@ Try pyComputer instantly in your browser: [nellowtcs.me/pyComputer](https://nell
 - **Theming**: Changeable UI themes
 - **System Info**: `pyfetch` command as a neofetch clone
 - **Extensible**: Add your own shell commands and apps easily
-
 
 ## Built-in Apps
 
@@ -90,6 +87,7 @@ run calculator
 ### Settings & Theming
 
 Open the Settings app to change your settings:
+
 ```bash
 run settings
 ```

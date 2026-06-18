@@ -1,0 +1,63 @@
+"""
+Shell subsystem: main command loop, history, autocomplete.
+"""
+
+from .commands import BUILTIN_COMMANDS
+from .parser import parse_command
+
+try:
+    import readline
+except ImportError:
+    readline = None
+
+from pycomputer.utils.platform import pyc_input
+
+class Shell:
+    def __init__(self, kernel=None):
+        self.history = []
+        self.kernel = kernel
+        if readline is not None:
+            self._setup_readline()
+
+    def _setup_readline(self):
+        if hasattr(readline, 'parse_and_bind') and hasattr(readline, 'set_completer'):
+            readline.parse_and_bind("tab: complete")
+            readline.set_completer(self._completer)
+
+    def _completer(self, text, state):
+        options = [cmd for cmd in BUILTIN_COMMANDS if cmd.startswith(text)]
+        if state < len(options):
+            return options[state]
+        return None
+
+    def run(self):
+        print("[shell] Welcome to pyComputer shell!")
+        if not hasattr(self, "cwd"):
+            self.cwd = "/"
+        while True:
+            try:
+                prompt = f"[{self.cwd}] $ "
+                cmd = pyc_input(prompt)
+                if not cmd.strip():
+                    continue
+                self.history.append(cmd)
+                self.execute(cmd)
+            except (EOFError, KeyboardInterrupt, SystemExit):
+                print("\n[shell] Exiting shell.")
+                break
+
+    def execute(self, cmd):
+        parts = parse_command(cmd)
+        if not parts:
+            return
+        command, *args = parts
+        func = BUILTIN_COMMANDS.get(command)
+        if func:
+            try:
+                func(self, *args)
+            except SystemExit:
+                raise
+            except Exception as e:
+                print(f"[shell] Error: {e}")
+        else:
+            print(f"[shell] Unknown command: {command}")
