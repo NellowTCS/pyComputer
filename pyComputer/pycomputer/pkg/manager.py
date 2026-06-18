@@ -51,11 +51,11 @@ class PackageManager:
         try:
             tmp_path = os.path.join(tmpdir, "package.pycapp")
             print(f"[pkg] Downloading {url} ...")
-            data = self.http.get(url)
+            data = self.http.get_bytes(url)
             if data is None:
                 print(f"[pkg] ERROR: Failed to download {url}.")
                 return
-            with open(tmp_path, "w") as f:
+            with open(tmp_path, "wb") as f:
                 f.write(data)
 
             app_name = self._extract_pycapp(tmp_path)

@@ -4,61 +4,19 @@ input.py: Keyboard events, keybindings, input handling.
 
 import sys
 import os
-import ctypes
-import ctypes.util
 from typing import Callable, Optional
 from pycomputer.utils.platform import is_web
 
+_HAS_TERMIOS = False
+if not is_web() and sys.platform != "win32":
+    try:
+        import termios
+        import tty
+        _HAS_TERMIOS = True
+    except ImportError:
+        pass
+
 web_input_queue: list = []
-
-if sys.platform != "win32" and not is_web():
-    _libc_name = ctypes.util.find_library("c")
-    _libc = ctypes.CDLL(_libc_name, use_errno=True)
-
-    NCCS = 32
-    TCSANOW = 0
-    TCSADRAIN = 1
-    ICANON = 0o000002
-    ECHO = 0o000010
-    VMIN = 6
-    VTIME = 5
-
-    class Termios(ctypes.Structure):
-        _fields_ = [
-            ("c_iflag", ctypes.c_uint32),
-            ("c_oflag", ctypes.c_uint32),
-            ("c_cflag", ctypes.c_uint32),
-            ("c_lflag", ctypes.c_uint32),
-            ("c_line", ctypes.c_uint8),
-            ("c_cc", ctypes.c_uint8 * NCCS),
-            ("c_ispeed", ctypes.c_uint32),
-            ("c_ospeed", ctypes.c_uint32),
-        ]
-
-    _libc.tcgetattr.argtypes = [ctypes.c_int, ctypes.POINTER(Termios)]
-    _libc.tcgetattr.restype = ctypes.c_int
-    _libc.tcsetattr.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.POINTER(Termios)]
-    _libc.tcsetattr.restype = ctypes.c_int
-
-    def _tcgetattr(fd: int) -> Termios:
-        t = Termios()
-        if _libc.tcgetattr(fd, ctypes.byref(t)) != 0:
-            raise OSError(ctypes.get_errno(), "tcgetattr failed")
-        return t
-
-    def _tcsetattr(fd: int, when: int, t: Termios):
-        if _libc.tcsetattr(fd, when, ctypes.byref(t)) != 0:
-            raise OSError(ctypes.get_errno(), "tcsetattr failed")
-
-    def _setraw(fd: int, old: Termios) -> None:
-        raw = Termios()
-        ctypes.memmove(
-            ctypes.addressof(raw), ctypes.addressof(old), ctypes.sizeof(Termios)
-        )
-        raw.c_lflag &= ~(ICANON | ECHO)
-        raw.c_cc[VMIN] = 1
-        raw.c_cc[VTIME] = 0
-        _tcsetattr(fd, TCSANOW, raw)
 
 
 class Key:
@@ -245,11 +203,11 @@ def setup_raw():
         except Exception:
             pass
         return None
-    if sys.platform == "win32":
+    if sys.platform == "win32" or not _HAS_TERMIOS:
         return None
     fd = sys.stdin.fileno()
-    old = _tcgetattr(fd)
-    _setraw(fd, old)
+    old = termios.tcgetattr(fd)
+    tty.setraw(fd)
     return old
 
 
@@ -264,10 +222,10 @@ def restore(settings):
         return
     if settings is None:
         return
-    if sys.platform == "win32":
+    if sys.platform == "win32" or not _HAS_TERMIOS:
         return
     fd = sys.stdin.fileno()
-    _tcsetattr(fd, TCSADRAIN, settings)
+    termios.tcsetattr(fd, termios.TCSADRAIN, settings)
 
 
 def cleanup():

@@ -22,6 +22,18 @@ class HTTP:
         print(f"[net] GET {url} (requests not installed)")
         return None
 
+    def get_bytes(self, url):
+        if requests:
+            try:
+                resp = requests.get(url)
+                resp.raise_for_status()
+                return resp.content
+            except Exception as e:
+                print(f"[net] GET error: {e}")
+                return None
+        print(f"[net] GET {url} (requests not installed)")
+        return None
+
     def post(self, url, data=None):
         if requests:
             try:

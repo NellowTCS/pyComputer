@@ -5,11 +5,11 @@ Provides theme selection, user preferences, and system configuration.
 
 import json
 import os
-from src.fs.vfs import VFS
-from src.stdlib.appstdlib import (
+from pycomputersdk.fs import VFS
+from pycomputersdk.std import (
     banner, info, error, success, confirm, input, table, warning, set_theme
 )
-from src.ui.theme import Theme
+from pycomputersdk import Theme
 
 SETTINGS_DIR = "apps/settings"
 SETTINGS_FILE = "apps/settings/config.json"
@@ -46,7 +46,7 @@ def save_settings(vfs, settings):
 
 
 def get_available_themes():
-    from src.ui.renderer import _TUIRO_THEMES, _CUSTOM_THEMES
+    from pycomputersdk import _TUIRO_THEMES, _CUSTOM_THEMES
     return _TUIRO_THEMES + list(_CUSTOM_THEMES.keys())
 
 

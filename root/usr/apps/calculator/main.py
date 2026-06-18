@@ -2,8 +2,8 @@
 Calculator app entrypoint for pyComputer (full implementation)
 """
 
-from src.fs.vfs import VFS
-from src.stdlib.appstdlib import input, info, error, success, banner, pause
+from pycomputersdk.fs import VFS
+from pycomputersdk.std import input, info, error, success, banner, pause
 
 import math
 

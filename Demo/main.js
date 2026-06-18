@@ -122,7 +122,7 @@ function getLine() {
 term.onData((data) => {
   if (rawInputMode) {
     try {
-      const inputMod = pyodide.pyimport("src.ui.input");
+      const inputMod = pyodide.pyimport("pycomputer.ui.input");
       inputMod.web_input_queue.append(data);
     } catch (_) {}
     return;
@@ -203,8 +203,8 @@ except:
 
 # Extract files
 for filepath, content in FILES.items():
-    if filepath.startswith('src/'):
-        target_path = '/pyComputer/' + filepath
+    if filepath.startswith('pycomputer/') or filepath.startswith('pycomputersdk/') or filepath == 'main.py':
+        target_path = '/app/' + filepath
     else:
         target_path = '/root/' + filepath
     dir = os.path.dirname(target_path)
@@ -214,20 +214,11 @@ for filepath, content in FILES.items():
     with open(target_path, 'w') as f:
         f.write(content)
 
-# Load settings and sync web theme (but don't override if already set)
-import json
-try:
-    with open('/root/apps/settings/config.json') as f:
-        web_settings = json.load(f)
-        # Let browser handle theme initially - don't override
-except:
-    pass
-
 print(f"Extracted {len(FILES)} files")
 
-sys.path.insert(0, '/pyComputer')
+sys.path.insert(0, '/app')
 
-from src.kernel.kernel import Kernel
+from pycomputer.kernel.kernel import Kernel
 kernel = Kernel()
 kernel.initialize()
 kernel.boot_sequence()
