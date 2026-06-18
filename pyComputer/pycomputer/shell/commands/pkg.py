@@ -19,13 +19,20 @@ def cmd_pkg(shell, *args):
             print("       pkg install <url>            .pycapp URL")
             print("       pkg install <name>           from registry")
             return
-        target = args[1]
+        force = "--force" in args
+        targets = [a for a in args[1:] if not a.startswith("--")]
+        target = targets[0] if targets else None
+        if target is None:
+            print("[pkg] Specify an app.")
+            return
         if target.startswith("http://") or target.startswith("https://"):
             pm.install_from_url(target)
         elif target.endswith(".pycapp"):
             print(f"[pkg] Installing from {target} ...")
-            pm._extract_pycapp(target)
-        elif target.startswith("/") or target.startswith("./") or target.startswith(".."):
+            result = pm._extract_pycapp(target, force=force)
+            if result:
+                print(f"[pkg] Installed '{result}'.")
+        elif target.startswith("/") or target.startswith("./") or target.startswith("..") or target.startswith("~"):
             pm.install(target)
         elif os.path.isdir(target):
             pm.install(target)

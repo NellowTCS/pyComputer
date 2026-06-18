@@ -6,7 +6,7 @@ from pycomputer.stdlib.appstdlib import confirm
 def _load_settings():
     try:
         import json
-        settings_path = os.path.join(os.path.dirname(__file__), "../../../root/apps/settings/config.json")
+        settings_path = os.path.join(os.path.dirname(__file__), "../../../data/apps/settings/config.json")
         if os.path.exists(settings_path):
             with open(settings_path) as f:
                 return json.load(f)

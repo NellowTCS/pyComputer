@@ -10,13 +10,15 @@ import json
 
 
 class HTTP:
+    _TIMEOUT = 30
+
     def get(self, url):
         if requests:
             try:
-                resp = requests.get(url)
+                resp = requests.get(url, timeout=self._TIMEOUT)
                 resp.raise_for_status()
                 return resp.text
-            except Exception as e:
+            except requests.exceptions.RequestException as e:
                 print(f"[net] GET error: {e}")
                 return None
         print(f"[net] GET {url} (requests not installed)")
@@ -25,10 +27,10 @@ class HTTP:
     def get_bytes(self, url):
         if requests:
             try:
-                resp = requests.get(url)
+                resp = requests.get(url, timeout=self._TIMEOUT)
                 resp.raise_for_status()
                 return resp.content
-            except Exception as e:
+            except requests.exceptions.RequestException as e:
                 print(f"[net] GET error: {e}")
                 return None
         print(f"[net] GET {url} (requests not installed)")
@@ -37,10 +39,10 @@ class HTTP:
     def post(self, url, data=None):
         if requests:
             try:
-                resp = requests.post(url, data=data)
+                resp = requests.post(url, data=data, timeout=self._TIMEOUT)
                 resp.raise_for_status()
                 return resp.text
-            except Exception as e:
+            except requests.exceptions.RequestException as e:
                 print(f"[net] POST error: {e}")
                 return None
         print(f"[net] POST {url} (requests not installed)")

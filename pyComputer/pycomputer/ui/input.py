@@ -206,9 +206,14 @@ def setup_raw():
     if sys.platform == "win32" or not _HAS_TERMIOS:
         return None
     fd = sys.stdin.fileno()
-    old = termios.tcgetattr(fd)
-    tty.setraw(fd)
-    return old
+    if not os.isatty(fd):
+        return None
+    try:
+        old = termios.tcgetattr(fd)
+        tty.setraw(fd)
+        return old
+    except (termios.error, OSError):
+        return None
 
 
 def restore(settings):
@@ -223,9 +228,14 @@ def restore(settings):
     if settings is None:
         return
     if sys.platform == "win32" or not _HAS_TERMIOS:
-        return
+        return None
     fd = sys.stdin.fileno()
-    termios.tcsetattr(fd, termios.TCSADRAIN, settings)
+    if not os.isatty(fd):
+        return
+    try:
+        termios.tcsetattr(fd, termios.TCSADRAIN, settings)
+    except (termios.error, OSError):
+        pass
 
 
 def cleanup():

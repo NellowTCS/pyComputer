@@ -7,7 +7,7 @@ import json
 import os
 from pycomputersdk.fs import VFS
 from pycomputersdk.std import (
-    banner, info, error, success, confirm, input, table, warning, set_theme
+    banner, info, error, success, confirm, input, table, warning, set_theme  # noqa: A004
 )
 from pycomputersdk import Theme
 

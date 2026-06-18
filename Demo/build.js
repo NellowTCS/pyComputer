@@ -45,6 +45,7 @@ const js = `export const FILES = ${JSON.stringify(fileData, null, 2)};
 export function extractFiles(pyodide) {
   const FS = pyodide.FS;
   const dirs = new Set();
+  let errors = 0;
   for (const filepath of Object.keys(FILES)) {
     const prefix = filepath.startsWith('pycomputer/') || filepath.startsWith('pycomputersdk/') || filepath === 'main.py' ? '/app' : '/root';
     const target = prefix + '/' + filepath;
@@ -52,14 +53,14 @@ export function extractFiles(pyodide) {
     if (dir) dirs.add(dir);
   }
   for (const dir of dirs) {
-    try { FS.createTree(dir); } catch {}
+    try { FS.createTree(dir); } catch (e) { errors++; console.error('extractFiles: failed to create directory', dir, e); }
   }
   for (const [filepath, data] of Object.entries(FILES)) {
     const prefix = filepath.startsWith('pycomputer/') || filepath.startsWith('pycomputersdk/') || filepath === 'main.py' ? '/app' : '/root';
     const target = prefix + '/' + filepath;
-    try { FS.writeFile(target, data); } catch {}
+    try { FS.writeFile(target, data); } catch (e) { errors++; console.error('extractFiles: failed to write file', target, e); }
   }
-  return Object.keys(FILES).length;
+  return errors === 0 ? Object.keys(FILES).length : -errors;
 }
 `;
 

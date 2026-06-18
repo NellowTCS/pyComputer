@@ -3,7 +3,7 @@ SDK std module: re-exports app-level utilities from pycomputer.stdlib.appstdlib
 """
 
 from pycomputer.stdlib.appstdlib import (
-    input, info, error, success, warning, confirm, pause,
+    input, info, error, success, warning, confirm, pause,  # noqa: A004, re-export, not shadowing
     section, subsection, banner, table, spinner, step,
     clear, clear_line, hide_cursor, show_cursor,
     bold, dim, green, red, yellow, cyan,

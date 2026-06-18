@@ -35,10 +35,10 @@ def _require_login():
     password_hash = _settings.get("password", "")
     if not password_hash:
         return None
-    from pycomputer.stdlib.appstdlib import input, error
+    from pycomputer.stdlib.appstdlib import input as app_input, error
     import hashlib
     while True:
-        pw = input("Password: ").strip()
+        pw = app_input("Password: ").strip()
         if not pw:
             error("Login required.")
             continue

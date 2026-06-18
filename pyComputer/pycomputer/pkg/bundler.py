@@ -6,6 +6,7 @@ or directly from any directory via bundle(path=...).
 """
 
 import hashlib
+import json
 import os
 import zipfile
 
@@ -21,7 +22,7 @@ _EXCLUDED_FILES = frozenset({
 
 def _default_apps_root():
     return os.path.normpath(
-        os.path.join(os.path.dirname(__file__), "../../../root/usr/apps")
+        os.path.join(os.path.dirname(__file__), "../../../data/usr/apps")
     )
 
 
@@ -47,7 +48,7 @@ def bundle(app_name: str, output_dir: str = "dist", source_dir: str | None = Non
 
     try:
         Manifest.from_file(manifest_path)
-    except ManifestError as e:
+    except (ManifestError, json.JSONDecodeError) as e:
         raise ValueError(f"invalid manifest for '{app_name}': {e}")
 
     if output_dir.endswith(".pycapp"):

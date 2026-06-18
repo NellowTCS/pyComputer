@@ -49,25 +49,25 @@ class Loader:
         if not os.path.isfile(entry_path):
             print(f"[loader] Entrypoint '{entry}' not found for app '{app_name}'")
             return None
-        added = 0
+        added = None
         if app_dir not in sys.path:
             sys.path.insert(0, app_dir)
-            added += 1
+            added = app_dir
         spec = importlib.util.spec_from_file_location(f"{app_name}_main", entry_path)
         if spec is None or spec.loader is None:
             print(f"[loader] Failed to create import spec for app '{app_name}'")
-            if added:
-                sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             return None
         module = importlib.util.module_from_spec(spec)
         try:
             spec.loader.exec_module(module)
-            if added:
-                sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             return getattr(module, "main", None)
         except Exception as e:
-            if added:
-                sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             print(f"[loader] Failed to import app '{app_name}': {e}")
             return None
 
@@ -89,24 +89,24 @@ class Loader:
             print(f"[loader] Entrypoint '{entry}' not found at {app_dir}")
             return None
         app_name = manifest.get("name", os.path.basename(app_dir))
-        added = 0
+        added = None
         if app_dir not in sys.path:
             sys.path.insert(0, app_dir)
-            added += 1
+            added = app_dir
         spec = importlib.util.spec_from_file_location(f"{app_name}_main", entry_path)
         if spec is None or spec.loader is None:
             print(f"[loader] Failed to create import spec for '{app_name}'")
-            if added:
-                sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             return None
         module = importlib.util.module_from_spec(spec)
         try:
             spec.loader.exec_module(module)
-            if added:
-                sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             return getattr(module, "main", None)
         except Exception as e:
-            if added:
-                sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             print(f"[loader] Failed to import '{app_name}' from {app_dir}: {e}")
             return None

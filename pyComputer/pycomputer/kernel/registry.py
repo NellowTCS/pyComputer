@@ -20,8 +20,8 @@ class Registry:
         import os
 
         reg_dir = os.path.dirname(self.registry_path)
-        if not self.vfs.exists(reg_dir):
-            self.vfs.mkdir(reg_dir)
+        if not os.path.isdir(reg_dir):
+            os.makedirs(reg_dir, exist_ok=True)
         self.apps = []
         self.load()
 

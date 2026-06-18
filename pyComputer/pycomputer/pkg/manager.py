@@ -36,7 +36,7 @@ class PackageManager:
             return
         try:
             Manifest.from_file(manifest_path)
-        except ManifestError as e:
+        except (ManifestError, json.JSONDecodeError) as e:
             print(f"[pkg] ERROR: Invalid manifest for '{app_name}': {e}")
             return
         if os.path.exists(dest):
@@ -47,6 +47,9 @@ class PackageManager:
         print(f"[pkg] Installed '{app_name}'.")
 
     def install_from_url(self, url):
+        if not url.startswith("https://"):
+            print("[pkg] ERROR: Only HTTPS URLs are allowed.")
+            return
         tmpdir = tempfile.mkdtemp(prefix="pycapp_")
         try:
             tmp_path = os.path.join(tmpdir, "package.pycapp")
@@ -69,7 +72,7 @@ class PackageManager:
         print(f"[pkg] Fetching registry from {registry_url} ...")
         data = self.http.get_json(registry_url)
         if data is None:
-            print(f"[pkg] ERROR: Could not fetch registry.")
+            print("[pkg] ERROR: Could not fetch registry.")
             return
 
         apps = data.get("apps", {})
@@ -92,26 +95,31 @@ class PackageManager:
 
         self.install_from_url(url)
 
-    def _extract_pycapp(self, pycapp_path):
+    def _extract_pycapp(self, pycapp_path, force=False):
         dest_name = None
         with zipfile.ZipFile(pycapp_path, "r") as zf:
             names = zf.namelist()
             if "manifest.json" not in names:
-                print(f"[pkg] ERROR: .pycapp does not contain manifest.json.")
+                print("[pkg] ERROR: .pycapp does not contain manifest.json.")
                 return None
 
             manifest_data = json.loads(zf.read("manifest.json"))
             try:
                 manifest = Manifest(manifest_data)
-            except ManifestError as e:
+            except (ManifestError, json.JSONDecodeError) as e:
                 print(f"[pkg] ERROR: Invalid manifest in .pycapp: {e}")
                 return None
 
             dest_name = manifest.get("name")
+            if not dest_name or "/" in dest_name or ".." in dest_name:
+                print("[pkg] ERROR: Invalid app name in manifest.")
+                return None
             dest = os.path.join(self.apps_path, dest_name)
             if os.path.exists(dest):
-                print(f"[pkg] App '{dest_name}' already installed.")
-                return None
+                if not force:
+                    print(f"[pkg] App '{dest_name}' already installed. Use --force to overwrite.")
+                    return None
+                shutil.rmtree(dest)
 
             os.makedirs(dest, exist_ok=True)
             for name in names:
@@ -119,6 +127,10 @@ class PackageManager:
                     os.makedirs(os.path.join(dest, name), exist_ok=True)
                 else:
                     out_path = os.path.join(dest, name)
+                    resolved = os.path.normpath(out_path)
+                    if not resolved.startswith(os.path.normpath(dest) + os.sep):
+                        print(f"[pkg] WARNING: Skipping path traversal entry: {name}")
+                        continue
                     os.makedirs(os.path.dirname(out_path), exist_ok=True)
                     with zf.open(name) as src, open(out_path, "wb") as dst:
                         dst.write(src.read())
@@ -146,7 +158,7 @@ class PackageManager:
         print(f"[pkg] Fetching registry from {registry_url} ...")
         data = self.http.get_json(registry_url)
         if data is None:
-            print(f"[pkg] ERROR: Could not fetch registry.")
+            print("[pkg] ERROR: Could not fetch registry.")
             return
 
         apps = data.get("apps", {})

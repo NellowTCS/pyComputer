@@ -58,7 +58,7 @@ class Renderer:
         _current_theme = theme_name
         self._theme_name = theme_name
         if _TUIRO_OK:
-            self._tui = _make_tui(theme=theme_name)
+            self._tui = _make_tui(ci_mode=self._ci_mode, theme=theme_name)
         else:
             self._tui = None
 
@@ -109,13 +109,11 @@ class Renderer:
     def spinner(self, message):
         if self.tui:
             return self.tui.spinner(message)
-        from tuiro import TUI
         raise RuntimeError("tuiro not available")
 
     def step(self, title):
         if self.tui:
             return self.tui.step(title)
-        from tuiro import TUI
         raise RuntimeError("tuiro not available")
 
     def move(self, x, y):

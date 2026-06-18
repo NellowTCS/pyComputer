@@ -10,7 +10,7 @@ def cmd_run(shell, *args):
     target = args[0]
 
     # Absolute, relative, or home-relative path => load from path
-    if target.startswith("/") or target.startswith("./") or target.startswith("~"):
+    if target.startswith("/") or target.startswith("./") or target.startswith("..") or target.startswith("~"):
         path = os.path.expanduser(target)
         entry = shell.kernel.loader.import_from_path(path)
     else:
@@ -21,7 +21,12 @@ def cmd_run(shell, *args):
             return
         entry = shell.kernel.loader.import_entrypoint(target)
 
-    if entry:
-        entry(*args[1:])
-    else:
+    if not entry or not callable(entry):
         print(f"[run] Failed to launch '{target}'.")
+        return
+    try:
+        entry(*args[1:])
+    except SystemExit:
+        raise
+    except Exception as e:
+        print(f"[run] Error running '{target}': {e}")

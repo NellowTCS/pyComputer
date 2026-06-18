@@ -26,7 +26,11 @@ def ensure_data_dir():
     root = _root_dir()
     if not os.path.isdir(data):
         print("[boot] Initializing data disk from golden master...")
-        shutil.copytree(root, data)
+        staging = data + ".staging"
+        if os.path.isdir(staging):
+            shutil.rmtree(staging)
+        shutil.copytree(root, staging)
+        os.rename(staging, data)
 
 
 def _load_settings():

@@ -2,17 +2,17 @@
 Shell commands: built-in commands
 """
 
-from ...shell.commands.help import cmd_help
-from ...shell.commands.exit import cmd_exit
-from ...shell.commands.echo import cmd_echo
-from ...shell.commands.ls import cmd_ls
-from ...shell.commands.cat import cmd_cat
-from ...shell.commands.edit import cmd_edit
-from ...shell.commands.run import cmd_run
-from ...shell.commands.pkg import cmd_pkg
-from ...shell.commands.clear import cmd_clear
-from ...shell.commands.cd import cmd_cd
-from ...shell.commands.rm import cmd_rm
+from pycomputer.shell.commands.help import cmd_help
+from pycomputer.shell.commands.exit import cmd_exit
+from pycomputer.shell.commands.echo import cmd_echo
+from pycomputer.shell.commands.ls import cmd_ls
+from pycomputer.shell.commands.cat import cmd_cat
+from pycomputer.shell.commands.edit import cmd_edit
+from pycomputer.shell.commands.run import cmd_run
+from pycomputer.shell.commands.pkg import cmd_pkg
+from pycomputer.shell.commands.clear import cmd_clear
+from pycomputer.shell.commands.cd import cmd_cd
+from pycomputer.shell.commands.rm import cmd_rm
 
 BUILTIN_COMMANDS = {
     "help": cmd_help,

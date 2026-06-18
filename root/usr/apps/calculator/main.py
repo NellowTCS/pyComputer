@@ -3,7 +3,7 @@ Calculator app entrypoint for pyComputer (full implementation)
 """
 
 from pycomputersdk.fs import VFS
-from pycomputersdk.std import input, info, error, success, banner, pause
+from pycomputersdk.std import input, info, error, success, banner, pause  # noqa: A004
 
 import math
 

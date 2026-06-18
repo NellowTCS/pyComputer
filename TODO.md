@@ -1,10 +1,5 @@
 # TODO.md
 
-- [X] .pycapp bundle format and `bundle.py` bundler script
-- [X] Remote install from URL and registry (`pkg install <name>` / `pkg install <url>`)
-- [X] Registry search (`pkg search [term]`)
-- [X] Configurable registry URL (`pkg registry [url]`)
-
 ## Future
 
 - [ ] Theming/skins
