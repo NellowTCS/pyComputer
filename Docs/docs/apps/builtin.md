@@ -7,7 +7,7 @@ Calculator
 
 IDE
   : A full TUI code editor with file tree, toolbar, syntax highlighting,
-    and a run output panel (1087 lines).
+    and a run output panel.
 
 Matrix
   : Matrix-style digital rain animation.
