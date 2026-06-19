@@ -26,7 +26,7 @@ jobs:
 
       - name: Build package
         working-directory: pyComputerSDK
-        run: uv build
+        run: uv build --out-dir dist
 
       - name: Publish to PyPI
         working-directory: pyComputerSDK
