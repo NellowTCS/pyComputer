@@ -24,4 +24,7 @@ def cmd_test(path: str, pytest_args: list[str] | None = None) -> int:
     try:
         return pytest.main(args)
     finally:
-        sys.path.remove(app_dir)
+        try:
+            sys.path.remove(app_dir)
+        except ValueError:
+            pass

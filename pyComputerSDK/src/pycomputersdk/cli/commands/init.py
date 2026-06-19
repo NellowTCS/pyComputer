@@ -36,7 +36,7 @@ if __name__ == "__main__":
 TEST_MAIN_PY = """\
 from pycomputersdk.testing import MockRenderer, MockInput, assert_screen
 
-from {name} import main
+from main import main
 
 
 def test_placeholder():
@@ -67,7 +67,7 @@ def cmd_init(name: str) -> int:
 
     print(f"Created app '{name}' at {dst}")
     print(f"  cd {name}")
-    print(f"  pycomp validate .")
-    print(f"  pycomp run .")
-    print(f"  pycomp build .")
+    print("  pycomp validate .")
+    print("  pycomp run .")
+    print("  pycomp build .")
     return 0

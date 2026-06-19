@@ -28,7 +28,7 @@ def cmd_validate(path: str) -> int:
         if not os.path.isfile(entry_path):
             print(f"  Warning: entry '{manifest.data['entry']}' not found (expected at {entry_path})")
         else:
-            print(f"  entry file:  ok")
+            print("  entry file:  ok")
 
         return 0
 

@@ -15,8 +15,12 @@ def cmd_run(path: str, app_args: list[str] | None = None) -> int:
         print(f"Error: manifest.json not found in {app_dir}")
         return 1
 
-    with open(manifest_path) as f:
-        manifest = json.load(f)
+    try:
+        with open(manifest_path) as f:
+            manifest = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"Error: failed to read manifest: {e}")
+        return 1
 
     app_name = manifest.get("name", os.path.basename(app_dir))
 
@@ -50,7 +54,7 @@ def cmd_run(path: str, app_args: list[str] | None = None) -> int:
     args = list(app_args) if app_args else []
     try:
         main_fn(*args)
-    except (KeyboardInterrupt, SystemExit):
+    except KeyboardInterrupt:
         pass
     except Exception as e:
         print(f"Error running '{app_name}': {e}")

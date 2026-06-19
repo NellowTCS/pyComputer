@@ -97,8 +97,8 @@ def assert_screen(mock_renderer, *expected_lines):
         import difflib
         diff = "\n".join(
             difflib.ndiff(
-                [l + "\n" for l in expected_lines],
-                [l + "\n" for l in lines],
+                [line + "\n" for line in expected_lines],
+                [line + "\n" for line in lines],
             )
         )
         raise AssertionError(f"Screen mismatch:\n{diff}")
