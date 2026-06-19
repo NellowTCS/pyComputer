@@ -803,7 +803,7 @@ from .manifest import Manifest, ManifestError
 
 
 REGISTRY_CONF_PATH = "sys/registry.json"
-_DEFAULT_REGISTRY = "https://raw.githubusercontent.com/NellowTCS/pyComputer/main/root/sys/apps-index.json"
+_DEFAULT_REGISTRY = "https://raw.githubusercontent.com/NellowTCS/pyComputer/refs/heads/main/root/sys/apps-index.json"
 
 
 class PackageManager:
@@ -2951,7 +2951,7 @@ pyComputer Kernel Booting...
   }
 }
 `,"sys/apps.json":`[]`,"sys/registry.json":`{
-  "url": "https://raw.githubusercontent.com/NellowTCS/pyComputer/main/root/sys/apps-index.json",
+  "url": "https://raw.githubusercontent.com/NellowTCS/pyComputer/refs/heads/main/root/sys/apps-index.json",
   "updated": null
 }
 `,"usr/apps/calculator/main.py":`"""
