@@ -33,130 +33,8 @@ ${s.join(`
 `)}clearSelection(){this._model.clearSelection(),this._removeMouseDownListeners(),this.refresh(),this._onSelectionChange.fire()}refresh(e){this._refreshAnimationFrame||=this._coreBrowserService.window.requestAnimationFrame(()=>this._refresh()),Ji&&e&&this.selectionText.length&&this._onLinuxMouseSelection.fire(this.selectionText)}_refresh(){this._refreshAnimationFrame=void 0,this._onRedrawRequest.fire({start:this._model.finalSelectionStart,end:this._model.finalSelectionEnd,columnSelectMode:this._activeSelectionMode===3})}_isClickInSelection(e){let t=this._getMouseBufferCoords(e),n=this._model.finalSelectionStart,r=this._model.finalSelectionEnd;return!n||!r||!t?!1:this._areCoordsInSelection(t,n,r)}isCellInSelection(e,t){let n=this._model.finalSelectionStart,r=this._model.finalSelectionEnd;return!n||!r?!1:this._areCoordsInSelection([e,t],n,r)}_areCoordsInSelection(e,t,n){return e[1]>t[1]&&e[1]<n[1]||t[1]===n[1]&&e[1]===t[1]&&e[0]>=t[0]&&e[0]<n[0]||t[1]<n[1]&&e[1]===n[1]&&e[0]<n[0]||t[1]<n[1]&&e[1]===t[1]&&e[0]>=t[0]}_selectWordAtCursor(e,t){let n=this._linkifier.currentLink?.link?.range;if(n)return this._model.selectionStart=[n.start.x-1,n.start.y-1],this._model.selectionStartLength=_a(n,this._bufferService.cols),this._model.selectionEnd=void 0,!0;let r=this._getMouseBufferCoords(e);return r?(this._selectWordAt(r,t),this._model.selectionEnd=void 0,!0):!1}selectAll(){this._model.isSelectAllActive=!0,this.refresh(),this._onSelectionChange.fire()}selectLines(e,t){this._model.clearSelection(),e=Math.max(e,0),t=Math.min(t,this._bufferService.buffer.lines.length-1),this._model.selectionStart=[0,e],this._model.selectionEnd=[this._bufferService.cols,t],this.refresh(),this._onSelectionChange.fire()}_handleTrim(e){this._model.handleTrim(e)&&this.refresh()}_getMouseBufferCoords(e){let t=this._mouseService.getCoords(e,this._screenElement,this._bufferService.cols,this._bufferService.rows,!0);if(t)return t[0]--,t[1]--,t[1]+=this._bufferService.buffer.ydisp,t}_getMouseEventScrollAmount(e){let t=Mi(this._coreBrowserService.window,e,this._screenElement)[1],n=this._renderService.dimensions.css.canvas.height;return t>=0&&t<=n?0:(t>n&&(t-=n),t=Math.min(Math.max(t,-va),va),t/=va,t/Math.abs(t)+Math.round(t*(ya-1)))}shouldForceSelection(e){return Wi?e.altKey&&this._optionsService.rawOptions.macOptionClickForcesSelection:e.shiftKey}handleMouseDown(e){if(this._mouseDownTimeStamp=e.timeStamp,!(e.button===2&&this.hasSelection)&&e.button===0){if(!this._enabled){if(!this.shouldForceSelection(e))return;e.stopPropagation()}e.preventDefault(),this._dragScrollAmount=0,this._enabled&&e.shiftKey?this._handleIncrementalClick(e):e.detail===1?this._handleSingleClick(e):e.detail===2?this._handleDoubleClick(e):e.detail===3&&this._handleTripleClick(e),this._addMouseDownListeners(),this.refresh(!0)}}_addMouseDownListeners(){this._screenElement.ownerDocument&&(this._screenElement.ownerDocument.addEventListener(`mousemove`,this._mouseMoveListener),this._screenElement.ownerDocument.addEventListener(`mouseup`,this._mouseUpListener)),this._dragScrollIntervalTimer=this._coreBrowserService.window.setInterval(()=>this._dragScroll(),ba)}_removeMouseDownListeners(){this._screenElement.ownerDocument&&(this._screenElement.ownerDocument.removeEventListener(`mousemove`,this._mouseMoveListener),this._screenElement.ownerDocument.removeEventListener(`mouseup`,this._mouseUpListener)),this._coreBrowserService.window.clearInterval(this._dragScrollIntervalTimer),this._dragScrollIntervalTimer=void 0}_handleIncrementalClick(e){this._model.selectionStart&&(this._model.selectionEnd=this._getMouseBufferCoords(e))}_handleSingleClick(e){if(this._model.selectionStartLength=0,this._model.isSelectAllActive=!1,this._activeSelectionMode=this.shouldColumnSelect(e)?3:0,this._model.selectionStart=this._getMouseBufferCoords(e),!this._model.selectionStart)return;this._model.selectionEnd=void 0;let t=this._bufferService.buffer.lines.get(this._model.selectionStart[1]);t&&t.length!==this._model.selectionStart[0]&&t.hasWidth(this._model.selectionStart[0])===0&&this._model.selectionStart[0]++}_handleDoubleClick(e){this._selectWordAtCursor(e,!0)&&(this._activeSelectionMode=1)}_handleTripleClick(e){let t=this._getMouseBufferCoords(e);t&&(this._activeSelectionMode=2,this._selectLineAt(t[1]))}shouldColumnSelect(e){return e.altKey&&!(Wi&&this._optionsService.rawOptions.macOptionClickForcesSelection)}_handleMouseMove(e){if(e.stopImmediatePropagation(),!this._model.selectionStart)return;let t=this._model.selectionEnd?[this._model.selectionEnd[0],this._model.selectionEnd[1]]:null;if(this._model.selectionEnd=this._getMouseBufferCoords(e),!this._model.selectionEnd){this.refresh(!0);return}this._activeSelectionMode===2?this._model.selectionEnd[1]<this._model.selectionStart[1]?this._model.selectionEnd[0]=0:this._model.selectionEnd[0]=this._bufferService.cols:this._activeSelectionMode===1&&this._selectToWordAt(this._model.selectionEnd),this._dragScrollAmount=this._getMouseEventScrollAmount(e),this._activeSelectionMode!==3&&(this._dragScrollAmount>0?this._model.selectionEnd[0]=this._bufferService.cols:this._dragScrollAmount<0&&(this._model.selectionEnd[0]=0));let n=this._bufferService.buffer;if(this._model.selectionEnd[1]<n.lines.length){let e=n.lines.get(this._model.selectionEnd[1]);e&&e.hasWidth(this._model.selectionEnd[0])===0&&this._model.selectionEnd[0]<this._bufferService.cols&&this._model.selectionEnd[0]++}(!t||t[0]!==this._model.selectionEnd[0]||t[1]!==this._model.selectionEnd[1])&&this.refresh(!0)}_dragScroll(){if(!(!this._model.selectionEnd||!this._model.selectionStart)&&this._dragScrollAmount){this._onRequestScrollLines.fire({amount:this._dragScrollAmount,suppressScrollEvent:!1});let e=this._bufferService.buffer;this._dragScrollAmount>0?(this._activeSelectionMode!==3&&(this._model.selectionEnd[0]=this._bufferService.cols),this._model.selectionEnd[1]=Math.min(e.ydisp+this._bufferService.rows,e.lines.length-1)):(this._activeSelectionMode!==3&&(this._model.selectionEnd[0]=0),this._model.selectionEnd[1]=e.ydisp),this.refresh()}}_handleMouseUp(e){let t=e.timeStamp-this._mouseDownTimeStamp;if(this._removeMouseDownListeners(),this.selectionText.length<=1&&t<xa&&e.altKey&&this._optionsService.rawOptions.altClickMovesCursor){if(this._bufferService.buffer.ybase===this._bufferService.buffer.ydisp){let t=this._mouseService.getCoords(e,this._element,this._bufferService.cols,this._bufferService.rows,!1);if(t&&t[0]!==void 0&&t[1]!==void 0){let e=ra(t[0]-1,t[1]-1,this._bufferService,this._coreService.decPrivateModes.applicationCursorKeys);this._coreService.triggerDataEvent(e,!0)}}}else this._fireEventIfSelectionChanged()}_fireEventIfSelectionChanged(){let e=this._model.finalSelectionStart,t=this._model.finalSelectionEnd,n=!!e&&!!t&&(e[0]!==t[0]||e[1]!==t[1]);if(!n){this._oldHasSelection&&this._fireOnSelectionChange(e,t,n);return}!e||!t||(!this._oldSelectionStart||!this._oldSelectionEnd||e[0]!==this._oldSelectionStart[0]||e[1]!==this._oldSelectionStart[1]||t[0]!==this._oldSelectionEnd[0]||t[1]!==this._oldSelectionEnd[1])&&this._fireOnSelectionChange(e,t,n)}_fireOnSelectionChange(e,t,n){this._oldSelectionStart=e,this._oldSelectionEnd=t,this._oldHasSelection=n,this._onSelectionChange.fire()}_handleBufferActivate(e){this.clearSelection(),this._trimListener.dispose(),this._trimListener=e.activeBuffer.lines.onTrim(e=>this._handleTrim(e))}_convertViewportColToCharacterIndex(e,t){let n=t;for(let r=0;t>=r;r++){let i=e.loadCell(r,this._workCell).getChars().length;this._workCell.getWidth()===0?n--:i>1&&t!==r&&(n+=i-1)}return n}setSelection(e,t,n){this._model.clearSelection(),this._removeMouseDownListeners(),this._model.selectionStart=[e,t],this._model.selectionStartLength=n,this.refresh(),this._fireEventIfSelectionChanged()}rightClickSelect(e){this._isClickInSelection(e)||(this._selectWordAtCursor(e,!1)&&this.refresh(!0),this._fireEventIfSelectionChanged())}_getWordAt(e,t,n=!0,r=!0){if(e[0]>=this._bufferService.cols)return;let i=this._bufferService.buffer,a=i.lines.get(e[1]);if(!a)return;let o=i.translateBufferLineToString(e[1],!1),s=this._convertViewportColToCharacterIndex(a,e[0]),c=s,l=e[0]-s,u=0,d=0,f=0,p=0;if(o.charAt(s)===` `){for(;s>0&&o.charAt(s-1)===` `;)s--;for(;c<o.length&&o.charAt(c+1)===` `;)c++}else{let t=e[0],n=e[0];a.getWidth(t)===0&&(u++,t--),a.getWidth(n)===2&&(d++,n++);let r=a.getString(n).length;for(r>1&&(p+=r-1,c+=r-1);t>0&&s>0&&!this._isCharWordSeparator(a.loadCell(t-1,this._workCell));){a.loadCell(t-1,this._workCell);let e=this._workCell.getChars().length;this._workCell.getWidth()===0?(u++,t--):e>1&&(f+=e-1,s-=e-1),s--,t--}for(;n<a.length&&c+1<o.length&&!this._isCharWordSeparator(a.loadCell(n+1,this._workCell));){a.loadCell(n+1,this._workCell);let e=this._workCell.getChars().length;this._workCell.getWidth()===2?(d++,n++):e>1&&(p+=e-1,c+=e-1),c++,n++}}c++;let m=s+l-u+f,h=Math.min(this._bufferService.cols,c-s+u+d-f-p);if(!(!t&&o.slice(s,c).trim()===``)){if(n&&m===0&&a.getCodePoint(0)!==32){let t=i.lines.get(e[1]-1);if(t&&a.isWrapped&&t.getCodePoint(this._bufferService.cols-1)!==32){let t=this._getWordAt([this._bufferService.cols-1,e[1]-1],!1,!0,!1);if(t){let e=this._bufferService.cols-t.start;m-=e,h+=e}}}if(r&&m+h===this._bufferService.cols&&a.getCodePoint(this._bufferService.cols-1)!==32){let t=i.lines.get(e[1]+1);if(t?.isWrapped&&t.getCodePoint(0)!==32){let t=this._getWordAt([0,e[1]+1],!1,!1,!0);t&&(h+=t.length)}}return{start:m,length:h}}}_selectWordAt(e,t){let n=this._getWordAt(e,t);if(n){for(;n.start<0;)n.start+=this._bufferService.cols,e[1]--;this._model.selectionStart=[n.start,e[1]],this._model.selectionStartLength=n.length}}_selectToWordAt(e){let t=this._getWordAt(e,!0);if(t){let n=e[1];for(;t.start<0;)t.start+=this._bufferService.cols,n--;if(!this._model.areSelectionValuesReversed())for(;t.start+t.length>this._bufferService.cols;)t.length-=this._bufferService.cols,n++;this._model.selectionEnd=[this._model.areSelectionValuesReversed()?t.start:t.start+t.length,n]}}_isCharWordSeparator(e){return e.getWidth()===0?!1:this._optionsService.rawOptions.wordSeparator.indexOf(e.getChars())>=0}_selectLineAt(e){let t=this._bufferService.buffer.getWrappedRangeForLine(e),n={start:{x:0,y:t.first},end:{x:this._bufferService.cols-1,y:t.last}};this._model.selectionStart=[0,t.first],this._model.selectionEnd=void 0,this._model.selectionStartLength=_a(n,this._bufferService.cols)}};Ca=r([i(3,b),i(4,fe),i(5,ye),i(6,S),i(7,E),i(8,T)],Ca);var wa=class{constructor(){this._data={}}set(e,t,n){this._data[e]||(this._data[e]={}),this._data[e][t]=n}get(e,t){return this._data[e]?this._data[e][t]:void 0}clear(){this._data={}}},Ta=class{constructor(){this._color=new wa,this._css=new wa}setCss(e,t,n){this._css.set(e,t,n)}getCss(e,t){return this._css.get(e,t)}setColor(e,t,n){this._color.set(e,t,n)}getColor(e,t){return this._color.get(e,t)}clear(){this._color.clear(),this._css.clear()}},K=Object.freeze((()=>{let e=[W.toColor(`#2e3436`),W.toColor(`#cc0000`),W.toColor(`#4e9a06`),W.toColor(`#c4a000`),W.toColor(`#3465a4`),W.toColor(`#75507b`),W.toColor(`#06989a`),W.toColor(`#d3d7cf`),W.toColor(`#555753`),W.toColor(`#ef2929`),W.toColor(`#8ae234`),W.toColor(`#fce94f`),W.toColor(`#729fcf`),W.toColor(`#ad7fa8`),W.toColor(`#34e2e2`),W.toColor(`#eeeeec`)],t=[0,95,135,175,215,255];for(let n=0;n<216;n++){let r=t[n/36%6|0],i=t[n/6%6|0],a=t[n%6];e.push({css:H.toCss(r,i,a),rgba:H.toRgba(r,i,a)})}for(let t=0;t<24;t++){let n=8+t*10;e.push({css:H.toCss(n,n,n),rgba:H.toRgba(n,n,n)})}return e})()),Ea=W.toColor(`#ffffff`),Da=W.toColor(`#000000`),Oa=W.toColor(`#ffffff`),ka=Da,Aa={css:`rgba(255, 255, 255, 0.3)`,rgba:4294967117},ja=Ea,Ma=class extends A{constructor(e){super(),this._optionsService=e,this._contrastCache=new Ta,this._halfContrastCache=new Ta,this._onChangeColors=this._register(new N),this.onChangeColors=this._onChangeColors.event,this._colors={foreground:Ea,background:Da,cursor:Oa,cursorAccent:ka,selectionForeground:void 0,selectionBackgroundTransparent:Aa,selectionBackgroundOpaque:U.blend(Da,Aa),selectionInactiveBackgroundTransparent:Aa,selectionInactiveBackgroundOpaque:U.blend(Da,Aa),scrollbarSliderBackground:U.opacity(Ea,.2),scrollbarSliderHoverBackground:U.opacity(Ea,.4),scrollbarSliderActiveBackground:U.opacity(Ea,.5),overviewRulerBorder:Ea,ansi:K.slice(),contrastCache:this._contrastCache,halfContrastCache:this._halfContrastCache},this._updateRestoreColors(),this._setTheme(this._optionsService.rawOptions.theme),this._register(this._optionsService.onSpecificOptionChange(`minimumContrastRatio`,()=>this._contrastCache.clear())),this._register(this._optionsService.onSpecificOptionChange(`theme`,()=>this._setTheme(this._optionsService.rawOptions.theme)))}get colors(){return this._colors}_setTheme(e={}){let t=this._colors;if(t.foreground=q(e.foreground,Ea),t.background=q(e.background,Da),t.cursor=U.blend(t.background,q(e.cursor,Oa)),t.cursorAccent=U.blend(t.background,q(e.cursorAccent,ka)),t.selectionBackgroundTransparent=q(e.selectionBackground,Aa),t.selectionBackgroundOpaque=U.blend(t.background,t.selectionBackgroundTransparent),t.selectionInactiveBackgroundTransparent=q(e.selectionInactiveBackground,t.selectionBackgroundTransparent),t.selectionInactiveBackgroundOpaque=U.blend(t.background,t.selectionInactiveBackgroundTransparent),t.selectionForeground=e.selectionForeground?q(e.selectionForeground,ti):void 0,t.selectionForeground===ti&&(t.selectionForeground=void 0),U.isOpaque(t.selectionBackgroundTransparent)&&(t.selectionBackgroundTransparent=U.opacity(t.selectionBackgroundTransparent,.3)),U.isOpaque(t.selectionInactiveBackgroundTransparent)&&(t.selectionInactiveBackgroundTransparent=U.opacity(t.selectionInactiveBackgroundTransparent,.3)),t.scrollbarSliderBackground=q(e.scrollbarSliderBackground,U.opacity(t.foreground,.2)),t.scrollbarSliderHoverBackground=q(e.scrollbarSliderHoverBackground,U.opacity(t.foreground,.4)),t.scrollbarSliderActiveBackground=q(e.scrollbarSliderActiveBackground,U.opacity(t.foreground,.5)),t.overviewRulerBorder=q(e.overviewRulerBorder,ja),t.ansi=K.slice(),t.ansi[0]=q(e.black,K[0]),t.ansi[1]=q(e.red,K[1]),t.ansi[2]=q(e.green,K[2]),t.ansi[3]=q(e.yellow,K[3]),t.ansi[4]=q(e.blue,K[4]),t.ansi[5]=q(e.magenta,K[5]),t.ansi[6]=q(e.cyan,K[6]),t.ansi[7]=q(e.white,K[7]),t.ansi[8]=q(e.brightBlack,K[8]),t.ansi[9]=q(e.brightRed,K[9]),t.ansi[10]=q(e.brightGreen,K[10]),t.ansi[11]=q(e.brightYellow,K[11]),t.ansi[12]=q(e.brightBlue,K[12]),t.ansi[13]=q(e.brightMagenta,K[13]),t.ansi[14]=q(e.brightCyan,K[14]),t.ansi[15]=q(e.brightWhite,K[15]),e.extendedAnsi){let n=Math.min(t.ansi.length-16,e.extendedAnsi.length);for(let r=0;r<n;r++)t.ansi[r+16]=q(e.extendedAnsi[r],K[r+16])}this._contrastCache.clear(),this._halfContrastCache.clear(),this._updateRestoreColors(),this._onChangeColors.fire(this.colors)}restoreColor(e){this._restoreColor(e),this._onChangeColors.fire(this.colors)}_restoreColor(e){if(e===void 0){for(let e=0;e<this._restoreColors.ansi.length;++e)this._colors.ansi[e]=this._restoreColors.ansi[e];return}switch(e){case 256:this._colors.foreground=this._restoreColors.foreground;break;case 257:this._colors.background=this._restoreColors.background;break;case 258:this._colors.cursor=this._restoreColors.cursor;break;default:this._colors.ansi[e]=this._restoreColors.ansi[e]}}modifyColors(e){e(this._colors),this._onChangeColors.fire(this.colors)}_updateRestoreColors(){this._restoreColors={foreground:this._colors.foreground,background:this._colors.background,cursor:this._colors.cursor,ansi:this._colors.ansi.slice()}}};Ma=r([i(0,S)],Ma);function q(e,t){if(e!==void 0)try{return W.toColor(e)}catch{}return t}var Na=class{constructor(...e){this._entries=new Map;for(let[t,n]of e)this.set(t,n)}set(e,t){let n=this._entries.get(e);return this._entries.set(e,t),n}forEach(e){for(let[t,n]of this._entries.entries())e(t,n)}has(e){return this._entries.has(e)}get(e){return this._entries.get(e)}},Pa=class{constructor(){this._services=new Na,this._services.set(x,this)}setService(e,t){this._services.set(e,t)}getService(e){return this._services.get(e)}createInstance(e,...t){let n=le(e).sort((e,t)=>e.index-t.index),r=[];for(let t of n){let n=this._services.get(t.id);if(!n)throw Error(`[createInstance] ${e.name} depends on UNKNOWN service ${t.id._id}.`);r.push(n)}let i=n.length>0?n[0].index:t.length;if(t.length!==i)throw Error(`[createInstance] First service dependency of ${e.name} at position ${i+1} conflicts with ${t.length} static arguments`);return new e(...t,...r)}},Fa={trace:0,debug:1,info:2,warn:3,error:4,off:5},Ia=`xterm.js: `,La=class extends A{constructor(e){super(),this._optionsService=e,this._logLevel=5,this._updateLogLevel(),this._register(this._optionsService.onSpecificOptionChange(`logLevel`,()=>this._updateLogLevel())),Ra=this}get logLevel(){return this._logLevel}_updateLogLevel(){this._logLevel=Fa[this._optionsService.rawOptions.logLevel]}_evalLazyOptionalParams(e){for(let t=0;t<e.length;t++)typeof e[t]==`function`&&(e[t]=e[t]())}_log(e,t,n){this._evalLazyOptionalParams(n),e.call(console,(this._optionsService.options.logger?``:Ia)+t,...n)}trace(e,...t){this._logLevel<=0&&this._log(this._optionsService.options.logger?.trace.bind(this._optionsService.options.logger)??console.log,e,t)}debug(e,...t){this._logLevel<=1&&this._log(this._optionsService.options.logger?.debug.bind(this._optionsService.options.logger)??console.log,e,t)}info(e,...t){this._logLevel<=2&&this._log(this._optionsService.options.logger?.info.bind(this._optionsService.options.logger)??console.info,e,t)}warn(e,...t){this._logLevel<=3&&this._log(this._optionsService.options.logger?.warn.bind(this._optionsService.options.logger)??console.warn,e,t)}error(e,...t){this._logLevel<=4&&this._log(this._optionsService.options.logger?.error.bind(this._optionsService.options.logger)??console.error,e,t)}};La=r([i(0,S)],La);var Ra,za=class extends A{constructor(e){super(),this._maxLength=e,this.onDeleteEmitter=this._register(new N),this.onDelete=this.onDeleteEmitter.event,this.onInsertEmitter=this._register(new N),this.onInsert=this.onInsertEmitter.event,this.onTrimEmitter=this._register(new N),this.onTrim=this.onTrimEmitter.event,this._array=Array(this._maxLength),this._startIndex=0,this._length=0}get maxLength(){return this._maxLength}set maxLength(e){if(this._maxLength===e)return;let t=Array(e);for(let n=0;n<Math.min(e,this.length);n++)t[n]=this._array[this._getCyclicIndex(n)];this._array=t,this._maxLength=e,this._startIndex=0}get length(){return this._length}set length(e){if(e>this._length)for(let t=this._length;t<e;t++)this._array[t]=void 0;this._length=e}get(e){return this._array[this._getCyclicIndex(e)]}set(e,t){this._array[this._getCyclicIndex(e)]=t}push(e){this._array[this._getCyclicIndex(this._length)]=e,this._length===this._maxLength?(this._startIndex=++this._startIndex%this._maxLength,this.onTrimEmitter.fire(1)):this._length++}recycle(){if(this._length!==this._maxLength)throw Error(`Can only recycle when the buffer is full`);return this._startIndex=++this._startIndex%this._maxLength,this.onTrimEmitter.fire(1),this._array[this._getCyclicIndex(this._length-1)]}get isFull(){return this._length===this._maxLength}pop(){return this._array[this._getCyclicIndex(this._length---1)]}splice(e,t,...n){if(t){for(let n=e;n<this._length-t;n++)this._array[this._getCyclicIndex(n)]=this._array[this._getCyclicIndex(n+t)];this._length-=t,this.onDeleteEmitter.fire({index:e,amount:t})}for(let t=this._length-1;t>=e;t--)this._array[this._getCyclicIndex(t+n.length)]=this._array[this._getCyclicIndex(t)];for(let t=0;t<n.length;t++)this._array[this._getCyclicIndex(e+t)]=n[t];if(n.length&&this.onInsertEmitter.fire({index:e,amount:n.length}),this._length+n.length>this._maxLength){let e=this._length+n.length-this._maxLength;this._startIndex+=e,this._length=this._maxLength,this.onTrimEmitter.fire(e)}else this._length+=n.length}trimStart(e){e>this._length&&(e=this._length),this._startIndex+=e,this._length-=e,this.onTrimEmitter.fire(e)}shiftElements(e,t,n){if(!(t<=0)){if(e<0||e>=this._length)throw Error(`start argument out of range`);if(e+n<0)throw Error(`Cannot shift elements in list beyond index 0`);if(n>0){for(let r=t-1;r>=0;r--)this.set(e+r+n,this.get(e+r));let r=e+t+n-this._length;if(r>0)for(this._length+=r;this._length>this._maxLength;)this._length--,this._startIndex++,this.onTrimEmitter.fire(1)}else for(let r=0;r<t;r++)this.set(e+r+n,this.get(e+r))}}_getCyclicIndex(e){return(this._startIndex+e)%this._maxLength}},J=3,Y=Object.freeze(new ie),Ba=0,Va=2,Ha=class e{constructor(e,t,n=!1){this.isWrapped=n,this._combined={},this._extendedAttrs={},this._data=new Uint32Array(e*J);let r=t||v.fromCharData([0,ne,1,0]);for(let t=0;t<e;++t)this.setCell(t,r);this.length=e}get(e){let t=this._data[e*J+0],n=t&2097151;return[this._data[e*J+1],t&2097152?this._combined[e]:n?g(n):``,t>>22,t&2097152?this._combined[e].charCodeAt(this._combined[e].length-1):n]}set(e,t){this._data[e*J+1]=t[0],t[1].length>1?(this._combined[e]=t[1],this._data[e*J+0]=e|2097152|t[2]<<22):this._data[e*J+0]=t[1].charCodeAt(0)|t[2]<<22}getWidth(e){return this._data[e*J+0]>>22}hasWidth(e){return this._data[e*J+0]&12582912}getFg(e){return this._data[e*J+1]}getBg(e){return this._data[e*J+2]}hasContent(e){return this._data[e*J+0]&4194303}getCodePoint(e){let t=this._data[e*J+0];return t&2097152?this._combined[e].charCodeAt(this._combined[e].length-1):t&2097151}isCombined(e){return this._data[e*J+0]&2097152}getString(e){let t=this._data[e*J+0];return t&2097152?this._combined[e]:t&2097151?g(t&2097151):``}isProtected(e){return this._data[e*J+2]&536870912}loadCell(e,t){return Ba=e*J,t.content=this._data[Ba+0],t.fg=this._data[Ba+1],t.bg=this._data[Ba+2],t.content&2097152&&(t.combinedData=this._combined[e]),t.bg&268435456&&(t.extended=this._extendedAttrs[e]),t}setCell(e,t){t.content&2097152&&(this._combined[e]=t.combinedData),t.bg&268435456&&(this._extendedAttrs[e]=t.extended),this._data[e*J+0]=t.content,this._data[e*J+1]=t.fg,this._data[e*J+2]=t.bg}setCellFromCodepoint(e,t,n,r){r.bg&268435456&&(this._extendedAttrs[e]=r.extended),this._data[e*J+0]=t|n<<22,this._data[e*J+1]=r.fg,this._data[e*J+2]=r.bg}addCodepointToCell(e,t,n){let r=this._data[e*J+0];r&2097152?this._combined[e]+=g(t):r&2097151?(this._combined[e]=g(r&2097151)+g(t),r&=-2097152,r|=2097152):r=t|1<<22,n&&(r&=-12582913,r|=n<<22),this._data[e*J+0]=r}insertCells(e,t,n){if(e%=this.length,e&&this.getWidth(e-1)===2&&this.setCellFromCodepoint(e-1,0,1,n),t<this.length-e){let r=new v;for(let n=this.length-e-t-1;n>=0;--n)this.setCell(e+t+n,this.loadCell(e+n,r));for(let r=0;r<t;++r)this.setCell(e+r,n)}else for(let t=e;t<this.length;++t)this.setCell(t,n);this.getWidth(this.length-1)===2&&this.setCellFromCodepoint(this.length-1,0,1,n)}deleteCells(e,t,n){if(e%=this.length,t<this.length-e){let r=new v;for(let n=0;n<this.length-e-t;++n)this.setCell(e+n,this.loadCell(e+t+n,r));for(let e=this.length-t;e<this.length;++e)this.setCell(e,n)}else for(let t=e;t<this.length;++t)this.setCell(t,n);e&&this.getWidth(e-1)===2&&this.setCellFromCodepoint(e-1,0,1,n),this.getWidth(e)===0&&!this.hasContent(e)&&this.setCellFromCodepoint(e,0,1,n)}replaceCells(e,t,n,r=!1){if(r){for(e&&this.getWidth(e-1)===2&&!this.isProtected(e-1)&&this.setCellFromCodepoint(e-1,0,1,n),t<this.length&&this.getWidth(t-1)===2&&!this.isProtected(t)&&this.setCellFromCodepoint(t,0,1,n);e<t&&e<this.length;)this.isProtected(e)||this.setCell(e,n),e++;return}for(e&&this.getWidth(e-1)===2&&this.setCellFromCodepoint(e-1,0,1,n),t<this.length&&this.getWidth(t-1)===2&&this.setCellFromCodepoint(t,0,1,n);e<t&&e<this.length;)this.setCell(e++,n)}resize(e,t){if(e===this.length)return this._data.length*4*Va<this._data.buffer.byteLength;let n=e*J;if(e>this.length){if(this._data.buffer.byteLength>=n*4)this._data=new Uint32Array(this._data.buffer,0,n);else{let e=new Uint32Array(n);e.set(this._data),this._data=e}for(let n=this.length;n<e;++n)this.setCell(n,t)}else{this._data=this._data.subarray(0,n);let t=Object.keys(this._combined);for(let n=0;n<t.length;n++){let r=parseInt(t[n],10);r>=e&&delete this._combined[r]}let r=Object.keys(this._extendedAttrs);for(let t=0;t<r.length;t++){let n=parseInt(r[t],10);n>=e&&delete this._extendedAttrs[n]}}return this.length=e,n*4*Va<this._data.buffer.byteLength}cleanupMemory(){if(this._data.length*4*Va<this._data.buffer.byteLength){let e=new Uint32Array(this._data.length);return e.set(this._data),this._data=e,1}return 0}fill(e,t=!1){if(t){for(let t=0;t<this.length;++t)this.isProtected(t)||this.setCell(t,e);return}this._combined={},this._extendedAttrs={};for(let t=0;t<this.length;++t)this.setCell(t,e)}copyFrom(e){this.length===e.length?this._data.set(e._data):this._data=new Uint32Array(e._data),this.length=e.length,this._combined={};for(let t in e._combined)this._combined[t]=e._combined[t];this._extendedAttrs={};for(let t in e._extendedAttrs)this._extendedAttrs[t]=e._extendedAttrs[t];this.isWrapped=e.isWrapped}clone(){let t=new e(0);t._data=new Uint32Array(this._data),t.length=this.length;for(let e in this._combined)t._combined[e]=this._combined[e];for(let e in this._extendedAttrs)t._extendedAttrs[e]=this._extendedAttrs[e];return t.isWrapped=this.isWrapped,t}getTrimmedLength(){for(let e=this.length-1;e>=0;--e)if(this._data[e*J+0]&4194303)return e+(this._data[e*J+0]>>22);return 0}getNoBgTrimmedLength(){for(let e=this.length-1;e>=0;--e)if(this._data[e*J+0]&4194303||this._data[e*J+2]&50331648)return e+(this._data[e*J+0]>>22);return 0}copyCellsFrom(e,t,n,r,i){let a=e._data;if(i)for(let i=r-1;i>=0;i--){for(let e=0;e<J;e++)this._data[(n+i)*J+e]=a[(t+i)*J+e];a[(t+i)*J+2]&268435456&&(this._extendedAttrs[n+i]=e._extendedAttrs[t+i])}else for(let i=0;i<r;i++){for(let e=0;e<J;e++)this._data[(n+i)*J+e]=a[(t+i)*J+e];a[(t+i)*J+2]&268435456&&(this._extendedAttrs[n+i]=e._extendedAttrs[t+i])}let o=Object.keys(e._combined);for(let r=0;r<o.length;r++){let i=parseInt(o[r],10);i>=t&&(this._combined[i-t+n]=e._combined[i])}}translateToString(e,t,n,r){t??=0,n??=this.length,e&&(n=Math.min(n,this.getTrimmedLength())),r&&(r.length=0);let i=``;for(;t<n;){let e=this._data[t*J+0],n=e&2097151,a=e&2097152?this._combined[t]:n?g(n):re;if(i+=a,r)for(let e=0;e<a.length;++e)r.push(t);t+=e>>22||1}return r&&r.push(t),i}};function Ua(e,t,n,r,i,a){let o=[];for(let s=0;s<e.length-1;s++){let c=s,l=e.get(++c);if(!l.isWrapped)continue;let u=[e.get(s)];for(;c<e.length&&l.isWrapped;)u.push(l),l=e.get(++c);if(!a&&r>=s&&r<c){s+=u.length-1;continue}let d=0,f=qa(u,d,t),p=1,m=0;for(;p<u.length;){let e=qa(u,p,t),r=e-m,a=n-f,o=Math.min(r,a);u[d].copyCellsFrom(u[p],m,f,o,!1),f+=o,f===n&&(d++,f=0),m+=o,m===e&&(p++,m=0),f===0&&d!==0&&u[d-1].getWidth(n-1)===2&&(u[d].copyCellsFrom(u[d-1],n-1,f++,1,!1),u[d-1].setCell(n-1,i))}u[d].replaceCells(f,n,i);let h=0;for(let e=u.length-1;e>0&&(e>d||u[e].getTrimmedLength()===0);e--)h++;h>0&&(o.push(s+u.length-h),o.push(h)),s+=u.length-1}return o}function Wa(e,t){let n=[],r=0,i=t[r],a=0;for(let o=0;o<e.length;o++)if(i===o){let n=t[++r];e.onDeleteEmitter.fire({index:o-a,amount:n}),o+=n-1,a+=n,i=t[++r]}else n.push(o);return{layout:n,countRemoved:a}}function Ga(e,t){let n=[];for(let r=0;r<t.length;r++)n.push(e.get(t[r]));for(let t=0;t<n.length;t++)e.set(t,n[t]);e.length=t.length}function Ka(e,t,n){let r=[],i=e.map((n,r)=>qa(e,r,t)).reduce((e,t)=>e+t),a=0,o=0,s=0;for(;s<i;){if(i-s<n){r.push(i-s);break}a+=n;let c=qa(e,o,t);a>c&&(a-=c,o++);let l=e[o].getWidth(a-1)===2;l&&a--;let u=l?n-1:n;r.push(u),s+=u}return r}function qa(e,t,n){if(t===e.length-1)return e[t].getTrimmedLength();let r=!e[t].hasContent(n-1)&&e[t].getWidth(n-1)===1,i=e[t+1].getWidth(0)===2;return r&&i?n-1:n}var Ja=class e{constructor(t){this.line=t,this.isDisposed=!1,this._disposables=[],this._id=e._nextId++,this._onDispose=this.register(new N),this.onDispose=this._onDispose.event}get id(){return this._id}dispose(){this.isDisposed||(this.isDisposed=!0,this.line=-1,this._onDispose.fire(),Xe(this._disposables),this._disposables.length=0)}register(e){return this._disposables.push(e),e}};Ja._nextId=1;var Ya=Ja,X={},Xa=X.B;X[0]={"`":`◆`,a:`▒`,b:`␉`,c:`␌`,d:`␍`,e:`␊`,f:`°`,g:`±`,h:`␤`,i:`␋`,j:`┘`,k:`┐`,l:`┌`,m:`└`,n:`┼`,o:`⎺`,p:`⎻`,q:`─`,r:`⎼`,s:`⎽`,t:`├`,u:`┤`,v:`┴`,w:`┬`,x:`│`,y:`≤`,z:`≥`,"{":`π`,"|":`≠`,"}":`£`,"~":`·`},X.A={"#":`£`},X.B=void 0,X[4]={"#":`£`,"@":`¾`,"[":`ij`,"\\":`½`,"]":`|`,"{":`¨`,"|":`f`,"}":`¼`,"~":`´`},X.C=X[5]={"[":`Ä`,"\\":`Ö`,"]":`Å`,"^":`Ü`,"`":`é`,"{":`ä`,"|":`ö`,"}":`å`,"~":`ü`},X.R={"#":`£`,"@":`à`,"[":`°`,"\\":`ç`,"]":`§`,"{":`é`,"|":`ù`,"}":`è`,"~":`¨`},X.Q={"@":`à`,"[":`â`,"\\":`ç`,"]":`ê`,"^":`î`,"`":`ô`,"{":`é`,"|":`ù`,"}":`è`,"~":`û`},X.K={"@":`§`,"[":`Ä`,"\\":`Ö`,"]":`Ü`,"{":`ä`,"|":`ö`,"}":`ü`,"~":`ß`},X.Y={"#":`£`,"@":`§`,"[":`°`,"\\":`ç`,"]":`é`,"`":`ù`,"{":`à`,"|":`ò`,"}":`è`,"~":`ì`},X.E=X[6]={"@":`Ä`,"[":`Æ`,"\\":`Ø`,"]":`Å`,"^":`Ü`,"`":`ä`,"{":`æ`,"|":`ø`,"}":`å`,"~":`ü`},X.Z={"#":`£`,"@":`§`,"[":`¡`,"\\":`Ñ`,"]":`¿`,"{":`°`,"|":`ñ`,"}":`ç`},X.H=X[7]={"@":`É`,"[":`Ä`,"\\":`Ö`,"]":`Å`,"^":`Ü`,"`":`é`,"{":`ä`,"|":`ö`,"}":`å`,"~":`ü`},X[`=`]={"#":`ù`,"@":`à`,"[":`é`,"\\":`ç`,"]":`ê`,"^":`î`,_:`è`,"`":`ô`,"{":`ä`,"|":`ö`,"}":`ü`,"~":`û`};var Za=4294967295,Qa=class{constructor(e,t,n){this._hasScrollback=e,this._optionsService=t,this._bufferService=n,this.ydisp=0,this.ybase=0,this.y=0,this.x=0,this.tabs={},this.savedY=0,this.savedX=0,this.savedCurAttrData=Y.clone(),this.savedCharset=Xa,this.markers=[],this._nullCell=v.fromCharData([0,ne,1,0]),this._whitespaceCell=v.fromCharData([0,re,1,32]),this._isClearing=!1,this._memoryCleanupQueue=new $i,this._memoryCleanupPosition=0,this._cols=this._bufferService.cols,this._rows=this._bufferService.rows,this.lines=new za(this._getCorrectBufferLength(this._rows)),this.scrollTop=0,this.scrollBottom=this._rows-1,this.setupTabStops()}getNullCell(e){return e?(this._nullCell.fg=e.fg,this._nullCell.bg=e.bg,this._nullCell.extended=e.extended):(this._nullCell.fg=0,this._nullCell.bg=0,this._nullCell.extended=new ae),this._nullCell}getWhitespaceCell(e){return e?(this._whitespaceCell.fg=e.fg,this._whitespaceCell.bg=e.bg,this._whitespaceCell.extended=e.extended):(this._whitespaceCell.fg=0,this._whitespaceCell.bg=0,this._whitespaceCell.extended=new ae),this._whitespaceCell}getBlankLine(e,t){return new Ha(this._bufferService.cols,this.getNullCell(e),t)}get hasScrollback(){return this._hasScrollback&&this.lines.maxLength>this._rows}get isCursorInViewport(){let e=this.ybase+this.y-this.ydisp;return e>=0&&e<this._rows}_getCorrectBufferLength(e){if(!this._hasScrollback)return e;let t=e+this._optionsService.rawOptions.scrollback;return t>Za?Za:t}fillViewportRows(e){if(this.lines.length===0){e===void 0&&(e=Y);let t=this._rows;for(;t--;)this.lines.push(this.getBlankLine(e))}}clear(){this.ydisp=0,this.ybase=0,this.y=0,this.x=0,this.lines=new za(this._getCorrectBufferLength(this._rows)),this.scrollTop=0,this.scrollBottom=this._rows-1,this.setupTabStops()}resize(e,t){let n=this.getNullCell(Y),r=0,i=this._getCorrectBufferLength(t);if(i>this.lines.maxLength&&(this.lines.maxLength=i),this.lines.length>0){if(this._cols<e)for(let t=0;t<this.lines.length;t++)r+=+this.lines.get(t).resize(e,n);let a=0;if(this._rows<t)for(let r=this._rows;r<t;r++)this.lines.length<t+this.ybase&&(this._optionsService.rawOptions.windowsMode||this._optionsService.rawOptions.windowsPty.backend!==void 0||this._optionsService.rawOptions.windowsPty.buildNumber!==void 0?this.lines.push(new Ha(e,n)):this.ybase>0&&this.lines.length<=this.ybase+this.y+a+1?(this.ybase--,a++,this.ydisp>0&&this.ydisp--):this.lines.push(new Ha(e,n)));else for(let e=this._rows;e>t;e--)this.lines.length>t+this.ybase&&(this.lines.length>this.ybase+this.y+1?this.lines.pop():(this.ybase++,this.ydisp++));if(i<this.lines.maxLength){let e=this.lines.length-i;e>0&&(this.lines.trimStart(e),this.ybase=Math.max(this.ybase-e,0),this.ydisp=Math.max(this.ydisp-e,0),this.savedY=Math.max(this.savedY-e,0)),this.lines.maxLength=i}this.x=Math.min(this.x,e-1),this.y=Math.min(this.y,t-1),a&&(this.y+=a),this.savedX=Math.min(this.savedX,e-1),this.scrollTop=0}if(this.scrollBottom=t-1,this._isReflowEnabled&&(this._reflow(e,t),this._cols>e))for(let t=0;t<this.lines.length;t++)r+=+this.lines.get(t).resize(e,n);this._cols=e,this._rows=t,this._memoryCleanupQueue.clear(),r>.1*this.lines.length&&(this._memoryCleanupPosition=0,this._memoryCleanupQueue.enqueue(()=>this._batchedMemoryCleanup()))}_batchedMemoryCleanup(){let e=!0;this._memoryCleanupPosition>=this.lines.length&&(this._memoryCleanupPosition=0,e=!1);let t=0;for(;this._memoryCleanupPosition<this.lines.length;)if(t+=this.lines.get(this._memoryCleanupPosition++).cleanupMemory(),t>100)return!0;return e}get _isReflowEnabled(){let e=this._optionsService.rawOptions.windowsPty;return e&&e.buildNumber?this._hasScrollback&&e.backend===`conpty`&&e.buildNumber>=21376:this._hasScrollback&&!this._optionsService.rawOptions.windowsMode}_reflow(e,t){this._cols!==e&&(e>this._cols?this._reflowLarger(e,t):this._reflowSmaller(e,t))}_reflowLarger(e,t){let n=this._optionsService.rawOptions.reflowCursorLine,r=Ua(this.lines,this._cols,e,this.ybase+this.y,this.getNullCell(Y),n);if(r.length>0){let n=Wa(this.lines,r);Ga(this.lines,n.layout),this._reflowLargerAdjustViewport(e,t,n.countRemoved)}}_reflowLargerAdjustViewport(e,t,n){let r=this.getNullCell(Y),i=n;for(;i-- >0;)this.ybase===0?(this.y>0&&this.y--,this.lines.length<t&&this.lines.push(new Ha(e,r))):(this.ydisp===this.ybase&&this.ydisp--,this.ybase--);this.savedY=Math.max(this.savedY-n,0)}_reflowSmaller(e,t){let n=this._optionsService.rawOptions.reflowCursorLine,r=this.getNullCell(Y),i=[],a=0;for(let o=this.lines.length-1;o>=0;o--){let s=this.lines.get(o);if(!s||!s.isWrapped&&s.getTrimmedLength()<=e)continue;let c=[s];for(;s.isWrapped&&o>0;)s=this.lines.get(--o),c.unshift(s);if(!n){let e=this.ybase+this.y;if(e>=o&&e<o+c.length)continue}let l=c[c.length-1].getTrimmedLength(),u=Ka(c,this._cols,e),d=u.length-c.length,f;f=this.ybase===0&&this.y!==this.lines.length-1?Math.max(0,this.y-this.lines.maxLength+d):Math.max(0,this.lines.length-this.lines.maxLength+d);let p=[];for(let e=0;e<d;e++){let e=this.getBlankLine(Y,!0);p.push(e)}p.length>0&&(i.push({start:o+c.length+a,newLines:p}),a+=p.length),c.push(...p);let m=u.length-1,h=u[m];h===0&&(m--,h=u[m]);let g=c.length-d-1,_=l;for(;g>=0;){let e=Math.min(_,h);if(c[m]===void 0)break;c[m].copyCellsFrom(c[g],_-e,h-e,e,!0),h-=e,h===0&&(m--,h=u[m]),_-=e,_===0&&(g--,_=qa(c,Math.max(g,0),this._cols))}for(let t=0;t<c.length;t++)u[t]<e&&c[t].setCell(u[t],r);let ee=d-f;for(;ee-- >0;)this.ybase===0?this.y<t-1?(this.y++,this.lines.pop()):(this.ybase++,this.ydisp++):this.ybase<Math.min(this.lines.maxLength,this.lines.length+a)-t&&(this.ybase===this.ydisp&&this.ydisp++,this.ybase++);this.savedY=Math.min(this.savedY+d,this.ybase+t-1)}if(i.length>0){let e=[],t=[];for(let e=0;e<this.lines.length;e++)t.push(this.lines.get(e));let n=this.lines.length,r=n-1,o=0,s=i[o];this.lines.length=Math.min(this.lines.maxLength,this.lines.length+a);let c=0;for(let l=Math.min(this.lines.maxLength-1,n+a-1);l>=0;l--)if(s&&s.start>r+c){for(let e=s.newLines.length-1;e>=0;e--)this.lines.set(l--,s.newLines[e]);l++,e.push({index:r+1,amount:s.newLines.length}),c+=s.newLines.length,s=i[++o]}else this.lines.set(l,t[r--]);let l=0;for(let t=e.length-1;t>=0;t--)e[t].index+=l,this.lines.onInsertEmitter.fire(e[t]),l+=e[t].amount;let u=Math.max(0,n+a-this.lines.maxLength);u>0&&this.lines.onTrimEmitter.fire(u)}}translateBufferLineToString(e,t,n=0,r){let i=this.lines.get(e);return i?i.translateToString(t,n,r):``}getWrappedRangeForLine(e){let t=e,n=e;for(;t>0&&this.lines.get(t).isWrapped;)t--;for(;n+1<this.lines.length&&this.lines.get(n+1).isWrapped;)n++;return{first:t,last:n}}setupTabStops(e){for(e==null?(this.tabs={},e=0):this.tabs[e]||(e=this.prevStop(e));e<this._cols;e+=this._optionsService.rawOptions.tabStopWidth)this.tabs[e]=!0}prevStop(e){for(e??=this.x;!this.tabs[--e]&&e>0;);return e>=this._cols?this._cols-1:e<0?0:e}nextStop(e){for(e??=this.x;!this.tabs[++e]&&e<this._cols;);return e>=this._cols?this._cols-1:e<0?0:e}clearMarkers(e){this._isClearing=!0;for(let t=0;t<this.markers.length;t++)this.markers[t].line===e&&(this.markers[t].dispose(),this.markers.splice(t--,1));this._isClearing=!1}clearAllMarkers(){this._isClearing=!0;for(let e=0;e<this.markers.length;e++)this.markers[e].dispose();this.markers.length=0,this._isClearing=!1}addMarker(e){let t=new Ya(e);return this.markers.push(t),t.register(this.lines.onTrim(e=>{t.line-=e,t.line<0&&t.dispose()})),t.register(this.lines.onInsert(e=>{t.line>=e.index&&(t.line+=e.amount)})),t.register(this.lines.onDelete(e=>{t.line>=e.index&&t.line<e.index+e.amount&&t.dispose(),t.line>e.index&&(t.line-=e.amount)})),t.register(t.onDispose(()=>this._removeMarker(t))),t}_removeMarker(e){this._isClearing||this.markers.splice(this.markers.indexOf(e),1)}},$a=class extends A{constructor(e,t){super(),this._optionsService=e,this._bufferService=t,this._onBufferActivate=this._register(new N),this.onBufferActivate=this._onBufferActivate.event,this.reset(),this._register(this._optionsService.onSpecificOptionChange(`scrollback`,()=>this.resize(this._bufferService.cols,this._bufferService.rows))),this._register(this._optionsService.onSpecificOptionChange(`tabStopWidth`,()=>this.setupTabStops()))}reset(){this._normal=new Qa(!0,this._optionsService,this._bufferService),this._normal.fillViewportRows(),this._alt=new Qa(!1,this._optionsService,this._bufferService),this._activeBuffer=this._normal,this._onBufferActivate.fire({activeBuffer:this._normal,inactiveBuffer:this._alt}),this.setupTabStops()}get alt(){return this._alt}get active(){return this._activeBuffer}get normal(){return this._normal}activateNormalBuffer(){this._activeBuffer!==this._normal&&(this._normal.x=this._alt.x,this._normal.y=this._alt.y,this._alt.clearAllMarkers(),this._alt.clear(),this._activeBuffer=this._normal,this._onBufferActivate.fire({activeBuffer:this._normal,inactiveBuffer:this._alt}))}activateAltBuffer(e){this._activeBuffer!==this._alt&&(this._alt.fillViewportRows(e),this._alt.x=this._normal.x,this._alt.y=this._normal.y,this._activeBuffer=this._alt,this._onBufferActivate.fire({activeBuffer:this._alt,inactiveBuffer:this._normal}))}resize(e,t){this._normal.resize(e,t),this._alt.resize(e,t),this.setupTabStops(e)}setupTabStops(e){this._normal.setupTabStops(e),this._alt.setupTabStops(e)}},eo=2,to=1,no=class extends A{constructor(e){super(),this.isUserScrolling=!1,this._onResize=this._register(new N),this.onResize=this._onResize.event,this._onScroll=this._register(new N),this.onScroll=this._onScroll.event,this.cols=Math.max(e.rawOptions.cols||0,eo),this.rows=Math.max(e.rawOptions.rows||0,to),this.buffers=this._register(new $a(e,this)),this._register(this.buffers.onBufferActivate(e=>{this._onScroll.fire(e.activeBuffer.ydisp)}))}get buffer(){return this.buffers.active}resize(e,t){let n=this.cols!==e,r=this.rows!==t;this.cols=e,this.rows=t,this.buffers.resize(e,t),this._onResize.fire({cols:e,rows:t,colsChanged:n,rowsChanged:r})}reset(){this.buffers.reset(),this.isUserScrolling=!1}scroll(e,t=!1){let n=this.buffer,r;r=this._cachedBlankLine,(!r||r.length!==this.cols||r.getFg(0)!==e.fg||r.getBg(0)!==e.bg)&&(r=n.getBlankLine(e,t),this._cachedBlankLine=r),r.isWrapped=t;let i=n.ybase+n.scrollTop,a=n.ybase+n.scrollBottom;if(n.scrollTop===0){let e=n.lines.isFull;a===n.lines.length-1?e?n.lines.recycle().copyFrom(r):n.lines.push(r.clone()):n.lines.splice(a+1,0,r.clone()),e?this.isUserScrolling&&(n.ydisp=Math.max(n.ydisp-1,0)):(n.ybase++,this.isUserScrolling||n.ydisp++)}else{let e=a-i+1;n.lines.shiftElements(i+1,e-1,-1),n.lines.set(a,r.clone())}this.isUserScrolling||(n.ydisp=n.ybase),this._onScroll.fire(n.ydisp)}scrollLines(e,t){let n=this.buffer;if(e<0){if(n.ydisp===0)return;this.isUserScrolling=!0}else e+n.ydisp>=n.ybase&&(this.isUserScrolling=!1);let r=n.ydisp;n.ydisp=Math.max(Math.min(n.ydisp+e,n.ybase),0),r!==n.ydisp&&(t||this._onScroll.fire(n.ydisp))}};no=r([i(0,S)],no);var ro={cols:80,rows:24,cursorBlink:!1,cursorStyle:`block`,cursorWidth:1,cursorInactiveStyle:`outline`,customGlyphs:!0,drawBoldTextInBrightColors:!0,documentOverride:null,fastScrollModifier:`alt`,fastScrollSensitivity:5,fontFamily:`monospace`,fontSize:15,fontWeight:`normal`,fontWeightBold:`bold`,ignoreBracketedPasteMode:!1,lineHeight:1,letterSpacing:0,linkHandler:null,logLevel:`info`,logger:null,scrollback:1e3,scrollOnEraseInDisplay:!1,scrollOnUserInput:!0,scrollSensitivity:1,screenReaderMode:!1,smoothScrollDuration:0,macOptionIsMeta:!1,macOptionClickForcesSelection:!1,minimumContrastRatio:1,disableStdin:!1,allowProposedApi:!1,allowTransparency:!1,tabStopWidth:8,theme:{},reflowCursorLine:!1,rescaleOverlappingGlyphs:!1,rightClickSelectsWord:Wi,windowOptions:{},windowsMode:!1,windowsPty:{},wordSeparator:` ()[]{}',"\``,altClickMovesCursor:!0,convertEol:!1,termName:`xterm`,cancelEvents:!1,overviewRuler:{}},io=[`normal`,`bold`,`100`,`200`,`300`,`400`,`500`,`600`,`700`,`800`,`900`],ao=class extends A{constructor(e){super(),this._onOptionChange=this._register(new N),this.onOptionChange=this._onOptionChange.event;let t={...ro};for(let n in e)if(n in t)try{let r=e[n];t[n]=this._sanitizeAndValidateOption(n,r)}catch(e){console.error(e)}this.rawOptions=t,this.options={...t},this._setupOptions(),this._register(k(()=>{this.rawOptions.linkHandler=null,this.rawOptions.documentOverride=null}))}onSpecificOptionChange(e,t){return this.onOptionChange(n=>{n===e&&t(this.rawOptions[e])})}onMultipleOptionChange(e,t){return this.onOptionChange(n=>{e.indexOf(n)!==-1&&t()})}_setupOptions(){let e=e=>{if(!(e in ro))throw Error(`No option with key "${e}"`);return this.rawOptions[e]},t=(e,t)=>{if(!(e in ro))throw Error(`No option with key "${e}"`);t=this._sanitizeAndValidateOption(e,t),this.rawOptions[e]!==t&&(this.rawOptions[e]=t,this._onOptionChange.fire(e))};for(let n in this.rawOptions){let r={get:e.bind(this,n),set:t.bind(this,n)};Object.defineProperty(this.options,n,r)}}_sanitizeAndValidateOption(e,t){switch(e){case`cursorStyle`:if(t||=ro[e],!oo(t))throw Error(`"${t}" is not a valid value for ${e}`);break;case`wordSeparator`:t||=ro[e];break;case`fontWeight`:case`fontWeightBold`:if(typeof t==`number`&&1<=t&&t<=1e3)break;t=io.includes(t)?t:ro[e];break;case`cursorWidth`:t=Math.floor(t);case`lineHeight`:case`tabStopWidth`:if(t<1)throw Error(`${e} cannot be less than 1, value: ${t}`);break;case`minimumContrastRatio`:t=Math.max(1,Math.min(21,Math.round(t*10)/10));break;case`scrollback`:if(t=Math.min(t,4294967295),t<0)throw Error(`${e} cannot be less than 0, value: ${t}`);break;case`fastScrollSensitivity`:case`scrollSensitivity`:if(t<=0)throw Error(`${e} cannot be less than or equal to 0, value: ${t}`);break;case`rows`:case`cols`:if(!t&&t!==0)throw Error(`${e} must be numeric, value: ${t}`);break;case`windowsPty`:t??={};break}return t}};function oo(e){return e===`block`||e===`underline`||e===`bar`}function so(e,t=5){if(typeof e!=`object`)return e;let n=Array.isArray(e)?[]:{};for(let r in e)n[r]=t<=1?e[r]:e[r]&&so(e[r],t-1);return n}var co=Object.freeze({insertMode:!1}),lo=Object.freeze({applicationCursorKeys:!1,applicationKeypad:!1,bracketedPasteMode:!1,cursorBlink:void 0,cursorStyle:void 0,origin:!1,reverseWraparound:!1,sendFocus:!1,synchronizedOutput:!1,wraparound:!0}),uo=class extends A{constructor(e,t,n){super(),this._bufferService=e,this._logService=t,this._optionsService=n,this.isCursorInitialized=!1,this.isCursorHidden=!1,this._onData=this._register(new N),this.onData=this._onData.event,this._onUserInput=this._register(new N),this.onUserInput=this._onUserInput.event,this._onBinary=this._register(new N),this.onBinary=this._onBinary.event,this._onRequestScrollToBottom=this._register(new N),this.onRequestScrollToBottom=this._onRequestScrollToBottom.event,this.modes=so(co),this.decPrivateModes=so(lo)}reset(){this.modes=so(co),this.decPrivateModes=so(lo)}triggerDataEvent(e,t=!1){if(this._optionsService.rawOptions.disableStdin)return;let n=this._bufferService.buffer;t&&this._optionsService.rawOptions.scrollOnUserInput&&n.ybase!==n.ydisp&&this._onRequestScrollToBottom.fire(),t&&this._onUserInput.fire(),this._logService.debug(`sending data "${e}"`),this._logService.trace(`sending data (codes)`,()=>e.split(``).map(e=>e.charCodeAt(0))),this._onData.fire(e)}triggerBinaryEvent(e){this._optionsService.rawOptions.disableStdin||(this._logService.debug(`sending binary "${e}"`),this._logService.trace(`sending binary (codes)`,()=>e.split(``).map(e=>e.charCodeAt(0))),this._onBinary.fire(e))}};uo=r([i(0,b),i(1,me),i(2,S)],uo);var fo={NONE:{events:0,restrict:()=>!1},X10:{events:1,restrict:e=>e.button===4||e.action!==1?!1:(e.ctrl=!1,e.alt=!1,e.shift=!1,!0)},VT200:{events:19,restrict:e=>e.action!==32},DRAG:{events:23,restrict:e=>!(e.action===32&&e.button===3)},ANY:{events:31,restrict:e=>!0}};function po(e,t){let n=(e.ctrl?16:0)|(e.shift?4:0)|(e.alt?8:0);return e.button===4?(n|=64,n|=e.action):(n|=e.button&3,e.button&4&&(n|=64),e.button&8&&(n|=128),e.action===32?n|=32:e.action===0&&!t&&(n|=3)),n}var mo=String.fromCharCode,ho={DEFAULT:e=>{let t=[po(e,!1)+32,e.col+32,e.row+32];return t[0]>255||t[1]>255||t[2]>255?``:`\x1B[M${mo(t[0])}${mo(t[1])}${mo(t[2])}`},SGR:e=>{let t=e.action===0&&e.button!==4?`m`:`M`;return`\x1B[<${po(e,!0)};${e.col};${e.row}${t}`},SGR_PIXELS:e=>{let t=e.action===0&&e.button!==4?`m`:`M`;return`\x1B[<${po(e,!0)};${e.x};${e.y}${t}`}},go=class extends A{constructor(e,t,n){super(),this._bufferService=e,this._coreService=t,this._optionsService=n,this._protocols={},this._encodings={},this._activeProtocol=``,this._activeEncoding=``,this._lastEvent=null,this._wheelPartialScroll=0,this._onProtocolChange=this._register(new N),this.onProtocolChange=this._onProtocolChange.event;for(let e of Object.keys(fo))this.addProtocol(e,fo[e]);for(let e of Object.keys(ho))this.addEncoding(e,ho[e]);this.reset()}addProtocol(e,t){this._protocols[e]=t}addEncoding(e,t){this._encodings[e]=t}get activeProtocol(){return this._activeProtocol}get areMouseEventsActive(){return this._protocols[this._activeProtocol].events!==0}set activeProtocol(e){if(!this._protocols[e])throw Error(`unknown protocol "${e}"`);this._activeProtocol=e,this._onProtocolChange.fire(this._protocols[e].events)}get activeEncoding(){return this._activeEncoding}set activeEncoding(e){if(!this._encodings[e])throw Error(`unknown encoding "${e}"`);this._activeEncoding=e}reset(){this.activeProtocol=`NONE`,this.activeEncoding=`DEFAULT`,this._lastEvent=null,this._wheelPartialScroll=0}consumeWheelEvent(e,t,n){if(e.deltaY===0||e.shiftKey||t===void 0||n===void 0)return 0;let r=t/n,i=this._applyScrollModifier(e.deltaY,e);return e.deltaMode===WheelEvent.DOM_DELTA_PIXEL?(i/=r+0,Math.abs(e.deltaY)<50&&(i*=.3),this._wheelPartialScroll+=i,i=Math.floor(Math.abs(this._wheelPartialScroll))*(this._wheelPartialScroll>0?1:-1),this._wheelPartialScroll%=1):e.deltaMode===WheelEvent.DOM_DELTA_PAGE&&(i*=this._bufferService.rows),i}_applyScrollModifier(e,t){return t.altKey||t.ctrlKey||t.shiftKey?e*this._optionsService.rawOptions.fastScrollSensitivity*this._optionsService.rawOptions.scrollSensitivity:e*this._optionsService.rawOptions.scrollSensitivity}triggerMouseEvent(e){if(e.col<0||e.col>=this._bufferService.cols||e.row<0||e.row>=this._bufferService.rows||e.button===4&&e.action===32||e.button===3&&e.action!==32||e.button!==4&&(e.action===2||e.action===3)||(e.col++,e.row++,e.action===32&&this._lastEvent&&this._equalEvents(this._lastEvent,e,this._activeEncoding===`SGR_PIXELS`))||!this._protocols[this._activeProtocol].restrict(e))return!1;let t=this._encodings[this._activeEncoding](e);return t&&(this._activeEncoding===`DEFAULT`?this._coreService.triggerBinaryEvent(t):this._coreService.triggerDataEvent(t,!0)),this._lastEvent=e,!0}explainEvents(e){return{down:!!(e&1),up:!!(e&2),drag:!!(e&4),move:!!(e&8),wheel:!!(e&16)}}_equalEvents(e,t,n){if(n){if(e.x!==t.x||e.y!==t.y)return!1}else if(e.col!==t.col||e.row!==t.row)return!1;return!(e.button!==t.button||e.action!==t.action||e.ctrl!==t.ctrl||e.alt!==t.alt||e.shift!==t.shift)}};go=r([i(0,b),i(1,fe),i(2,S)],go);var _o=[[768,879],[1155,1158],[1160,1161],[1425,1469],[1471,1471],[1473,1474],[1476,1477],[1479,1479],[1536,1539],[1552,1557],[1611,1630],[1648,1648],[1750,1764],[1767,1768],[1770,1773],[1807,1807],[1809,1809],[1840,1866],[1958,1968],[2027,2035],[2305,2306],[2364,2364],[2369,2376],[2381,2381],[2385,2388],[2402,2403],[2433,2433],[2492,2492],[2497,2500],[2509,2509],[2530,2531],[2561,2562],[2620,2620],[2625,2626],[2631,2632],[2635,2637],[2672,2673],[2689,2690],[2748,2748],[2753,2757],[2759,2760],[2765,2765],[2786,2787],[2817,2817],[2876,2876],[2879,2879],[2881,2883],[2893,2893],[2902,2902],[2946,2946],[3008,3008],[3021,3021],[3134,3136],[3142,3144],[3146,3149],[3157,3158],[3260,3260],[3263,3263],[3270,3270],[3276,3277],[3298,3299],[3393,3395],[3405,3405],[3530,3530],[3538,3540],[3542,3542],[3633,3633],[3636,3642],[3655,3662],[3761,3761],[3764,3769],[3771,3772],[3784,3789],[3864,3865],[3893,3893],[3895,3895],[3897,3897],[3953,3966],[3968,3972],[3974,3975],[3984,3991],[3993,4028],[4038,4038],[4141,4144],[4146,4146],[4150,4151],[4153,4153],[4184,4185],[4448,4607],[4959,4959],[5906,5908],[5938,5940],[5970,5971],[6002,6003],[6068,6069],[6071,6077],[6086,6086],[6089,6099],[6109,6109],[6155,6157],[6313,6313],[6432,6434],[6439,6440],[6450,6450],[6457,6459],[6679,6680],[6912,6915],[6964,6964],[6966,6970],[6972,6972],[6978,6978],[7019,7027],[7616,7626],[7678,7679],[8203,8207],[8234,8238],[8288,8291],[8298,8303],[8400,8431],[12330,12335],[12441,12442],[43014,43014],[43019,43019],[43045,43046],[64286,64286],[65024,65039],[65056,65059],[65279,65279],[65529,65531]],vo=[[68097,68099],[68101,68102],[68108,68111],[68152,68154],[68159,68159],[119143,119145],[119155,119170],[119173,119179],[119210,119213],[119362,119364],[917505,917505],[917536,917631],[917760,917999]],Z;function yo(e,t){let n=0,r=t.length-1,i;if(e<t[0][0]||e>t[r][1])return!1;for(;r>=n;)if(i=n+r>>1,e>t[i][1])n=i+1;else if(e<t[i][0])r=i-1;else return!0;return!1}var bo=class{constructor(){if(this.version=`6`,!Z){Z=new Uint8Array(65536),Z.fill(1),Z[0]=0,Z.fill(0,1,32),Z.fill(0,127,160),Z.fill(2,4352,4448),Z[9001]=2,Z[9002]=2,Z.fill(2,11904,42192),Z[12351]=1,Z.fill(2,44032,55204),Z.fill(2,63744,64256),Z.fill(2,65040,65050),Z.fill(2,65072,65136),Z.fill(2,65280,65377),Z.fill(2,65504,65511);for(let e=0;e<_o.length;++e)Z.fill(0,_o[e][0],_o[e][1]+1)}}wcwidth(e){return e<32?0:e<127?1:e<65536?Z[e]:yo(e,vo)?0:e>=131072&&e<=196605||e>=196608&&e<=262141?2:1}charProperties(e,t){let n=this.wcwidth(e),r=n===0&&t!==0;if(r){let e=xo.extractWidth(t);e===0?r=!1:e>n&&(n=e)}return xo.createPropertyValue(0,n,r)}},xo=class e{constructor(){this._providers=Object.create(null),this._active=``,this._onChange=new N,this.onChange=this._onChange.event;let e=new bo;this.register(e),this._active=e.version,this._activeProvider=e}static extractShouldJoin(e){return(e&1)!=0}static extractWidth(e){return e>>1&3}static extractCharKind(e){return e>>3}static createPropertyValue(e,t,n=!1){return(e&16777215)<<3|(t&3)<<1|!!n}dispose(){this._onChange.dispose()}get versions(){return Object.keys(this._providers)}get activeVersion(){return this._active}set activeVersion(e){if(!this._providers[e])throw Error(`unknown Unicode version "${e}"`);this._active=e,this._activeProvider=this._providers[e],this._onChange.fire(e)}register(e){this._providers[e.version]=e}wcwidth(e){return this._activeProvider.wcwidth(e)}getStringCellWidth(t){let n=0,r=0,i=t.length;for(let a=0;a<i;++a){let o=t.charCodeAt(a);if(55296<=o&&o<=56319){if(++a>=i)return n+this.wcwidth(o);let e=t.charCodeAt(a);56320<=e&&e<=57343?o=(o-55296)*1024+e-56320+65536:n+=this.wcwidth(e)}let s=this.charProperties(o,r),c=e.extractWidth(s);e.extractShouldJoin(s)&&(c-=e.extractWidth(r)),n+=c,r=s}return n}charProperties(e,t){return this._activeProvider.charProperties(e,t)}},So=class{constructor(){this.glevel=0,this._charsets=[]}reset(){this.charset=void 0,this._charsets=[],this.glevel=0}setgLevel(e){this.glevel=e,this.charset=this._charsets[e]}setgCharset(e,t){this._charsets[e]=t,this.glevel===e&&(this.charset=t)}};function Co(e){let t=e.buffer.lines.get(e.buffer.ybase+e.buffer.y-1)?.get(e.cols-1),n=e.buffer.lines.get(e.buffer.ybase+e.buffer.y);n&&t&&(n.isWrapped=t[3]!==0&&t[3]!==32)}var wo=2147483647,To=256,Eo=class e{constructor(e=32,t=32){if(this.maxLength=e,this.maxSubParamsLength=t,t>To)throw Error(`maxSubParamsLength must not be greater than 256`);this.params=new Int32Array(e),this.length=0,this._subParams=new Int32Array(t),this._subParamsLength=0,this._subParamsIdx=new Uint16Array(e),this._rejectDigits=!1,this._rejectSubDigits=!1,this._digitIsSub=!1}static fromArray(t){let n=new e;if(!t.length)return n;for(let e=+!!Array.isArray(t[0]);e<t.length;++e){let r=t[e];if(Array.isArray(r))for(let e=0;e<r.length;++e)n.addSubParam(r[e]);else n.addParam(r)}return n}clone(){let t=new e(this.maxLength,this.maxSubParamsLength);return t.params.set(this.params),t.length=this.length,t._subParams.set(this._subParams),t._subParamsLength=this._subParamsLength,t._subParamsIdx.set(this._subParamsIdx),t._rejectDigits=this._rejectDigits,t._rejectSubDigits=this._rejectSubDigits,t._digitIsSub=this._digitIsSub,t}toArray(){let e=[];for(let t=0;t<this.length;++t){e.push(this.params[t]);let n=this._subParamsIdx[t]>>8,r=this._subParamsIdx[t]&255;r-n>0&&e.push(Array.prototype.slice.call(this._subParams,n,r))}return e}reset(){this.length=0,this._subParamsLength=0,this._rejectDigits=!1,this._rejectSubDigits=!1,this._digitIsSub=!1}addParam(e){if(this._digitIsSub=!1,this.length>=this.maxLength){this._rejectDigits=!0;return}if(e<-1)throw Error(`values lesser than -1 are not allowed`);this._subParamsIdx[this.length]=this._subParamsLength<<8|this._subParamsLength,this.params[this.length++]=e>wo?wo:e}addSubParam(e){if(this._digitIsSub=!0,this.length){if(this._rejectDigits||this._subParamsLength>=this.maxSubParamsLength){this._rejectSubDigits=!0;return}if(e<-1)throw Error(`values lesser than -1 are not allowed`);this._subParams[this._subParamsLength++]=e>wo?wo:e,this._subParamsIdx[this.length-1]++}}hasSubParams(e){return(this._subParamsIdx[e]&255)-(this._subParamsIdx[e]>>8)>0}getSubParams(e){let t=this._subParamsIdx[e]>>8,n=this._subParamsIdx[e]&255;return n-t>0?this._subParams.subarray(t,n):null}getSubParamsAll(){let e={};for(let t=0;t<this.length;++t){let n=this._subParamsIdx[t]>>8,r=this._subParamsIdx[t]&255;r-n>0&&(e[t]=this._subParams.slice(n,r))}return e}addDigit(e){let t;if(this._rejectDigits||!(t=this._digitIsSub?this._subParamsLength:this.length)||this._digitIsSub&&this._rejectSubDigits)return;let n=this._digitIsSub?this._subParams:this.params,r=n[t-1];n[t-1]=~r?Math.min(r*10+e,wo):e}},Do=[],Oo=class{constructor(){this._state=0,this._active=Do,this._id=-1,this._handlers=Object.create(null),this._handlerFb=()=>{},this._stack={paused:!1,loopPosition:0,fallThrough:!1}}registerHandler(e,t){this._handlers[e]===void 0&&(this._handlers[e]=[]);let n=this._handlers[e];return n.push(t),{dispose:()=>{let e=n.indexOf(t);e!==-1&&n.splice(e,1)}}}clearHandler(e){this._handlers[e]&&delete this._handlers[e]}setHandlerFallback(e){this._handlerFb=e}dispose(){this._handlers=Object.create(null),this._handlerFb=()=>{},this._active=Do}reset(){if(this._state===2)for(let e=this._stack.paused?this._stack.loopPosition-1:this._active.length-1;e>=0;--e)this._active[e].end(!1);this._stack.paused=!1,this._active=Do,this._id=-1,this._state=0}_start(){if(this._active=this._handlers[this._id]||Do,!this._active.length)this._handlerFb(this._id,`START`);else for(let e=this._active.length-1;e>=0;e--)this._active[e].start()}_put(e,t,n){if(!this._active.length)this._handlerFb(this._id,`PUT`,_(e,t,n));else for(let r=this._active.length-1;r>=0;r--)this._active[r].put(e,t,n)}start(){this.reset(),this._state=1}put(e,t,n){if(this._state!==3){if(this._state===1)for(;t<n;){let n=e[t++];if(n===59){this._state=2,this._start();break}if(n<48||57<n){this._state=3;return}this._id===-1&&(this._id=0),this._id=this._id*10+n-48}this._state===2&&n-t>0&&this._put(e,t,n)}}end(e,t=!0){if(this._state!==0){if(this._state!==3)if(this._state===1&&this._start(),!this._active.length)this._handlerFb(this._id,`END`,e);else{let n=!1,r=this._active.length-1,i=!1;if(this._stack.paused&&(r=this._stack.loopPosition-1,n=t,i=this._stack.fallThrough,this._stack.paused=!1),!i&&n===!1){for(;r>=0&&(n=this._active[r].end(e),n!==!0);r--)if(n instanceof Promise)return this._stack.paused=!0,this._stack.loopPosition=r,this._stack.fallThrough=!1,n;r--}for(;r>=0;r--)if(n=this._active[r].end(!1),n instanceof Promise)return this._stack.paused=!0,this._stack.loopPosition=r,this._stack.fallThrough=!0,n}this._active=Do,this._id=-1,this._state=0}}},ko=class{constructor(e){this._handler=e,this._data=``,this._hitLimit=!1}start(){this._data=``,this._hitLimit=!1}put(e,t,n){this._hitLimit||(this._data+=_(e,t,n),this._data.length>1e7&&(this._data=``,this._hitLimit=!0))}end(e){let t=!1;if(this._hitLimit)t=!1;else if(e&&(t=this._handler(this._data),t instanceof Promise))return t.then(e=>(this._data=``,this._hitLimit=!1,e));return this._data=``,this._hitLimit=!1,t}},Ao=[],jo=class{constructor(){this._handlers=Object.create(null),this._active=Ao,this._ident=0,this._handlerFb=()=>{},this._stack={paused:!1,loopPosition:0,fallThrough:!1}}dispose(){this._handlers=Object.create(null),this._handlerFb=()=>{},this._active=Ao}registerHandler(e,t){this._handlers[e]===void 0&&(this._handlers[e]=[]);let n=this._handlers[e];return n.push(t),{dispose:()=>{let e=n.indexOf(t);e!==-1&&n.splice(e,1)}}}clearHandler(e){this._handlers[e]&&delete this._handlers[e]}setHandlerFallback(e){this._handlerFb=e}reset(){if(this._active.length)for(let e=this._stack.paused?this._stack.loopPosition-1:this._active.length-1;e>=0;--e)this._active[e].unhook(!1);this._stack.paused=!1,this._active=Ao,this._ident=0}hook(e,t){if(this.reset(),this._ident=e,this._active=this._handlers[e]||Ao,!this._active.length)this._handlerFb(this._ident,`HOOK`,t);else for(let e=this._active.length-1;e>=0;e--)this._active[e].hook(t)}put(e,t,n){if(!this._active.length)this._handlerFb(this._ident,`PUT`,_(e,t,n));else for(let r=this._active.length-1;r>=0;r--)this._active[r].put(e,t,n)}unhook(e,t=!0){if(!this._active.length)this._handlerFb(this._ident,`UNHOOK`,e);else{let n=!1,r=this._active.length-1,i=!1;if(this._stack.paused&&(r=this._stack.loopPosition-1,n=t,i=this._stack.fallThrough,this._stack.paused=!1),!i&&n===!1){for(;r>=0&&(n=this._active[r].unhook(e),n!==!0);r--)if(n instanceof Promise)return this._stack.paused=!0,this._stack.loopPosition=r,this._stack.fallThrough=!1,n;r--}for(;r>=0;r--)if(n=this._active[r].unhook(!1),n instanceof Promise)return this._stack.paused=!0,this._stack.loopPosition=r,this._stack.fallThrough=!0,n}this._active=Ao,this._ident=0}},Mo=new Eo;Mo.addParam(0);var No=class{constructor(e){this._handler=e,this._data=``,this._params=Mo,this._hitLimit=!1}hook(e){this._params=e.length>1||e.params[0]?e.clone():Mo,this._data=``,this._hitLimit=!1}put(e,t,n){this._hitLimit||(this._data+=_(e,t,n),this._data.length>1e7&&(this._data=``,this._hitLimit=!0))}unhook(e){let t=!1;if(this._hitLimit)t=!1;else if(e&&(t=this._handler(this._data,this._params),t instanceof Promise))return t.then(e=>(this._params=Mo,this._data=``,this._hitLimit=!1,e));return this._params=Mo,this._data=``,this._hitLimit=!1,t}},Po=class{constructor(e){this.table=new Uint8Array(e)}setDefault(e,t){this.table.fill(e<<4|t)}add(e,t,n,r){this.table[t<<8|e]=n<<4|r}addMany(e,t,n,r){for(let i=0;i<e.length;i++)this.table[t<<8|e[i]]=n<<4|r}},Fo=160,Io=function(){let e=new Po(4095),t=Array.apply(null,Array(256)).map((e,t)=>t),n=(e,n)=>t.slice(e,n),r=n(32,127),i=n(0,24);i.push(25),i.push.apply(i,n(28,32));let a=n(0,14),o;for(o in e.setDefault(1,0),e.addMany(r,0,2,0),a)e.addMany([24,26,153,154],o,3,0),e.addMany(n(128,144),o,3,0),e.addMany(n(144,152),o,3,0),e.add(156,o,0,0),e.add(27,o,11,1),e.add(157,o,4,8),e.addMany([152,158,159],o,0,7),e.add(155,o,11,3),e.add(144,o,11,9);return e.addMany(i,0,3,0),e.addMany(i,1,3,1),e.add(127,1,0,1),e.addMany(i,8,0,8),e.addMany(i,3,3,3),e.add(127,3,0,3),e.addMany(i,4,3,4),e.add(127,4,0,4),e.addMany(i,6,3,6),e.addMany(i,5,3,5),e.add(127,5,0,5),e.addMany(i,2,3,2),e.add(127,2,0,2),e.add(93,1,4,8),e.addMany(r,8,5,8),e.add(127,8,5,8),e.addMany([156,27,24,26,7],8,6,0),e.addMany(n(28,32),8,0,8),e.addMany([88,94,95],1,0,7),e.addMany(r,7,0,7),e.addMany(i,7,0,7),e.add(156,7,0,0),e.add(127,7,0,7),e.add(91,1,11,3),e.addMany(n(64,127),3,7,0),e.addMany(n(48,60),3,8,4),e.addMany([60,61,62,63],3,9,4),e.addMany(n(48,60),4,8,4),e.addMany(n(64,127),4,7,0),e.addMany([60,61,62,63],4,0,6),e.addMany(n(32,64),6,0,6),e.add(127,6,0,6),e.addMany(n(64,127),6,0,0),e.addMany(n(32,48),3,9,5),e.addMany(n(32,48),5,9,5),e.addMany(n(48,64),5,0,6),e.addMany(n(64,127),5,7,0),e.addMany(n(32,48),4,9,5),e.addMany(n(32,48),1,9,2),e.addMany(n(32,48),2,9,2),e.addMany(n(48,127),2,10,0),e.addMany(n(48,80),1,10,0),e.addMany(n(81,88),1,10,0),e.addMany([89,90,92],1,10,0),e.addMany(n(96,127),1,10,0),e.add(80,1,11,9),e.addMany(i,9,0,9),e.add(127,9,0,9),e.addMany(n(28,32),9,0,9),e.addMany(n(32,48),9,9,12),e.addMany(n(48,60),9,8,10),e.addMany([60,61,62,63],9,9,10),e.addMany(i,11,0,11),e.addMany(n(32,128),11,0,11),e.addMany(n(28,32),11,0,11),e.addMany(i,10,0,10),e.add(127,10,0,10),e.addMany(n(28,32),10,0,10),e.addMany(n(48,60),10,8,10),e.addMany([60,61,62,63],10,0,11),e.addMany(n(32,48),10,9,12),e.addMany(i,12,0,12),e.add(127,12,0,12),e.addMany(n(28,32),12,0,12),e.addMany(n(32,48),12,9,12),e.addMany(n(48,64),12,0,11),e.addMany(n(64,127),12,12,13),e.addMany(n(64,127),10,12,13),e.addMany(n(64,127),9,12,13),e.addMany(i,13,13,13),e.addMany(r,13,13,13),e.add(127,13,0,13),e.addMany([27,156,24,26],13,14,0),e.add(Fo,0,2,0),e.add(Fo,8,5,8),e.add(Fo,6,0,6),e.add(Fo,11,0,11),e.add(Fo,13,13,13),e}(),Lo=class extends A{constructor(e=Io){super(),this._transitions=e,this._parseStack={state:0,handlers:[],handlerPos:0,transition:0,chunkPos:0},this.initialState=0,this.currentState=this.initialState,this._params=new Eo,this._params.addParam(0),this._collect=0,this.precedingJoinState=0,this._printHandlerFb=(e,t,n)=>{},this._executeHandlerFb=e=>{},this._csiHandlerFb=(e,t)=>{},this._escHandlerFb=e=>{},this._errorHandlerFb=e=>e,this._printHandler=this._printHandlerFb,this._executeHandlers=Object.create(null),this._csiHandlers=Object.create(null),this._escHandlers=Object.create(null),this._register(k(()=>{this._csiHandlers=Object.create(null),this._executeHandlers=Object.create(null),this._escHandlers=Object.create(null)})),this._oscParser=this._register(new Oo),this._dcsParser=this._register(new jo),this._errorHandler=this._errorHandlerFb,this.registerEscHandler({final:`\\`},()=>!0)}_identifier(e,t=[64,126]){let n=0;if(e.prefix){if(e.prefix.length>1)throw Error(`only one byte as prefix supported`);if(n=e.prefix.charCodeAt(0),n&&60>n||n>63)throw Error(`prefix must be in range 0x3c .. 0x3f`)}if(e.intermediates){if(e.intermediates.length>2)throw Error(`only two bytes as intermediates are supported`);for(let t=0;t<e.intermediates.length;++t){let r=e.intermediates.charCodeAt(t);if(32>r||r>47)throw Error(`intermediate must be in range 0x20 .. 0x2f`);n<<=8,n|=r}}if(e.final.length!==1)throw Error(`final must be a single byte`);let r=e.final.charCodeAt(0);if(t[0]>r||r>t[1])throw Error(`final must be in range ${t[0]} .. ${t[1]}`);return n<<=8,n|=r,n}identToString(e){let t=[];for(;e;)t.push(String.fromCharCode(e&255)),e>>=8;return t.reverse().join(``)}setPrintHandler(e){this._printHandler=e}clearPrintHandler(){this._printHandler=this._printHandlerFb}registerEscHandler(e,t){let n=this._identifier(e,[48,126]);this._escHandlers[n]===void 0&&(this._escHandlers[n]=[]);let r=this._escHandlers[n];return r.push(t),{dispose:()=>{let e=r.indexOf(t);e!==-1&&r.splice(e,1)}}}clearEscHandler(e){this._escHandlers[this._identifier(e,[48,126])]&&delete this._escHandlers[this._identifier(e,[48,126])]}setEscHandlerFallback(e){this._escHandlerFb=e}setExecuteHandler(e,t){this._executeHandlers[e.charCodeAt(0)]=t}clearExecuteHandler(e){this._executeHandlers[e.charCodeAt(0)]&&delete this._executeHandlers[e.charCodeAt(0)]}setExecuteHandlerFallback(e){this._executeHandlerFb=e}registerCsiHandler(e,t){let n=this._identifier(e);this._csiHandlers[n]===void 0&&(this._csiHandlers[n]=[]);let r=this._csiHandlers[n];return r.push(t),{dispose:()=>{let e=r.indexOf(t);e!==-1&&r.splice(e,1)}}}clearCsiHandler(e){this._csiHandlers[this._identifier(e)]&&delete this._csiHandlers[this._identifier(e)]}setCsiHandlerFallback(e){this._csiHandlerFb=e}registerDcsHandler(e,t){return this._dcsParser.registerHandler(this._identifier(e),t)}clearDcsHandler(e){this._dcsParser.clearHandler(this._identifier(e))}setDcsHandlerFallback(e){this._dcsParser.setHandlerFallback(e)}registerOscHandler(e,t){return this._oscParser.registerHandler(e,t)}clearOscHandler(e){this._oscParser.clearHandler(e)}setOscHandlerFallback(e){this._oscParser.setHandlerFallback(e)}setErrorHandler(e){this._errorHandler=e}clearErrorHandler(){this._errorHandler=this._errorHandlerFb}reset(){this.currentState=this.initialState,this._oscParser.reset(),this._dcsParser.reset(),this._params.reset(),this._params.addParam(0),this._collect=0,this.precedingJoinState=0,this._parseStack.state!==0&&(this._parseStack.state=2,this._parseStack.handlers=[])}_preserveStack(e,t,n,r,i){this._parseStack.state=e,this._parseStack.handlers=t,this._parseStack.handlerPos=n,this._parseStack.transition=r,this._parseStack.chunkPos=i}parse(e,t,n){let r=0,i=0,a=0,o;if(this._parseStack.state)if(this._parseStack.state===2)this._parseStack.state=0,a=this._parseStack.chunkPos+1;else{if(n===void 0||this._parseStack.state===1)throw this._parseStack.state=1,Error(`improper continuation due to previous async handler, giving up parsing`);let t=this._parseStack.handlers,i=this._parseStack.handlerPos-1;switch(this._parseStack.state){case 3:if(n===!1&&i>-1){for(;i>=0&&(o=t[i](this._params),o!==!0);i--)if(o instanceof Promise)return this._parseStack.handlerPos=i,o}this._parseStack.handlers=[];break;case 4:if(n===!1&&i>-1){for(;i>=0&&(o=t[i](),o!==!0);i--)if(o instanceof Promise)return this._parseStack.handlerPos=i,o}this._parseStack.handlers=[];break;case 6:if(r=e[this._parseStack.chunkPos],o=this._dcsParser.unhook(r!==24&&r!==26,n),o)return o;r===27&&(this._parseStack.transition|=1),this._params.reset(),this._params.addParam(0),this._collect=0;break;case 5:if(r=e[this._parseStack.chunkPos],o=this._oscParser.end(r!==24&&r!==26,n),o)return o;r===27&&(this._parseStack.transition|=1),this._params.reset(),this._params.addParam(0),this._collect=0;break}this._parseStack.state=0,a=this._parseStack.chunkPos+1,this.precedingJoinState=0,this.currentState=this._parseStack.transition&15}for(let n=a;n<t;++n){switch(r=e[n],i=this._transitions.table[this.currentState<<8|(r<160?r:Fo)],i>>4){case 2:for(let i=n+1;;++i){if(i>=t||(r=e[i])<32||r>126&&r<Fo){this._printHandler(e,n,i),n=i-1;break}if(++i>=t||(r=e[i])<32||r>126&&r<Fo){this._printHandler(e,n,i),n=i-1;break}if(++i>=t||(r=e[i])<32||r>126&&r<Fo){this._printHandler(e,n,i),n=i-1;break}if(++i>=t||(r=e[i])<32||r>126&&r<Fo){this._printHandler(e,n,i),n=i-1;break}}break;case 3:this._executeHandlers[r]?this._executeHandlers[r]():this._executeHandlerFb(r),this.precedingJoinState=0;break;case 0:break;case 1:if(this._errorHandler({position:n,code:r,currentState:this.currentState,collect:this._collect,params:this._params,abort:!1}).abort)return;break;case 7:let a=this._csiHandlers[this._collect<<8|r],s=a?a.length-1:-1;for(;s>=0&&(o=a[s](this._params),o!==!0);s--)if(o instanceof Promise)return this._preserveStack(3,a,s,i,n),o;s<0&&this._csiHandlerFb(this._collect<<8|r,this._params),this.precedingJoinState=0;break;case 8:do switch(r){case 59:this._params.addParam(0);break;case 58:this._params.addSubParam(-1);break;default:this._params.addDigit(r-48)}while(++n<t&&(r=e[n])>47&&r<60);n--;break;case 9:this._collect<<=8,this._collect|=r;break;case 10:let c=this._escHandlers[this._collect<<8|r],l=c?c.length-1:-1;for(;l>=0&&(o=c[l](),o!==!0);l--)if(o instanceof Promise)return this._preserveStack(4,c,l,i,n),o;l<0&&this._escHandlerFb(this._collect<<8|r),this.precedingJoinState=0;break;case 11:this._params.reset(),this._params.addParam(0),this._collect=0;break;case 12:this._dcsParser.hook(this._collect<<8|r,this._params);break;case 13:for(let i=n+1;;++i)if(i>=t||(r=e[i])===24||r===26||r===27||r>127&&r<Fo){this._dcsParser.put(e,n,i),n=i-1;break}break;case 14:if(o=this._dcsParser.unhook(r!==24&&r!==26),o)return this._preserveStack(6,[],0,i,n),o;r===27&&(i|=1),this._params.reset(),this._params.addParam(0),this._collect=0,this.precedingJoinState=0;break;case 4:this._oscParser.start();break;case 5:for(let i=n+1;;i++)if(i>=t||(r=e[i])<32||r>127&&r<Fo){this._oscParser.put(e,n,i),n=i-1;break}break;case 6:if(o=this._oscParser.end(r!==24&&r!==26),o)return this._preserveStack(5,[],0,i,n),o;r===27&&(i|=1),this._params.reset(),this._params.addParam(0),this._collect=0,this.precedingJoinState=0;break}this.currentState=i&15}}},Ro=/^([\da-f])\/([\da-f])\/([\da-f])$|^([\da-f]{2})\/([\da-f]{2})\/([\da-f]{2})$|^([\da-f]{3})\/([\da-f]{3})\/([\da-f]{3})$|^([\da-f]{4})\/([\da-f]{4})\/([\da-f]{4})$/,zo=/^[\da-f]+$/;function Bo(e){if(!e)return;let t=e.toLowerCase();if(t.indexOf(`rgb:`)===0){t=t.slice(4);let e=Ro.exec(t);if(e){let t=e[1]?15:e[4]?255:e[7]?4095:65535;return[Math.round(parseInt(e[1]||e[4]||e[7]||e[10],16)/t*255),Math.round(parseInt(e[2]||e[5]||e[8]||e[11],16)/t*255),Math.round(parseInt(e[3]||e[6]||e[9]||e[12],16)/t*255)]}}else if(t.indexOf(`#`)===0&&(t=t.slice(1),zo.exec(t)&&[3,6,9,12].includes(t.length))){let e=t.length/3,n=[0,0,0];for(let r=0;r<3;++r){let i=parseInt(t.slice(e*r,e*r+e),16);n[r]=e===1?i<<4:e===2?i:e===3?i>>4:i>>8}return n}}function Vo(e,t){let n=e.toString(16),r=n.length<2?`0`+n:n;switch(t){case 4:return n[0];case 8:return r;case 12:return(r+r).slice(0,3);default:return r+r}}function Ho(e,t=16){let[n,r,i]=e;return`rgb:${Vo(n,t)}/${Vo(r,t)}/${Vo(i,t)}`}var Uo={"(":0,")":1,"*":2,"+":3,"-":1,".":2},Wo=131072,Go=10;function Ko(e,t){if(e>24)return t.setWinLines||!1;switch(e){case 1:return!!t.restoreWin;case 2:return!!t.minimizeWin;case 3:return!!t.setWinPosition;case 4:return!!t.setWinSizePixels;case 5:return!!t.raiseWin;case 6:return!!t.lowerWin;case 7:return!!t.refreshWin;case 8:return!!t.setWinSizeChars;case 9:return!!t.maximizeWin;case 10:return!!t.fullscreenWin;case 11:return!!t.getWinState;case 13:return!!t.getWinPosition;case 14:return!!t.getWinSizePixels;case 15:return!!t.getScreenSizePixels;case 16:return!!t.getCellSizePixels;case 18:return!!t.getWinSizeChars;case 19:return!!t.getScreenSizeChars;case 20:return!!t.getIconTitle;case 21:return!!t.getWinTitle;case 22:return!!t.pushTitle;case 23:return!!t.popTitle;case 24:return!!t.setWinLines}return!1}var qo=5e3,Jo=0,Yo=class extends A{constructor(e,t,n,r,i,a,o,s,c=new Lo){super(),this._bufferService=e,this._charsetService=t,this._coreService=n,this._logService=r,this._optionsService=i,this._oscLinkService=a,this._coreMouseService=o,this._unicodeService=s,this._parser=c,this._parseBuffer=new Uint32Array(4096),this._stringDecoder=new ee,this._utf8Decoder=new te,this._windowTitle=``,this._iconName=``,this._windowTitleStack=[],this._iconNameStack=[],this._curAttrData=Y.clone(),this._eraseAttrDataInternal=Y.clone(),this._onRequestBell=this._register(new N),this.onRequestBell=this._onRequestBell.event,this._onRequestRefreshRows=this._register(new N),this.onRequestRefreshRows=this._onRequestRefreshRows.event,this._onRequestReset=this._register(new N),this.onRequestReset=this._onRequestReset.event,this._onRequestSendFocus=this._register(new N),this.onRequestSendFocus=this._onRequestSendFocus.event,this._onRequestSyncScrollBar=this._register(new N),this.onRequestSyncScrollBar=this._onRequestSyncScrollBar.event,this._onRequestWindowsOptionsReport=this._register(new N),this.onRequestWindowsOptionsReport=this._onRequestWindowsOptionsReport.event,this._onA11yChar=this._register(new N),this.onA11yChar=this._onA11yChar.event,this._onA11yTab=this._register(new N),this.onA11yTab=this._onA11yTab.event,this._onCursorMove=this._register(new N),this.onCursorMove=this._onCursorMove.event,this._onLineFeed=this._register(new N),this.onLineFeed=this._onLineFeed.event,this._onScroll=this._register(new N),this.onScroll=this._onScroll.event,this._onTitleChange=this._register(new N),this.onTitleChange=this._onTitleChange.event,this._onColor=this._register(new N),this.onColor=this._onColor.event,this._parseStack={paused:!1,cursorStartX:0,cursorStartY:0,decodedLength:0,position:0},this._specialColors=[256,257,258],this._register(this._parser),this._dirtyRowTracker=new Xo(this._bufferService),this._activeBuffer=this._bufferService.buffer,this._register(this._bufferService.buffers.onBufferActivate(e=>this._activeBuffer=e.activeBuffer)),this._parser.setCsiHandlerFallback((e,t)=>{this._logService.debug(`Unknown CSI code: `,{identifier:this._parser.identToString(e),params:t.toArray()})}),this._parser.setEscHandlerFallback(e=>{this._logService.debug(`Unknown ESC code: `,{identifier:this._parser.identToString(e)})}),this._parser.setExecuteHandlerFallback(e=>{this._logService.debug(`Unknown EXECUTE code: `,{code:e})}),this._parser.setOscHandlerFallback((e,t,n)=>{this._logService.debug(`Unknown OSC code: `,{identifier:e,action:t,data:n})}),this._parser.setDcsHandlerFallback((e,t,n)=>{t===`HOOK`&&(n=n.toArray()),this._logService.debug(`Unknown DCS code: `,{identifier:this._parser.identToString(e),action:t,payload:n})}),this._parser.setPrintHandler((e,t,n)=>this.print(e,t,n)),this._parser.registerCsiHandler({final:`@`},e=>this.insertChars(e)),this._parser.registerCsiHandler({intermediates:` `,final:`@`},e=>this.scrollLeft(e)),this._parser.registerCsiHandler({final:`A`},e=>this.cursorUp(e)),this._parser.registerCsiHandler({intermediates:` `,final:`A`},e=>this.scrollRight(e)),this._parser.registerCsiHandler({final:`B`},e=>this.cursorDown(e)),this._parser.registerCsiHandler({final:`C`},e=>this.cursorForward(e)),this._parser.registerCsiHandler({final:`D`},e=>this.cursorBackward(e)),this._parser.registerCsiHandler({final:`E`},e=>this.cursorNextLine(e)),this._parser.registerCsiHandler({final:`F`},e=>this.cursorPrecedingLine(e)),this._parser.registerCsiHandler({final:`G`},e=>this.cursorCharAbsolute(e)),this._parser.registerCsiHandler({final:`H`},e=>this.cursorPosition(e)),this._parser.registerCsiHandler({final:`I`},e=>this.cursorForwardTab(e)),this._parser.registerCsiHandler({final:`J`},e=>this.eraseInDisplay(e,!1)),this._parser.registerCsiHandler({prefix:`?`,final:`J`},e=>this.eraseInDisplay(e,!0)),this._parser.registerCsiHandler({final:`K`},e=>this.eraseInLine(e,!1)),this._parser.registerCsiHandler({prefix:`?`,final:`K`},e=>this.eraseInLine(e,!0)),this._parser.registerCsiHandler({final:`L`},e=>this.insertLines(e)),this._parser.registerCsiHandler({final:`M`},e=>this.deleteLines(e)),this._parser.registerCsiHandler({final:`P`},e=>this.deleteChars(e)),this._parser.registerCsiHandler({final:`S`},e=>this.scrollUp(e)),this._parser.registerCsiHandler({final:`T`},e=>this.scrollDown(e)),this._parser.registerCsiHandler({final:`X`},e=>this.eraseChars(e)),this._parser.registerCsiHandler({final:`Z`},e=>this.cursorBackwardTab(e)),this._parser.registerCsiHandler({final:"`"},e=>this.charPosAbsolute(e)),this._parser.registerCsiHandler({final:`a`},e=>this.hPositionRelative(e)),this._parser.registerCsiHandler({final:`b`},e=>this.repeatPrecedingCharacter(e)),this._parser.registerCsiHandler({final:`c`},e=>this.sendDeviceAttributesPrimary(e)),this._parser.registerCsiHandler({prefix:`>`,final:`c`},e=>this.sendDeviceAttributesSecondary(e)),this._parser.registerCsiHandler({final:`d`},e=>this.linePosAbsolute(e)),this._parser.registerCsiHandler({final:`e`},e=>this.vPositionRelative(e)),this._parser.registerCsiHandler({final:`f`},e=>this.hVPosition(e)),this._parser.registerCsiHandler({final:`g`},e=>this.tabClear(e)),this._parser.registerCsiHandler({final:`h`},e=>this.setMode(e)),this._parser.registerCsiHandler({prefix:`?`,final:`h`},e=>this.setModePrivate(e)),this._parser.registerCsiHandler({final:`l`},e=>this.resetMode(e)),this._parser.registerCsiHandler({prefix:`?`,final:`l`},e=>this.resetModePrivate(e)),this._parser.registerCsiHandler({final:`m`},e=>this.charAttributes(e)),this._parser.registerCsiHandler({final:`n`},e=>this.deviceStatus(e)),this._parser.registerCsiHandler({prefix:`?`,final:`n`},e=>this.deviceStatusPrivate(e)),this._parser.registerCsiHandler({intermediates:`!`,final:`p`},e=>this.softReset(e)),this._parser.registerCsiHandler({intermediates:` `,final:`q`},e=>this.setCursorStyle(e)),this._parser.registerCsiHandler({final:`r`},e=>this.setScrollRegion(e)),this._parser.registerCsiHandler({final:`s`},e=>this.saveCursor(e)),this._parser.registerCsiHandler({final:`t`},e=>this.windowOptions(e)),this._parser.registerCsiHandler({final:`u`},e=>this.restoreCursor(e)),this._parser.registerCsiHandler({intermediates:`'`,final:`}`},e=>this.insertColumns(e)),this._parser.registerCsiHandler({intermediates:`'`,final:`~`},e=>this.deleteColumns(e)),this._parser.registerCsiHandler({intermediates:`"`,final:`q`},e=>this.selectProtected(e)),this._parser.registerCsiHandler({intermediates:`$`,final:`p`},e=>this.requestMode(e,!0)),this._parser.registerCsiHandler({prefix:`?`,intermediates:`$`,final:`p`},e=>this.requestMode(e,!1)),this._parser.setExecuteHandler(L.BEL,()=>this.bell()),this._parser.setExecuteHandler(L.LF,()=>this.lineFeed()),this._parser.setExecuteHandler(L.VT,()=>this.lineFeed()),this._parser.setExecuteHandler(L.FF,()=>this.lineFeed()),this._parser.setExecuteHandler(L.CR,()=>this.carriageReturn()),this._parser.setExecuteHandler(L.BS,()=>this.backspace()),this._parser.setExecuteHandler(L.HT,()=>this.tab()),this._parser.setExecuteHandler(L.SO,()=>this.shiftOut()),this._parser.setExecuteHandler(L.SI,()=>this.shiftIn()),this._parser.setExecuteHandler(Qr.IND,()=>this.index()),this._parser.setExecuteHandler(Qr.NEL,()=>this.nextLine()),this._parser.setExecuteHandler(Qr.HTS,()=>this.tabSet()),this._parser.registerOscHandler(0,new ko(e=>(this.setTitle(e),this.setIconName(e),!0))),this._parser.registerOscHandler(1,new ko(e=>this.setIconName(e))),this._parser.registerOscHandler(2,new ko(e=>this.setTitle(e))),this._parser.registerOscHandler(4,new ko(e=>this.setOrReportIndexedColor(e))),this._parser.registerOscHandler(8,new ko(e=>this.setHyperlink(e))),this._parser.registerOscHandler(10,new ko(e=>this.setOrReportFgColor(e))),this._parser.registerOscHandler(11,new ko(e=>this.setOrReportBgColor(e))),this._parser.registerOscHandler(12,new ko(e=>this.setOrReportCursorColor(e))),this._parser.registerOscHandler(104,new ko(e=>this.restoreIndexedColor(e))),this._parser.registerOscHandler(110,new ko(e=>this.restoreFgColor(e))),this._parser.registerOscHandler(111,new ko(e=>this.restoreBgColor(e))),this._parser.registerOscHandler(112,new ko(e=>this.restoreCursorColor(e))),this._parser.registerEscHandler({final:`7`},()=>this.saveCursor()),this._parser.registerEscHandler({final:`8`},()=>this.restoreCursor()),this._parser.registerEscHandler({final:`D`},()=>this.index()),this._parser.registerEscHandler({final:`E`},()=>this.nextLine()),this._parser.registerEscHandler({final:`H`},()=>this.tabSet()),this._parser.registerEscHandler({final:`M`},()=>this.reverseIndex()),this._parser.registerEscHandler({final:`=`},()=>this.keypadApplicationMode()),this._parser.registerEscHandler({final:`>`},()=>this.keypadNumericMode()),this._parser.registerEscHandler({final:`c`},()=>this.fullReset()),this._parser.registerEscHandler({final:`n`},()=>this.setgLevel(2)),this._parser.registerEscHandler({final:`o`},()=>this.setgLevel(3)),this._parser.registerEscHandler({final:`|`},()=>this.setgLevel(3)),this._parser.registerEscHandler({final:`}`},()=>this.setgLevel(2)),this._parser.registerEscHandler({final:`~`},()=>this.setgLevel(1)),this._parser.registerEscHandler({intermediates:`%`,final:`@`},()=>this.selectDefaultCharset()),this._parser.registerEscHandler({intermediates:`%`,final:`G`},()=>this.selectDefaultCharset());for(let e in X)this._parser.registerEscHandler({intermediates:`(`,final:e},()=>this.selectCharset(`(`+e)),this._parser.registerEscHandler({intermediates:`)`,final:e},()=>this.selectCharset(`)`+e)),this._parser.registerEscHandler({intermediates:`*`,final:e},()=>this.selectCharset(`*`+e)),this._parser.registerEscHandler({intermediates:`+`,final:e},()=>this.selectCharset(`+`+e)),this._parser.registerEscHandler({intermediates:`-`,final:e},()=>this.selectCharset(`-`+e)),this._parser.registerEscHandler({intermediates:`.`,final:e},()=>this.selectCharset(`.`+e)),this._parser.registerEscHandler({intermediates:`/`,final:e},()=>this.selectCharset(`/`+e));this._parser.registerEscHandler({intermediates:`#`,final:`8`},()=>this.screenAlignmentPattern()),this._parser.setErrorHandler(e=>(this._logService.error(`Parsing error: `,e),e)),this._parser.registerDcsHandler({intermediates:`$`,final:`q`},new No((e,t)=>this.requestStatusString(e,t)))}getAttrData(){return this._curAttrData}_preserveStack(e,t,n,r){this._parseStack.paused=!0,this._parseStack.cursorStartX=e,this._parseStack.cursorStartY=t,this._parseStack.decodedLength=n,this._parseStack.position=r}_logSlowResolvingAsync(e){this._logService.logLevel<=3&&Promise.race([e,new Promise((e,t)=>setTimeout(()=>t(`#SLOW_TIMEOUT`),qo))]).catch(e=>{if(e!==`#SLOW_TIMEOUT`)throw e;console.warn(`async parser handler taking longer than ${qo} ms`)})}_getCurrentLinkId(){return this._curAttrData.extended.urlId}parse(e,t){let n,r=this._activeBuffer.x,i=this._activeBuffer.y,a=0,o=this._parseStack.paused;if(o){if(n=this._parser.parse(this._parseBuffer,this._parseStack.decodedLength,t))return this._logSlowResolvingAsync(n),n;r=this._parseStack.cursorStartX,i=this._parseStack.cursorStartY,this._parseStack.paused=!1,e.length>Wo&&(a=this._parseStack.position+Wo)}if(this._logService.logLevel<=1&&this._logService.debug(`parsing data ${typeof e==`string`?` "${e}"`:` "${Array.prototype.map.call(e,e=>String.fromCharCode(e)).join(``)}"`}`),this._logService.logLevel===0&&this._logService.trace(`parsing data (codes)`,typeof e==`string`?e.split(``).map(e=>e.charCodeAt(0)):e),this._parseBuffer.length<e.length&&this._parseBuffer.length<Wo&&(this._parseBuffer=new Uint32Array(Math.min(e.length,Wo))),o||this._dirtyRowTracker.clearRange(),e.length>Wo)for(let t=a;t<e.length;t+=Wo){let a=t+Wo<e.length?t+Wo:e.length,o=typeof e==`string`?this._stringDecoder.decode(e.substring(t,a),this._parseBuffer):this._utf8Decoder.decode(e.subarray(t,a),this._parseBuffer);if(n=this._parser.parse(this._parseBuffer,o))return this._preserveStack(r,i,o,t),this._logSlowResolvingAsync(n),n}else if(!o){let t=typeof e==`string`?this._stringDecoder.decode(e,this._parseBuffer):this._utf8Decoder.decode(e,this._parseBuffer);if(n=this._parser.parse(this._parseBuffer,t))return this._preserveStack(r,i,t,0),this._logSlowResolvingAsync(n),n}(this._activeBuffer.x!==r||this._activeBuffer.y!==i)&&this._onCursorMove.fire();let s=this._dirtyRowTracker.end+(this._bufferService.buffer.ybase-this._bufferService.buffer.ydisp),c=this._dirtyRowTracker.start+(this._bufferService.buffer.ybase-this._bufferService.buffer.ydisp);c<this._bufferService.rows&&this._onRequestRefreshRows.fire({start:Math.min(c,this._bufferService.rows-1),end:Math.min(s,this._bufferService.rows-1)})}print(e,t,n){let r,i,a=this._charsetService.charset,o=this._optionsService.rawOptions.screenReaderMode,s=this._bufferService.cols,c=this._coreService.decPrivateModes.wraparound,l=this._coreService.modes.insertMode,u=this._curAttrData,d=this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y);this._dirtyRowTracker.markDirty(this._activeBuffer.y),this._activeBuffer.x&&n-t>0&&d.getWidth(this._activeBuffer.x-1)===2&&d.setCellFromCodepoint(this._activeBuffer.x-1,0,1,u);let f=this._parser.precedingJoinState;for(let p=t;p<n;++p){if(r=e[p],r<127&&a){let e=a[String.fromCharCode(r)];e&&(r=e.charCodeAt(0))}let t=this._unicodeService.charProperties(r,f);i=xo.extractWidth(t);let n=xo.extractShouldJoin(t),m=n?xo.extractWidth(f):0;if(f=t,o&&this._onA11yChar.fire(g(r)),this._getCurrentLinkId()&&this._oscLinkService.addLineToLink(this._getCurrentLinkId(),this._activeBuffer.ybase+this._activeBuffer.y),this._activeBuffer.x+i-m>s){if(c){let e=d,t=this._activeBuffer.x-m;for(this._activeBuffer.x=m,this._activeBuffer.y++,this._activeBuffer.y===this._activeBuffer.scrollBottom+1?(this._activeBuffer.y--,this._bufferService.scroll(this._eraseAttrData(),!0)):(this._activeBuffer.y>=this._bufferService.rows&&(this._activeBuffer.y=this._bufferService.rows-1),this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y).isWrapped=!0),d=this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y),m>0&&d instanceof Ha&&d.copyCellsFrom(e,t,0,m,!1);t<s;)e.setCellFromCodepoint(t++,0,1,u)}else if(this._activeBuffer.x=s-1,i===2)continue}if(n&&this._activeBuffer.x){let e=d.getWidth(this._activeBuffer.x-1)?1:2;d.addCodepointToCell(this._activeBuffer.x-e,r,i);for(let e=i-m;--e>=0;)d.setCellFromCodepoint(this._activeBuffer.x++,0,0,u);continue}if(l&&(d.insertCells(this._activeBuffer.x,i-m,this._activeBuffer.getNullCell(u)),d.getWidth(s-1)===2&&d.setCellFromCodepoint(s-1,0,1,u)),d.setCellFromCodepoint(this._activeBuffer.x++,r,i,u),i>0)for(;--i;)d.setCellFromCodepoint(this._activeBuffer.x++,0,0,u)}this._parser.precedingJoinState=f,this._activeBuffer.x<s&&n-t>0&&d.getWidth(this._activeBuffer.x)===0&&!d.hasContent(this._activeBuffer.x)&&d.setCellFromCodepoint(this._activeBuffer.x,0,1,u),this._dirtyRowTracker.markDirty(this._activeBuffer.y)}registerCsiHandler(e,t){return e.final===`t`&&!e.prefix&&!e.intermediates?this._parser.registerCsiHandler(e,e=>Ko(e.params[0],this._optionsService.rawOptions.windowOptions)?t(e):!0):this._parser.registerCsiHandler(e,t)}registerDcsHandler(e,t){return this._parser.registerDcsHandler(e,new No(t))}registerEscHandler(e,t){return this._parser.registerEscHandler(e,t)}registerOscHandler(e,t){return this._parser.registerOscHandler(e,new ko(t))}bell(){return this._onRequestBell.fire(),!0}lineFeed(){return this._dirtyRowTracker.markDirty(this._activeBuffer.y),this._optionsService.rawOptions.convertEol&&(this._activeBuffer.x=0),this._activeBuffer.y++,this._activeBuffer.y===this._activeBuffer.scrollBottom+1?(this._activeBuffer.y--,this._bufferService.scroll(this._eraseAttrData())):this._activeBuffer.y>=this._bufferService.rows?this._activeBuffer.y=this._bufferService.rows-1:this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y).isWrapped=!1,this._activeBuffer.x>=this._bufferService.cols&&this._activeBuffer.x--,this._dirtyRowTracker.markDirty(this._activeBuffer.y),this._onLineFeed.fire(),!0}carriageReturn(){return this._activeBuffer.x=0,!0}backspace(){if(!this._coreService.decPrivateModes.reverseWraparound)return this._restrictCursor(),this._activeBuffer.x>0&&this._activeBuffer.x--,!0;if(this._restrictCursor(this._bufferService.cols),this._activeBuffer.x>0)this._activeBuffer.x--;else if(this._activeBuffer.x===0&&this._activeBuffer.y>this._activeBuffer.scrollTop&&this._activeBuffer.y<=this._activeBuffer.scrollBottom&&this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y)?.isWrapped){this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y).isWrapped=!1,this._activeBuffer.y--,this._activeBuffer.x=this._bufferService.cols-1;let e=this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y);e.hasWidth(this._activeBuffer.x)&&!e.hasContent(this._activeBuffer.x)&&this._activeBuffer.x--}return this._restrictCursor(),!0}tab(){if(this._activeBuffer.x>=this._bufferService.cols)return!0;let e=this._activeBuffer.x;return this._activeBuffer.x=this._activeBuffer.nextStop(),this._optionsService.rawOptions.screenReaderMode&&this._onA11yTab.fire(this._activeBuffer.x-e),!0}shiftOut(){return this._charsetService.setgLevel(1),!0}shiftIn(){return this._charsetService.setgLevel(0),!0}_restrictCursor(e=this._bufferService.cols-1){this._activeBuffer.x=Math.min(e,Math.max(0,this._activeBuffer.x)),this._activeBuffer.y=this._coreService.decPrivateModes.origin?Math.min(this._activeBuffer.scrollBottom,Math.max(this._activeBuffer.scrollTop,this._activeBuffer.y)):Math.min(this._bufferService.rows-1,Math.max(0,this._activeBuffer.y)),this._dirtyRowTracker.markDirty(this._activeBuffer.y)}_setCursor(e,t){this._dirtyRowTracker.markDirty(this._activeBuffer.y),this._coreService.decPrivateModes.origin?(this._activeBuffer.x=e,this._activeBuffer.y=this._activeBuffer.scrollTop+t):(this._activeBuffer.x=e,this._activeBuffer.y=t),this._restrictCursor(),this._dirtyRowTracker.markDirty(this._activeBuffer.y)}_moveCursor(e,t){this._restrictCursor(),this._setCursor(this._activeBuffer.x+e,this._activeBuffer.y+t)}cursorUp(e){let t=this._activeBuffer.y-this._activeBuffer.scrollTop;return t>=0?this._moveCursor(0,-Math.min(t,e.params[0]||1)):this._moveCursor(0,-(e.params[0]||1)),!0}cursorDown(e){let t=this._activeBuffer.scrollBottom-this._activeBuffer.y;return t>=0?this._moveCursor(0,Math.min(t,e.params[0]||1)):this._moveCursor(0,e.params[0]||1),!0}cursorForward(e){return this._moveCursor(e.params[0]||1,0),!0}cursorBackward(e){return this._moveCursor(-(e.params[0]||1),0),!0}cursorNextLine(e){return this.cursorDown(e),this._activeBuffer.x=0,!0}cursorPrecedingLine(e){return this.cursorUp(e),this._activeBuffer.x=0,!0}cursorCharAbsolute(e){return this._setCursor((e.params[0]||1)-1,this._activeBuffer.y),!0}cursorPosition(e){return this._setCursor(e.length>=2?(e.params[1]||1)-1:0,(e.params[0]||1)-1),!0}charPosAbsolute(e){return this._setCursor((e.params[0]||1)-1,this._activeBuffer.y),!0}hPositionRelative(e){return this._moveCursor(e.params[0]||1,0),!0}linePosAbsolute(e){return this._setCursor(this._activeBuffer.x,(e.params[0]||1)-1),!0}vPositionRelative(e){return this._moveCursor(0,e.params[0]||1),!0}hVPosition(e){return this.cursorPosition(e),!0}tabClear(e){let t=e.params[0];return t===0?delete this._activeBuffer.tabs[this._activeBuffer.x]:t===3&&(this._activeBuffer.tabs={}),!0}cursorForwardTab(e){if(this._activeBuffer.x>=this._bufferService.cols)return!0;let t=e.params[0]||1;for(;t--;)this._activeBuffer.x=this._activeBuffer.nextStop();return!0}cursorBackwardTab(e){if(this._activeBuffer.x>=this._bufferService.cols)return!0;let t=e.params[0]||1;for(;t--;)this._activeBuffer.x=this._activeBuffer.prevStop();return!0}selectProtected(e){let t=e.params[0];return t===1&&(this._curAttrData.bg|=536870912),(t===2||t===0)&&(this._curAttrData.bg&=-536870913),!0}_eraseInBufferLine(e,t,n,r=!1,i=!1){let a=this._activeBuffer.lines.get(this._activeBuffer.ybase+e);a.replaceCells(t,n,this._activeBuffer.getNullCell(this._eraseAttrData()),i),r&&(a.isWrapped=!1)}_resetBufferLine(e,t=!1){let n=this._activeBuffer.lines.get(this._activeBuffer.ybase+e);n&&(n.fill(this._activeBuffer.getNullCell(this._eraseAttrData()),t),this._bufferService.buffer.clearMarkers(this._activeBuffer.ybase+e),n.isWrapped=!1)}eraseInDisplay(e,t=!1){this._restrictCursor(this._bufferService.cols);let n;switch(e.params[0]){case 0:for(n=this._activeBuffer.y,this._dirtyRowTracker.markDirty(n),this._eraseInBufferLine(n++,this._activeBuffer.x,this._bufferService.cols,this._activeBuffer.x===0,t);n<this._bufferService.rows;n++)this._resetBufferLine(n,t);this._dirtyRowTracker.markDirty(n);break;case 1:for(n=this._activeBuffer.y,this._dirtyRowTracker.markDirty(n),this._eraseInBufferLine(n,0,this._activeBuffer.x+1,!0,t),this._activeBuffer.x+1>=this._bufferService.cols&&(this._activeBuffer.lines.get(n+1).isWrapped=!1);n--;)this._resetBufferLine(n,t);this._dirtyRowTracker.markDirty(0);break;case 2:if(this._optionsService.rawOptions.scrollOnEraseInDisplay){for(n=this._bufferService.rows,this._dirtyRowTracker.markRangeDirty(0,n-1);n--&&!this._activeBuffer.lines.get(this._activeBuffer.ybase+n)?.getTrimmedLength(););for(;n>=0;n--)this._bufferService.scroll(this._eraseAttrData())}else{for(n=this._bufferService.rows,this._dirtyRowTracker.markDirty(n-1);n--;)this._resetBufferLine(n,t);this._dirtyRowTracker.markDirty(0)}break;case 3:let e=this._activeBuffer.lines.length-this._bufferService.rows;e>0&&(this._activeBuffer.lines.trimStart(e),this._activeBuffer.ybase=Math.max(this._activeBuffer.ybase-e,0),this._activeBuffer.ydisp=Math.max(this._activeBuffer.ydisp-e,0),this._onScroll.fire(0));break}return!0}eraseInLine(e,t=!1){switch(this._restrictCursor(this._bufferService.cols),e.params[0]){case 0:this._eraseInBufferLine(this._activeBuffer.y,this._activeBuffer.x,this._bufferService.cols,this._activeBuffer.x===0,t);break;case 1:this._eraseInBufferLine(this._activeBuffer.y,0,this._activeBuffer.x+1,!1,t);break;case 2:this._eraseInBufferLine(this._activeBuffer.y,0,this._bufferService.cols,!0,t);break}return this._dirtyRowTracker.markDirty(this._activeBuffer.y),!0}insertLines(e){this._restrictCursor();let t=e.params[0]||1;if(this._activeBuffer.y>this._activeBuffer.scrollBottom||this._activeBuffer.y<this._activeBuffer.scrollTop)return!0;let n=this._activeBuffer.ybase+this._activeBuffer.y,r=this._bufferService.rows-1-this._activeBuffer.scrollBottom,i=this._bufferService.rows-1+this._activeBuffer.ybase-r+1;for(;t--;)this._activeBuffer.lines.splice(i-1,1),this._activeBuffer.lines.splice(n,0,this._activeBuffer.getBlankLine(this._eraseAttrData()));return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.y,this._activeBuffer.scrollBottom),this._activeBuffer.x=0,!0}deleteLines(e){this._restrictCursor();let t=e.params[0]||1;if(this._activeBuffer.y>this._activeBuffer.scrollBottom||this._activeBuffer.y<this._activeBuffer.scrollTop)return!0;let n=this._activeBuffer.ybase+this._activeBuffer.y,r;for(r=this._bufferService.rows-1-this._activeBuffer.scrollBottom,r=this._bufferService.rows-1+this._activeBuffer.ybase-r;t--;)this._activeBuffer.lines.splice(n,1),this._activeBuffer.lines.splice(r,0,this._activeBuffer.getBlankLine(this._eraseAttrData()));return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.y,this._activeBuffer.scrollBottom),this._activeBuffer.x=0,!0}insertChars(e){this._restrictCursor();let t=this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y);return t&&(t.insertCells(this._activeBuffer.x,e.params[0]||1,this._activeBuffer.getNullCell(this._eraseAttrData())),this._dirtyRowTracker.markDirty(this._activeBuffer.y)),!0}deleteChars(e){this._restrictCursor();let t=this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y);return t&&(t.deleteCells(this._activeBuffer.x,e.params[0]||1,this._activeBuffer.getNullCell(this._eraseAttrData())),this._dirtyRowTracker.markDirty(this._activeBuffer.y)),!0}scrollUp(e){let t=e.params[0]||1;for(;t--;)this._activeBuffer.lines.splice(this._activeBuffer.ybase+this._activeBuffer.scrollTop,1),this._activeBuffer.lines.splice(this._activeBuffer.ybase+this._activeBuffer.scrollBottom,0,this._activeBuffer.getBlankLine(this._eraseAttrData()));return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.scrollTop,this._activeBuffer.scrollBottom),!0}scrollDown(e){let t=e.params[0]||1;for(;t--;)this._activeBuffer.lines.splice(this._activeBuffer.ybase+this._activeBuffer.scrollBottom,1),this._activeBuffer.lines.splice(this._activeBuffer.ybase+this._activeBuffer.scrollTop,0,this._activeBuffer.getBlankLine(Y));return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.scrollTop,this._activeBuffer.scrollBottom),!0}scrollLeft(e){if(this._activeBuffer.y>this._activeBuffer.scrollBottom||this._activeBuffer.y<this._activeBuffer.scrollTop)return!0;let t=e.params[0]||1;for(let e=this._activeBuffer.scrollTop;e<=this._activeBuffer.scrollBottom;++e){let n=this._activeBuffer.lines.get(this._activeBuffer.ybase+e);n.deleteCells(0,t,this._activeBuffer.getNullCell(this._eraseAttrData())),n.isWrapped=!1}return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.scrollTop,this._activeBuffer.scrollBottom),!0}scrollRight(e){if(this._activeBuffer.y>this._activeBuffer.scrollBottom||this._activeBuffer.y<this._activeBuffer.scrollTop)return!0;let t=e.params[0]||1;for(let e=this._activeBuffer.scrollTop;e<=this._activeBuffer.scrollBottom;++e){let n=this._activeBuffer.lines.get(this._activeBuffer.ybase+e);n.insertCells(0,t,this._activeBuffer.getNullCell(this._eraseAttrData())),n.isWrapped=!1}return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.scrollTop,this._activeBuffer.scrollBottom),!0}insertColumns(e){if(this._activeBuffer.y>this._activeBuffer.scrollBottom||this._activeBuffer.y<this._activeBuffer.scrollTop)return!0;let t=e.params[0]||1;for(let e=this._activeBuffer.scrollTop;e<=this._activeBuffer.scrollBottom;++e){let n=this._activeBuffer.lines.get(this._activeBuffer.ybase+e);n.insertCells(this._activeBuffer.x,t,this._activeBuffer.getNullCell(this._eraseAttrData())),n.isWrapped=!1}return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.scrollTop,this._activeBuffer.scrollBottom),!0}deleteColumns(e){if(this._activeBuffer.y>this._activeBuffer.scrollBottom||this._activeBuffer.y<this._activeBuffer.scrollTop)return!0;let t=e.params[0]||1;for(let e=this._activeBuffer.scrollTop;e<=this._activeBuffer.scrollBottom;++e){let n=this._activeBuffer.lines.get(this._activeBuffer.ybase+e);n.deleteCells(this._activeBuffer.x,t,this._activeBuffer.getNullCell(this._eraseAttrData())),n.isWrapped=!1}return this._dirtyRowTracker.markRangeDirty(this._activeBuffer.scrollTop,this._activeBuffer.scrollBottom),!0}eraseChars(e){this._restrictCursor();let t=this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y);return t&&(t.replaceCells(this._activeBuffer.x,this._activeBuffer.x+(e.params[0]||1),this._activeBuffer.getNullCell(this._eraseAttrData())),this._dirtyRowTracker.markDirty(this._activeBuffer.y)),!0}repeatPrecedingCharacter(e){let t=this._parser.precedingJoinState;if(!t)return!0;let n=e.params[0]||1,r=xo.extractWidth(t),i=this._activeBuffer.x-r,a=this._activeBuffer.lines.get(this._activeBuffer.ybase+this._activeBuffer.y).getString(i),o=new Uint32Array(a.length*n),s=0;for(let e=0;e<a.length;){let t=a.codePointAt(e)||0;o[s++]=t,e+=t>65535?2:1}let c=s;for(let e=1;e<n;++e)o.copyWithin(c,0,s),c+=s;return this.print(o,0,c),!0}sendDeviceAttributesPrimary(e){return e.params[0]>0||(this._is(`xterm`)||this._is(`rxvt-unicode`)||this._is(`screen`)?this._coreService.triggerDataEvent(L.ESC+`[?1;2c`):this._is(`linux`)&&this._coreService.triggerDataEvent(L.ESC+`[?6c`)),!0}sendDeviceAttributesSecondary(e){return e.params[0]>0||(this._is(`xterm`)?this._coreService.triggerDataEvent(L.ESC+`[>0;276;0c`):this._is(`rxvt-unicode`)?this._coreService.triggerDataEvent(L.ESC+`[>85;95;0c`):this._is(`linux`)?this._coreService.triggerDataEvent(e.params[0]+`c`):this._is(`screen`)&&this._coreService.triggerDataEvent(L.ESC+`[>83;40003;0c`)),!0}_is(e){return(this._optionsService.rawOptions.termName+``).indexOf(e)===0}setMode(e){for(let t=0;t<e.length;t++)switch(e.params[t]){case 4:this._coreService.modes.insertMode=!0;break;case 20:this._optionsService.options.convertEol=!0;break}return!0}setModePrivate(e){for(let t=0;t<e.length;t++)switch(e.params[t]){case 1:this._coreService.decPrivateModes.applicationCursorKeys=!0;break;case 2:this._charsetService.setgCharset(0,Xa),this._charsetService.setgCharset(1,Xa),this._charsetService.setgCharset(2,Xa),this._charsetService.setgCharset(3,Xa);break;case 3:this._optionsService.rawOptions.windowOptions.setWinLines&&(this._bufferService.resize(132,this._bufferService.rows),this._onRequestReset.fire());break;case 6:this._coreService.decPrivateModes.origin=!0,this._setCursor(0,0);break;case 7:this._coreService.decPrivateModes.wraparound=!0;break;case 12:this._optionsService.options.cursorBlink=!0;break;case 45:this._coreService.decPrivateModes.reverseWraparound=!0;break;case 66:this._logService.debug(`Serial port requested application keypad.`),this._coreService.decPrivateModes.applicationKeypad=!0,this._onRequestSyncScrollBar.fire();break;case 9:this._coreMouseService.activeProtocol=`X10`;break;case 1e3:this._coreMouseService.activeProtocol=`VT200`;break;case 1002:this._coreMouseService.activeProtocol=`DRAG`;break;case 1003:this._coreMouseService.activeProtocol=`ANY`;break;case 1004:this._coreService.decPrivateModes.sendFocus=!0,this._onRequestSendFocus.fire();break;case 1005:this._logService.debug(`DECSET 1005 not supported (see #2507)`);break;case 1006:this._coreMouseService.activeEncoding=`SGR`;break;case 1015:this._logService.debug(`DECSET 1015 not supported (see #2507)`);break;case 1016:this._coreMouseService.activeEncoding=`SGR_PIXELS`;break;case 25:this._coreService.isCursorHidden=!1;break;case 1048:this.saveCursor();break;case 1049:this.saveCursor();case 47:case 1047:this._bufferService.buffers.activateAltBuffer(this._eraseAttrData()),this._coreService.isCursorInitialized=!0,this._onRequestRefreshRows.fire(void 0),this._onRequestSyncScrollBar.fire();break;case 2004:this._coreService.decPrivateModes.bracketedPasteMode=!0;break;case 2026:this._coreService.decPrivateModes.synchronizedOutput=!0;break}return!0}resetMode(e){for(let t=0;t<e.length;t++)switch(e.params[t]){case 4:this._coreService.modes.insertMode=!1;break;case 20:this._optionsService.options.convertEol=!1;break}return!0}resetModePrivate(e){for(let t=0;t<e.length;t++)switch(e.params[t]){case 1:this._coreService.decPrivateModes.applicationCursorKeys=!1;break;case 3:this._optionsService.rawOptions.windowOptions.setWinLines&&(this._bufferService.resize(80,this._bufferService.rows),this._onRequestReset.fire());break;case 6:this._coreService.decPrivateModes.origin=!1,this._setCursor(0,0);break;case 7:this._coreService.decPrivateModes.wraparound=!1;break;case 12:this._optionsService.options.cursorBlink=!1;break;case 45:this._coreService.decPrivateModes.reverseWraparound=!1;break;case 66:this._logService.debug(`Switching back to normal keypad.`),this._coreService.decPrivateModes.applicationKeypad=!1,this._onRequestSyncScrollBar.fire();break;case 9:case 1e3:case 1002:case 1003:this._coreMouseService.activeProtocol=`NONE`;break;case 1004:this._coreService.decPrivateModes.sendFocus=!1;break;case 1005:this._logService.debug(`DECRST 1005 not supported (see #2507)`);break;case 1006:this._coreMouseService.activeEncoding=`DEFAULT`;break;case 1015:this._logService.debug(`DECRST 1015 not supported (see #2507)`);break;case 1016:this._coreMouseService.activeEncoding=`DEFAULT`;break;case 25:this._coreService.isCursorHidden=!0;break;case 1048:this.restoreCursor();break;case 1049:case 47:case 1047:this._bufferService.buffers.activateNormalBuffer(),e.params[t]===1049&&this.restoreCursor(),this._coreService.isCursorInitialized=!0,this._onRequestRefreshRows.fire(void 0),this._onRequestSyncScrollBar.fire();break;case 2004:this._coreService.decPrivateModes.bracketedPasteMode=!1;break;case 2026:this._coreService.decPrivateModes.synchronizedOutput=!1,this._onRequestRefreshRows.fire(void 0);break}return!0}requestMode(e,t){let n;(e=>(e[e.NOT_RECOGNIZED=0]=`NOT_RECOGNIZED`,e[e.SET=1]=`SET`,e[e.RESET=2]=`RESET`,e[e.PERMANENTLY_SET=3]=`PERMANENTLY_SET`,e[e.PERMANENTLY_RESET=4]=`PERMANENTLY_RESET`))(n||={});let r=this._coreService.decPrivateModes,{activeProtocol:i,activeEncoding:a}=this._coreMouseService,o=this._coreService,{buffers:s,cols:c}=this._bufferService,{active:l,alt:u}=s,d=this._optionsService.rawOptions,f=(e,n)=>(o.triggerDataEvent(`${L.ESC}[${t?``:`?`}${e};${n}$y`),!0),p=e=>e?1:2,m=e.params[0];return t?m===2?f(m,4):m===4?f(m,p(o.modes.insertMode)):m===12?f(m,3):m===20?f(m,p(d.convertEol)):f(m,0):m===1?f(m,p(r.applicationCursorKeys)):m===3?f(m,d.windowOptions.setWinLines?c===80?2:+(c===132):0):m===6?f(m,p(r.origin)):m===7?f(m,p(r.wraparound)):m===8?f(m,3):m===9?f(m,p(i===`X10`)):m===12?f(m,p(d.cursorBlink)):m===25?f(m,p(!o.isCursorHidden)):m===45?f(m,p(r.reverseWraparound)):m===66?f(m,p(r.applicationKeypad)):m===67?f(m,4):m===1e3?f(m,p(i===`VT200`)):m===1002?f(m,p(i===`DRAG`)):m===1003?f(m,p(i===`ANY`)):m===1004?f(m,p(r.sendFocus)):m===1005?f(m,4):m===1006?f(m,p(a===`SGR`)):m===1015?f(m,4):m===1016?f(m,p(a===`SGR_PIXELS`)):m===1048?f(m,1):m===47||m===1047||m===1049?f(m,p(l===u)):m===2004?f(m,p(r.bracketedPasteMode)):m===2026?f(m,p(r.synchronizedOutput)):f(m,0)}_updateAttrColor(e,t,n,r,i){return t===2?(e|=50331648,e&=-16777216,e|=ie.fromColorRGB([n,r,i])):t===5&&(e&=-50331904,e|=33554432|n&255),e}_extractColor(e,t,n){let r=[0,0,-1,0,0,0],i=0,a=0;do{if(r[a+i]=e.params[t+a],e.hasSubParams(t+a)){let n=e.getSubParams(t+a),o=0;do r[1]===5&&(i=1),r[a+o+1+i]=n[o];while(++o<n.length&&o+a+1+i<r.length);break}if(r[1]===5&&a+i>=2||r[1]===2&&a+i>=5)break;r[1]&&(i=1)}while(++a+t<e.length&&a+i<r.length);for(let e=2;e<r.length;++e)r[e]===-1&&(r[e]=0);switch(r[0]){case 38:n.fg=this._updateAttrColor(n.fg,r[1],r[3],r[4],r[5]);break;case 48:n.bg=this._updateAttrColor(n.bg,r[1],r[3],r[4],r[5]);break;case 58:n.extended=n.extended.clone(),n.extended.underlineColor=this._updateAttrColor(n.extended.underlineColor,r[1],r[3],r[4],r[5])}return a}_processUnderline(e,t){t.extended=t.extended.clone(),(!~e||e>5)&&(e=1),t.extended.underlineStyle=e,t.fg|=268435456,e===0&&(t.fg&=-268435457),t.updateExtended()}_processSGR0(e){e.fg=Y.fg,e.bg=Y.bg,e.extended=e.extended.clone(),e.extended.underlineStyle=0,e.extended.underlineColor&=-67108864,e.updateExtended()}charAttributes(e){if(e.length===1&&e.params[0]===0)return this._processSGR0(this._curAttrData),!0;let t=e.length,n,r=this._curAttrData;for(let i=0;i<t;i++)n=e.params[i],n>=30&&n<=37?(r.fg&=-50331904,r.fg|=16777216|n-30):n>=40&&n<=47?(r.bg&=-50331904,r.bg|=16777216|n-40):n>=90&&n<=97?(r.fg&=-50331904,r.fg|=n-90|16777224):n>=100&&n<=107?(r.bg&=-50331904,r.bg|=n-100|16777224):n===0?this._processSGR0(r):n===1?r.fg|=134217728:n===3?r.bg|=67108864:n===4?(r.fg|=268435456,this._processUnderline(e.hasSubParams(i)?e.getSubParams(i)[0]:1,r)):n===5?r.fg|=536870912:n===7?r.fg|=67108864:n===8?r.fg|=1073741824:n===9?r.fg|=2147483648:n===2?r.bg|=134217728:n===21?this._processUnderline(2,r):n===22?(r.fg&=-134217729,r.bg&=-134217729):n===23?r.bg&=-67108865:n===24?(r.fg&=-268435457,this._processUnderline(0,r)):n===25?r.fg&=-536870913:n===27?r.fg&=-67108865:n===28?r.fg&=-1073741825:n===29?r.fg&=2147483647:n===39?(r.fg&=-67108864,r.fg|=Y.fg&16777215):n===49?(r.bg&=-67108864,r.bg|=Y.bg&16777215):n===38||n===48||n===58?i+=this._extractColor(e,i,r):n===53?r.bg|=1073741824:n===55?r.bg&=-1073741825:n===59?(r.extended=r.extended.clone(),r.extended.underlineColor=-1,r.updateExtended()):n===100?(r.fg&=-67108864,r.fg|=Y.fg&16777215,r.bg&=-67108864,r.bg|=Y.bg&16777215):this._logService.debug(`Unknown SGR attribute: %d.`,n);return!0}deviceStatus(e){switch(e.params[0]){case 5:this._coreService.triggerDataEvent(`${L.ESC}[0n`);break;case 6:let e=this._activeBuffer.y+1,t=this._activeBuffer.x+1;this._coreService.triggerDataEvent(`${L.ESC}[${e};${t}R`);break}return!0}deviceStatusPrivate(e){switch(e.params[0]){case 6:let e=this._activeBuffer.y+1,t=this._activeBuffer.x+1;this._coreService.triggerDataEvent(`${L.ESC}[?${e};${t}R`);break;case 15:break;case 25:break;case 26:break;case 53:break}return!0}softReset(e){return this._coreService.isCursorHidden=!1,this._onRequestSyncScrollBar.fire(),this._activeBuffer.scrollTop=0,this._activeBuffer.scrollBottom=this._bufferService.rows-1,this._curAttrData=Y.clone(),this._coreService.reset(),this._charsetService.reset(),this._activeBuffer.savedX=0,this._activeBuffer.savedY=this._activeBuffer.ybase,this._activeBuffer.savedCurAttrData.fg=this._curAttrData.fg,this._activeBuffer.savedCurAttrData.bg=this._curAttrData.bg,this._activeBuffer.savedCharset=this._charsetService.charset,this._coreService.decPrivateModes.origin=!1,!0}setCursorStyle(e){let t=e.length===0?1:e.params[0];if(t===0)this._coreService.decPrivateModes.cursorStyle=void 0,this._coreService.decPrivateModes.cursorBlink=void 0;else{switch(t){case 1:case 2:this._coreService.decPrivateModes.cursorStyle=`block`;break;case 3:case 4:this._coreService.decPrivateModes.cursorStyle=`underline`;break;case 5:case 6:this._coreService.decPrivateModes.cursorStyle=`bar`;break}let e=t%2==1;this._coreService.decPrivateModes.cursorBlink=e}return!0}setScrollRegion(e){let t=e.params[0]||1,n;return(e.length<2||(n=e.params[1])>this._bufferService.rows||n===0)&&(n=this._bufferService.rows),n>t&&(this._activeBuffer.scrollTop=t-1,this._activeBuffer.scrollBottom=n-1,this._setCursor(0,0)),!0}windowOptions(e){if(!Ko(e.params[0],this._optionsService.rawOptions.windowOptions))return!0;let t=e.length>1?e.params[1]:0;switch(e.params[0]){case 14:t!==2&&this._onRequestWindowsOptionsReport.fire(0);break;case 16:this._onRequestWindowsOptionsReport.fire(1);break;case 18:this._bufferService&&this._coreService.triggerDataEvent(`${L.ESC}[8;${this._bufferService.rows};${this._bufferService.cols}t`);break;case 22:(t===0||t===2)&&(this._windowTitleStack.push(this._windowTitle),this._windowTitleStack.length>Go&&this._windowTitleStack.shift()),(t===0||t===1)&&(this._iconNameStack.push(this._iconName),this._iconNameStack.length>Go&&this._iconNameStack.shift());break;case 23:(t===0||t===2)&&this._windowTitleStack.length&&this.setTitle(this._windowTitleStack.pop()),(t===0||t===1)&&this._iconNameStack.length&&this.setIconName(this._iconNameStack.pop());break}return!0}saveCursor(e){return this._activeBuffer.savedX=this._activeBuffer.x,this._activeBuffer.savedY=this._activeBuffer.ybase+this._activeBuffer.y,this._activeBuffer.savedCurAttrData.fg=this._curAttrData.fg,this._activeBuffer.savedCurAttrData.bg=this._curAttrData.bg,this._activeBuffer.savedCharset=this._charsetService.charset,!0}restoreCursor(e){return this._activeBuffer.x=this._activeBuffer.savedX||0,this._activeBuffer.y=Math.max(this._activeBuffer.savedY-this._activeBuffer.ybase,0),this._curAttrData.fg=this._activeBuffer.savedCurAttrData.fg,this._curAttrData.bg=this._activeBuffer.savedCurAttrData.bg,this._charsetService.charset=this._savedCharset,this._activeBuffer.savedCharset&&(this._charsetService.charset=this._activeBuffer.savedCharset),this._restrictCursor(),!0}setTitle(e){return this._windowTitle=e,this._onTitleChange.fire(e),!0}setIconName(e){return this._iconName=e,!0}setOrReportIndexedColor(e){let t=[],n=e.split(`;`);for(;n.length>1;){let e=n.shift(),r=n.shift();if(/^\d+$/.exec(e)){let n=parseInt(e);if(Zo(n))if(r===`?`)t.push({type:0,index:n});else{let e=Bo(r);e&&t.push({type:1,index:n,color:e})}}}return t.length&&this._onColor.fire(t),!0}setHyperlink(e){let t=e.indexOf(`;`);if(t===-1)return!0;let n=e.slice(0,t).trim(),r=e.slice(t+1);return r?this._createHyperlink(n,r):n.trim()?!1:this._finishHyperlink()}_createHyperlink(e,t){this._getCurrentLinkId()&&this._finishHyperlink();let n=e.split(`:`),r,i=n.findIndex(e=>e.startsWith(`id=`));return i!==-1&&(r=n[i].slice(3)||void 0),this._curAttrData.extended=this._curAttrData.extended.clone(),this._curAttrData.extended.urlId=this._oscLinkService.registerLink({id:r,uri:t}),this._curAttrData.updateExtended(),!0}_finishHyperlink(){return this._curAttrData.extended=this._curAttrData.extended.clone(),this._curAttrData.extended.urlId=0,this._curAttrData.updateExtended(),!0}_setOrReportSpecialColor(e,t){let n=e.split(`;`);for(let e=0;e<n.length&&!(t>=this._specialColors.length);++e,++t)if(n[e]===`?`)this._onColor.fire([{type:0,index:this._specialColors[t]}]);else{let r=Bo(n[e]);r&&this._onColor.fire([{type:1,index:this._specialColors[t],color:r}])}return!0}setOrReportFgColor(e){return this._setOrReportSpecialColor(e,0)}setOrReportBgColor(e){return this._setOrReportSpecialColor(e,1)}setOrReportCursorColor(e){return this._setOrReportSpecialColor(e,2)}restoreIndexedColor(e){if(!e)return this._onColor.fire([{type:2}]),!0;let t=[],n=e.split(`;`);for(let e=0;e<n.length;++e)if(/^\d+$/.exec(n[e])){let r=parseInt(n[e]);Zo(r)&&t.push({type:2,index:r})}return t.length&&this._onColor.fire(t),!0}restoreFgColor(e){return this._onColor.fire([{type:2,index:256}]),!0}restoreBgColor(e){return this._onColor.fire([{type:2,index:257}]),!0}restoreCursorColor(e){return this._onColor.fire([{type:2,index:258}]),!0}nextLine(){return this._activeBuffer.x=0,this.index(),!0}keypadApplicationMode(){return this._logService.debug(`Serial port requested application keypad.`),this._coreService.decPrivateModes.applicationKeypad=!0,this._onRequestSyncScrollBar.fire(),!0}keypadNumericMode(){return this._logService.debug(`Switching back to normal keypad.`),this._coreService.decPrivateModes.applicationKeypad=!1,this._onRequestSyncScrollBar.fire(),!0}selectDefaultCharset(){return this._charsetService.setgLevel(0),this._charsetService.setgCharset(0,Xa),!0}selectCharset(e){return e.length===2?(e[0]===`/`||this._charsetService.setgCharset(Uo[e[0]],X[e[1]]||Xa),!0):(this.selectDefaultCharset(),!0)}index(){return this._restrictCursor(),this._activeBuffer.y++,this._activeBuffer.y===this._activeBuffer.scrollBottom+1?(this._activeBuffer.y--,this._bufferService.scroll(this._eraseAttrData())):this._activeBuffer.y>=this._bufferService.rows&&(this._activeBuffer.y=this._bufferService.rows-1),this._restrictCursor(),!0}tabSet(){return this._activeBuffer.tabs[this._activeBuffer.x]=!0,!0}reverseIndex(){if(this._restrictCursor(),this._activeBuffer.y===this._activeBuffer.scrollTop){let e=this._activeBuffer.scrollBottom-this._activeBuffer.scrollTop;this._activeBuffer.lines.shiftElements(this._activeBuffer.ybase+this._activeBuffer.y,e,1),this._activeBuffer.lines.set(this._activeBuffer.ybase+this._activeBuffer.y,this._activeBuffer.getBlankLine(this._eraseAttrData())),this._dirtyRowTracker.markRangeDirty(this._activeBuffer.scrollTop,this._activeBuffer.scrollBottom)}else this._activeBuffer.y--,this._restrictCursor();return!0}fullReset(){return this._parser.reset(),this._onRequestReset.fire(),!0}reset(){this._curAttrData=Y.clone(),this._eraseAttrDataInternal=Y.clone()}_eraseAttrData(){return this._eraseAttrDataInternal.bg&=-67108864,this._eraseAttrDataInternal.bg|=this._curAttrData.bg&67108863,this._eraseAttrDataInternal}setgLevel(e){return this._charsetService.setgLevel(e),!0}screenAlignmentPattern(){let e=new v;e.content=4194373,e.fg=this._curAttrData.fg,e.bg=this._curAttrData.bg,this._setCursor(0,0);for(let t=0;t<this._bufferService.rows;++t){let n=this._activeBuffer.ybase+this._activeBuffer.y+t,r=this._activeBuffer.lines.get(n);r&&(r.fill(e),r.isWrapped=!1)}return this._dirtyRowTracker.markAllDirty(),this._setCursor(0,0),!0}requestStatusString(e,t){let n=e=>(this._coreService.triggerDataEvent(`${L.ESC}${e}${L.ESC}\\`),!0),r=this._bufferService.buffer,i=this._optionsService.rawOptions;return n(e===`"q`?`P1$r${+!!this._curAttrData.isProtected()}"q`:e===`"p`?`P1$r61;1"p`:e===`r`?`P1$r${r.scrollTop+1};${r.scrollBottom+1}r`:e===`m`?`P1$r0m`:e===` q`?`P1$r${{block:2,underline:4,bar:6}[i.cursorStyle]-+!!i.cursorBlink} q`:`P0$r`)}markRangeDirty(e,t){this._dirtyRowTracker.markRangeDirty(e,t)}},Xo=class{constructor(e){this._bufferService=e,this.clearRange()}clearRange(){this.start=this._bufferService.buffer.y,this.end=this._bufferService.buffer.y}markDirty(e){e<this.start?this.start=e:e>this.end&&(this.end=e)}markRangeDirty(e,t){e>t&&(Jo=e,e=t,t=Jo),e<this.start&&(this.start=e),t>this.end&&(this.end=t)}markAllDirty(){this.markRangeDirty(0,this._bufferService.rows-1)}};Xo=r([i(0,b)],Xo);function Zo(e){return 0<=e&&e<256}var Qo=5e7,$o=12,es=50,ts=class extends A{constructor(e){super(),this._action=e,this._writeBuffer=[],this._callbacks=[],this._pendingData=0,this._bufferOffset=0,this._isSyncWriting=!1,this._syncCalls=0,this._didUserInput=!1,this._onWriteParsed=this._register(new N),this.onWriteParsed=this._onWriteParsed.event}handleUserInput(){this._didUserInput=!0}writeSync(e,t){if(t!==void 0&&this._syncCalls>t){this._syncCalls=0;return}if(this._pendingData+=e.length,this._writeBuffer.push(e),this._callbacks.push(void 0),this._syncCalls++,this._isSyncWriting)return;this._isSyncWriting=!0;let n;for(;n=this._writeBuffer.shift();){this._action(n);let e=this._callbacks.shift();e&&e()}this._pendingData=0,this._bufferOffset=2147483647,this._isSyncWriting=!1,this._syncCalls=0}write(e,t){if(this._pendingData>Qo)throw Error(`write data discarded, use flow control to avoid losing data`);if(!this._writeBuffer.length){if(this._bufferOffset=0,this._didUserInput){this._didUserInput=!1,this._pendingData+=e.length,this._writeBuffer.push(e),this._callbacks.push(t),this._innerWrite();return}setTimeout(()=>this._innerWrite())}this._pendingData+=e.length,this._writeBuffer.push(e),this._callbacks.push(t)}_innerWrite(e=0,t=!0){let n=e||performance.now();for(;this._writeBuffer.length>this._bufferOffset;){let e=this._writeBuffer[this._bufferOffset],r=this._action(e,t);if(r){r.catch(e=>(queueMicrotask(()=>{throw e}),Promise.resolve(!1))).then(e=>performance.now()-n>=$o?setTimeout(()=>this._innerWrite(0,e)):this._innerWrite(n,e));return}let i=this._callbacks[this._bufferOffset];if(i&&i(),this._bufferOffset++,this._pendingData-=e.length,performance.now()-n>=$o)break}this._writeBuffer.length>this._bufferOffset?(this._bufferOffset>es&&(this._writeBuffer=this._writeBuffer.slice(this._bufferOffset),this._callbacks=this._callbacks.slice(this._bufferOffset),this._bufferOffset=0),setTimeout(()=>this._innerWrite())):(this._writeBuffer.length=0,this._callbacks.length=0,this._pendingData=0,this._bufferOffset=0),this._onWriteParsed.fire()}},ns=class{constructor(e){this._bufferService=e,this._nextId=1,this._entriesWithId=new Map,this._dataByLinkId=new Map}registerLink(e){let t=this._bufferService.buffer;if(e.id===void 0){let n=t.addMarker(t.ybase+t.y),r={data:e,id:this._nextId++,lines:[n]};return n.onDispose(()=>this._removeMarkerFromLink(r,n)),this._dataByLinkId.set(r.id,r),r.id}let n=e,r=this._getEntryIdKey(n),i=this._entriesWithId.get(r);if(i)return this.addLineToLink(i.id,t.ybase+t.y),i.id;let a=t.addMarker(t.ybase+t.y),o={id:this._nextId++,key:this._getEntryIdKey(n),data:n,lines:[a]};return a.onDispose(()=>this._removeMarkerFromLink(o,a)),this._entriesWithId.set(o.key,o),this._dataByLinkId.set(o.id,o),o.id}addLineToLink(e,t){let n=this._dataByLinkId.get(e);if(n&&n.lines.every(e=>e.line!==t)){let e=this._bufferService.buffer.addMarker(t);n.lines.push(e),e.onDispose(()=>this._removeMarkerFromLink(n,e))}}getLinkData(e){return this._dataByLinkId.get(e)?.data}_getEntryIdKey(e){return`${e.id};;${e.uri}`}_removeMarkerFromLink(e,t){let n=e.lines.indexOf(t);n!==-1&&(e.lines.splice(n,1),e.lines.length===0&&(e.data.id!==void 0&&this._entriesWithId.delete(e.key),this._dataByLinkId.delete(e.id)))}};ns=r([i(0,b)],ns);var rs=!1,is=class extends A{constructor(e){super(),this._windowsWrappingHeuristics=this._register(new et),this._onBinary=this._register(new N),this.onBinary=this._onBinary.event,this._onData=this._register(new N),this.onData=this._onData.event,this._onLineFeed=this._register(new N),this.onLineFeed=this._onLineFeed.event,this._onResize=this._register(new N),this.onResize=this._onResize.event,this._onWriteParsed=this._register(new N),this.onWriteParsed=this._onWriteParsed.event,this._onScroll=this._register(new N),this._instantiationService=new Pa,this.optionsService=this._register(new ao(e)),this._instantiationService.setService(S,this.optionsService),this._bufferService=this._register(this._instantiationService.createInstance(no)),this._instantiationService.setService(b,this._bufferService),this._logService=this._register(this._instantiationService.createInstance(La)),this._instantiationService.setService(me,this._logService),this.coreService=this._register(this._instantiationService.createInstance(uo)),this._instantiationService.setService(fe,this.coreService),this.coreMouseService=this._register(this._instantiationService.createInstance(go)),this._instantiationService.setService(de,this.coreMouseService),this.unicodeService=this._register(this._instantiationService.createInstance(xo)),this._instantiationService.setService(ge,this.unicodeService),this._charsetService=this._instantiationService.createInstance(So),this._instantiationService.setService(pe,this._charsetService),this._oscLinkService=this._instantiationService.createInstance(ns),this._instantiationService.setService(he,this._oscLinkService),this._inputHandler=this._register(new Yo(this._bufferService,this._charsetService,this.coreService,this._logService,this.optionsService,this._oscLinkService,this.coreMouseService,this.unicodeService)),this._register(M.forward(this._inputHandler.onLineFeed,this._onLineFeed)),this._register(this._inputHandler),this._register(M.forward(this._bufferService.onResize,this._onResize)),this._register(M.forward(this.coreService.onData,this._onData)),this._register(M.forward(this.coreService.onBinary,this._onBinary)),this._register(this.coreService.onRequestScrollToBottom(()=>this.scrollToBottom(!0))),this._register(this.coreService.onUserInput(()=>this._writeBuffer.handleUserInput())),this._register(this.optionsService.onMultipleOptionChange([`windowsMode`,`windowsPty`],()=>this._handleWindowsPtyOptionChange())),this._register(this._bufferService.onScroll(()=>{this._onScroll.fire({position:this._bufferService.buffer.ydisp}),this._inputHandler.markRangeDirty(this._bufferService.buffer.scrollTop,this._bufferService.buffer.scrollBottom)})),this._writeBuffer=this._register(new ts((e,t)=>this._inputHandler.parse(e,t))),this._register(M.forward(this._writeBuffer.onWriteParsed,this._onWriteParsed))}get onScroll(){return this._onScrollApi||(this._onScrollApi=this._register(new N),this._onScroll.event(e=>{this._onScrollApi?.fire(e.position)})),this._onScrollApi.event}get cols(){return this._bufferService.cols}get rows(){return this._bufferService.rows}get buffers(){return this._bufferService.buffers}get options(){return this.optionsService.options}set options(e){for(let t in e)this.optionsService.options[t]=e[t]}write(e,t){this._writeBuffer.write(e,t)}writeSync(e,t){this._logService.logLevel<=3&&!rs&&(this._logService.warn(`writeSync is unreliable and will be removed soon.`),rs=!0),this._writeBuffer.writeSync(e,t)}input(e,t=!0){this.coreService.triggerDataEvent(e,t)}resize(e,t){isNaN(e)||isNaN(t)||(e=Math.max(e,eo),t=Math.max(t,to),this._bufferService.resize(e,t))}scroll(e,t=!1){this._bufferService.scroll(e,t)}scrollLines(e,t){this._bufferService.scrollLines(e,t)}scrollPages(e){this.scrollLines(e*(this.rows-1))}scrollToTop(){this.scrollLines(-this._bufferService.buffer.ydisp)}scrollToBottom(e){this.scrollLines(this._bufferService.buffer.ybase-this._bufferService.buffer.ydisp)}scrollToLine(e){let t=e-this._bufferService.buffer.ydisp;t!==0&&this.scrollLines(t)}registerEscHandler(e,t){return this._inputHandler.registerEscHandler(e,t)}registerDcsHandler(e,t){return this._inputHandler.registerDcsHandler(e,t)}registerCsiHandler(e,t){return this._inputHandler.registerCsiHandler(e,t)}registerOscHandler(e,t){return this._inputHandler.registerOscHandler(e,t)}_setup(){this._handleWindowsPtyOptionChange()}reset(){this._inputHandler.reset(),this._bufferService.reset(),this._charsetService.reset(),this.coreService.reset(),this.coreMouseService.reset()}_handleWindowsPtyOptionChange(){let e=!1,t=this.optionsService.rawOptions.windowsPty;t&&t.buildNumber!==void 0&&t.buildNumber!==void 0?e=t.backend===`conpty`&&t.buildNumber<21376:this.optionsService.rawOptions.windowsMode&&(e=!0),e?this._enableWindowsWrappingHeuristics():this._windowsWrappingHeuristics.clear()}_enableWindowsWrappingHeuristics(){if(!this._windowsWrappingHeuristics.value){let e=[];e.push(this.onLineFeed(Co.bind(null,this._bufferService))),e.push(this.registerCsiHandler({final:`H`},()=>(Co(this._bufferService),!1))),this._windowsWrappingHeuristics.value=k(()=>{for(let t of e)t.dispose()})}}},as={48:[`0`,`)`],49:[`1`,`!`],50:[`2`,`@`],51:[`3`,`#`],52:[`4`,`$`],53:[`5`,`%`],54:[`6`,`^`],55:[`7`,`&`],56:[`8`,`*`],57:[`9`,`(`],186:[`;`,`:`],187:[`=`,`+`],188:[`,`,`<`],189:[`-`,`_`],190:[`.`,`>`],191:[`/`,`?`],192:["`",`~`],219:[`[`,`{`],220:[`\\`,`|`],221:[`]`,`}`],222:[`'`,`"`]};function os(e,t,n,r){let i={type:0,cancel:!1,key:void 0},a=!!e.shiftKey|(e.altKey?2:0)|(e.ctrlKey?4:0)|(e.metaKey?8:0);switch(e.keyCode){case 0:e.key===`UIKeyInputUpArrow`?t?i.key=L.ESC+`OA`:i.key=L.ESC+`[A`:e.key===`UIKeyInputLeftArrow`?t?i.key=L.ESC+`OD`:i.key=L.ESC+`[D`:e.key===`UIKeyInputRightArrow`?t?i.key=L.ESC+`OC`:i.key=L.ESC+`[C`:e.key===`UIKeyInputDownArrow`&&(t?i.key=L.ESC+`OB`:i.key=L.ESC+`[B`);break;case 8:i.key=e.ctrlKey?`\b`:L.DEL,e.altKey&&(i.key=L.ESC+i.key);break;case 9:if(e.shiftKey){i.key=L.ESC+`[Z`;break}i.key=L.HT,i.cancel=!0;break;case 13:i.key=e.altKey?L.ESC+L.CR:L.CR,i.cancel=!0;break;case 27:i.key=L.ESC,e.altKey&&(i.key=L.ESC+L.ESC),i.cancel=!0;break;case 37:if(e.metaKey)break;a?i.key=L.ESC+`[1;`+(a+1)+`D`:t?i.key=L.ESC+`OD`:i.key=L.ESC+`[D`;break;case 39:if(e.metaKey)break;a?i.key=L.ESC+`[1;`+(a+1)+`C`:t?i.key=L.ESC+`OC`:i.key=L.ESC+`[C`;break;case 38:if(e.metaKey)break;a?i.key=L.ESC+`[1;`+(a+1)+`A`:t?i.key=L.ESC+`OA`:i.key=L.ESC+`[A`;break;case 40:if(e.metaKey)break;a?i.key=L.ESC+`[1;`+(a+1)+`B`:t?i.key=L.ESC+`OB`:i.key=L.ESC+`[B`;break;case 45:!e.shiftKey&&!e.ctrlKey&&(i.key=L.ESC+`[2~`);break;case 46:a?i.key=L.ESC+`[3;`+(a+1)+`~`:i.key=L.ESC+`[3~`;break;case 36:a?i.key=L.ESC+`[1;`+(a+1)+`H`:t?i.key=L.ESC+`OH`:i.key=L.ESC+`[H`;break;case 35:a?i.key=L.ESC+`[1;`+(a+1)+`F`:t?i.key=L.ESC+`OF`:i.key=L.ESC+`[F`;break;case 33:e.shiftKey?i.type=2:e.ctrlKey?i.key=L.ESC+`[5;`+(a+1)+`~`:i.key=L.ESC+`[5~`;break;case 34:e.shiftKey?i.type=3:e.ctrlKey?i.key=L.ESC+`[6;`+(a+1)+`~`:i.key=L.ESC+`[6~`;break;case 112:a?i.key=L.ESC+`[1;`+(a+1)+`P`:i.key=L.ESC+`OP`;break;case 113:a?i.key=L.ESC+`[1;`+(a+1)+`Q`:i.key=L.ESC+`OQ`;break;case 114:a?i.key=L.ESC+`[1;`+(a+1)+`R`:i.key=L.ESC+`OR`;break;case 115:a?i.key=L.ESC+`[1;`+(a+1)+`S`:i.key=L.ESC+`OS`;break;case 116:a?i.key=L.ESC+`[15;`+(a+1)+`~`:i.key=L.ESC+`[15~`;break;case 117:a?i.key=L.ESC+`[17;`+(a+1)+`~`:i.key=L.ESC+`[17~`;break;case 118:a?i.key=L.ESC+`[18;`+(a+1)+`~`:i.key=L.ESC+`[18~`;break;case 119:a?i.key=L.ESC+`[19;`+(a+1)+`~`:i.key=L.ESC+`[19~`;break;case 120:a?i.key=L.ESC+`[20;`+(a+1)+`~`:i.key=L.ESC+`[20~`;break;case 121:a?i.key=L.ESC+`[21;`+(a+1)+`~`:i.key=L.ESC+`[21~`;break;case 122:a?i.key=L.ESC+`[23;`+(a+1)+`~`:i.key=L.ESC+`[23~`;break;case 123:a?i.key=L.ESC+`[24;`+(a+1)+`~`:i.key=L.ESC+`[24~`;break;default:if(e.ctrlKey&&!e.shiftKey&&!e.altKey&&!e.metaKey)e.keyCode>=65&&e.keyCode<=90?i.key=String.fromCharCode(e.keyCode-64):e.keyCode===32?i.key=L.NUL:e.keyCode>=51&&e.keyCode<=55?i.key=String.fromCharCode(e.keyCode-51+27):e.keyCode===56?i.key=L.DEL:e.keyCode===219?i.key=L.ESC:e.keyCode===220?i.key=L.FS:e.keyCode===221&&(i.key=L.GS);else if((!n||r)&&e.altKey&&!e.metaKey){let t=as[e.keyCode]?.[+!!e.shiftKey];if(t)i.key=L.ESC+t;else if(e.keyCode>=65&&e.keyCode<=90){let t=e.ctrlKey?e.keyCode-64:e.keyCode+32,n=String.fromCharCode(t);e.shiftKey&&(n=n.toUpperCase()),i.key=L.ESC+n}else if(e.keyCode===32)i.key=L.ESC+(e.ctrlKey?L.NUL:` `);else if(e.key===`Dead`&&e.code.startsWith(`Key`)){let t=e.code.slice(3,4);e.shiftKey||(t=t.toLowerCase()),i.key=L.ESC+t,i.cancel=!0}}else n&&!e.altKey&&!e.ctrlKey&&!e.shiftKey&&e.metaKey?e.keyCode===65&&(i.type=1):e.key&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&e.keyCode>=48&&e.key.length===1?i.key=e.key:e.key&&e.ctrlKey&&(e.key===`_`&&(i.key=L.US),e.key===`@`&&(i.key=L.NUL));break}return i}var Q=0,ss=class{constructor(e){this._getKey=e,this._array=[],this._insertedValues=[],this._flushInsertedTask=new $i,this._isFlushingInserted=!1,this._deletedIndices=[],this._flushDeletedTask=new $i,this._isFlushingDeleted=!1}clear(){this._array.length=0,this._insertedValues.length=0,this._flushInsertedTask.clear(),this._isFlushingInserted=!1,this._deletedIndices.length=0,this._flushDeletedTask.clear(),this._isFlushingDeleted=!1}insert(e){this._flushCleanupDeleted(),this._insertedValues.length===0&&this._flushInsertedTask.enqueue(()=>this._flushInserted()),this._insertedValues.push(e)}_flushInserted(){let e=this._insertedValues.sort((e,t)=>this._getKey(e)-this._getKey(t)),t=0,n=0,r=Array(this._array.length+this._insertedValues.length);for(let i=0;i<r.length;i++)n>=this._array.length||this._getKey(e[t])<=this._getKey(this._array[n])?(r[i]=e[t],t++):r[i]=this._array[n++];this._array=r,this._insertedValues.length=0}_flushCleanupInserted(){!this._isFlushingInserted&&this._insertedValues.length>0&&this._flushInsertedTask.flush()}delete(e){if(this._flushCleanupInserted(),this._array.length===0)return!1;let t=this._getKey(e);if(t===void 0||(Q=this._search(t),Q===-1)||this._getKey(this._array[Q])!==t)return!1;do if(this._array[Q]===e)return this._deletedIndices.length===0&&this._flushDeletedTask.enqueue(()=>this._flushDeleted()),this._deletedIndices.push(Q),!0;while(++Q<this._array.length&&this._getKey(this._array[Q])===t);return!1}_flushDeleted(){this._isFlushingDeleted=!0;let e=this._deletedIndices.sort((e,t)=>e-t),t=0,n=Array(this._array.length-e.length),r=0;for(let i=0;i<this._array.length;i++)e[t]===i?t++:n[r++]=this._array[i];this._array=n,this._deletedIndices.length=0,this._isFlushingDeleted=!1}_flushCleanupDeleted(){!this._isFlushingDeleted&&this._deletedIndices.length>0&&this._flushDeletedTask.flush()}*getKeyIterator(e){if(this._flushCleanupInserted(),this._flushCleanupDeleted(),this._array.length!==0&&(Q=this._search(e),!(Q<0||Q>=this._array.length)&&this._getKey(this._array[Q])===e))do yield this._array[Q];while(++Q<this._array.length&&this._getKey(this._array[Q])===e)}forEachByKey(e,t){if(this._flushCleanupInserted(),this._flushCleanupDeleted(),this._array.length!==0&&(Q=this._search(e),!(Q<0||Q>=this._array.length)&&this._getKey(this._array[Q])===e))do t(this._array[Q]);while(++Q<this._array.length&&this._getKey(this._array[Q])===e)}values(){return this._flushCleanupInserted(),this._flushCleanupDeleted(),[...this._array].values()}_search(e){let t=0,n=this._array.length-1;for(;n>=t;){let r=t+n>>1,i=this._getKey(this._array[r]);if(i>e)n=r-1;else if(i<e)t=r+1;else{for(;r>0&&this._getKey(this._array[r-1])===e;)r--;return r}}return t}},cs=0,ls=0,us=class extends A{constructor(){super(),this._decorations=new ss(e=>e?.marker.line),this._onDecorationRegistered=this._register(new N),this.onDecorationRegistered=this._onDecorationRegistered.event,this._onDecorationRemoved=this._register(new N),this.onDecorationRemoved=this._onDecorationRemoved.event,this._register(k(()=>this.reset()))}get decorations(){return this._decorations.values()}registerDecoration(e){if(e.marker.isDisposed)return;let t=new ds(e);if(t){let e=t.marker.onDispose(()=>t.dispose()),n=t.onDispose(()=>{n.dispose(),t&&(this._decorations.delete(t)&&this._onDecorationRemoved.fire(t),e.dispose())});this._decorations.insert(t),this._onDecorationRegistered.fire(t)}return t}reset(){for(let e of this._decorations.values())e.dispose();this._decorations.clear()}*getDecorationsAtCell(e,t,n){let r=0,i=0;for(let a of this._decorations.getKeyIterator(t))r=a.options.x??0,i=r+(a.options.width??1),e>=r&&e<i&&(!n||(a.options.layer??`bottom`)===n)&&(yield a)}forEachDecorationAtCell(e,t,n,r){this._decorations.forEachByKey(t,t=>{cs=t.options.x??0,ls=cs+(t.options.width??1),e>=cs&&e<ls&&(!n||(t.options.layer??`bottom`)===n)&&r(t)})}},ds=class extends $e{constructor(e){super(),this.options=e,this.onRenderEmitter=this.add(new N),this.onRender=this.onRenderEmitter.event,this._onDispose=this.add(new N),this.onDispose=this._onDispose.event,this._cachedBg=null,this._cachedFg=null,this.marker=e.marker,this.options.overviewRulerOptions&&!this.options.overviewRulerOptions.position&&(this.options.overviewRulerOptions.position=`full`)}get backgroundColorRGB(){return this._cachedBg===null&&(this.options.backgroundColor?this._cachedBg=W.toColor(this.options.backgroundColor):this._cachedBg=void 0),this._cachedBg}get foregroundColorRGB(){return this._cachedFg===null&&(this.options.foregroundColor?this._cachedFg=W.toColor(this.options.foregroundColor):this._cachedFg=void 0),this._cachedFg}dispose(){this._onDispose.fire(),super.dispose()}},fs=1e3,ps=class{constructor(e,t=fs){this._renderCallback=e,this._debounceThresholdMS=t,this._lastRefreshMs=0,this._additionalRefreshRequested=!1}dispose(){this._refreshTimeoutID&&clearTimeout(this._refreshTimeoutID)}refresh(e,t,n){this._rowCount=n,e=e===void 0?0:e,t=t===void 0?this._rowCount-1:t,this._rowStart=this._rowStart===void 0?e:Math.min(this._rowStart,e),this._rowEnd=this._rowEnd===void 0?t:Math.max(this._rowEnd,t);let r=performance.now();if(r-this._lastRefreshMs>=this._debounceThresholdMS)this._lastRefreshMs=r,this._innerRefresh();else if(!this._additionalRefreshRequested){let e=r-this._lastRefreshMs,t=this._debounceThresholdMS-e;this._additionalRefreshRequested=!0,this._refreshTimeoutID=window.setTimeout(()=>{this._lastRefreshMs=performance.now(),this._innerRefresh(),this._additionalRefreshRequested=!1,this._refreshTimeoutID=void 0},t)}}_innerRefresh(){if(this._rowStart===void 0||this._rowEnd===void 0||this._rowCount===void 0)return;let e=Math.max(this._rowStart,0),t=Math.min(this._rowEnd,this._rowCount-1);this._rowStart=void 0,this._rowEnd=void 0,this._renderCallback(e,t)}},ms=20,hs=!1,gs=class extends A{constructor(e,t,n,r){super(),this._terminal=e,this._coreBrowserService=n,this._renderService=r,this._rowColumns=new WeakMap,this._liveRegionLineCount=0,this._charsToConsume=[],this._charsToAnnounce=``;let i=this._coreBrowserService.mainDocument;this._accessibilityContainer=i.createElement(`div`),this._accessibilityContainer.classList.add(`xterm-accessibility`),this._rowContainer=i.createElement(`div`),this._rowContainer.setAttribute(`role`,`list`),this._rowContainer.classList.add(`xterm-accessibility-tree`),this._rowElements=[];for(let e=0;e<this._terminal.rows;e++)this._rowElements[e]=this._createAccessibilityTreeNode(),this._rowContainer.appendChild(this._rowElements[e]);if(this._topBoundaryFocusListener=e=>this._handleBoundaryFocus(e,0),this._bottomBoundaryFocusListener=e=>this._handleBoundaryFocus(e,1),this._rowElements[0].addEventListener(`focus`,this._topBoundaryFocusListener),this._rowElements[this._rowElements.length-1].addEventListener(`focus`,this._bottomBoundaryFocusListener),this._accessibilityContainer.appendChild(this._rowContainer),this._liveRegion=i.createElement(`div`),this._liveRegion.classList.add(`live-region`),this._liveRegion.setAttribute(`aria-live`,`assertive`),this._accessibilityContainer.appendChild(this._liveRegion),this._liveRegionDebouncer=this._register(new ps(this._renderRows.bind(this))),!this._terminal.element)throw Error(`Cannot enable accessibility before Terminal.open`);hs?(this._accessibilityContainer.classList.add(`debug`),this._rowContainer.classList.add(`debug`),this._debugRootContainer=i.createElement(`div`),this._debugRootContainer.classList.add(`xterm`),this._debugRootContainer.appendChild(i.createTextNode(`------start a11y------`)),this._debugRootContainer.appendChild(this._accessibilityContainer),this._debugRootContainer.appendChild(i.createTextNode(`------end a11y------`)),this._terminal.element.insertAdjacentElement(`afterend`,this._debugRootContainer)):this._terminal.element.insertAdjacentElement(`afterbegin`,this._accessibilityContainer),this._register(this._terminal.onResize(e=>this._handleResize(e.rows))),this._register(this._terminal.onRender(e=>this._refreshRows(e.start,e.end))),this._register(this._terminal.onScroll(()=>this._refreshRows())),this._register(this._terminal.onA11yChar(e=>this._handleChar(e))),this._register(this._terminal.onLineFeed(()=>this._handleChar(`
 `))),this._register(this._terminal.onA11yTab(e=>this._handleTab(e))),this._register(this._terminal.onKey(e=>this._handleKey(e.key))),this._register(this._terminal.onBlur(()=>this._clearLiveRegion())),this._register(this._renderService.onDimensionsChange(()=>this._refreshRowsDimensions())),this._register(P(i,`selectionchange`,()=>this._handleSelectionChange())),this._register(this._coreBrowserService.onDprChange(()=>this._refreshRowsDimensions())),this._refreshRowsDimensions(),this._refreshRows(),this._register(k(()=>{hs?this._debugRootContainer.remove():this._accessibilityContainer.remove(),this._rowElements.length=0}))}_handleTab(e){for(let t=0;t<e;t++)this._handleChar(` `)}_handleChar(e){this._liveRegionLineCount<ms+1&&(this._charsToConsume.length>0?this._charsToConsume.shift()!==e&&(this._charsToAnnounce+=e):this._charsToAnnounce+=e,e===`
 `&&(this._liveRegionLineCount++,this._liveRegionLineCount===ms+1&&(this._liveRegion.textContent+=c.get())))}_clearLiveRegion(){this._liveRegion.textContent=``,this._liveRegionLineCount=0}_handleKey(e){this._clearLiveRegion(),/\p{Control}/u.test(e)||this._charsToConsume.push(e)}_refreshRows(e,t){this._liveRegionDebouncer.refresh(e,t,this._terminal.rows)}_renderRows(e,t){let n=this._terminal.buffer,r=n.lines.length.toString();for(let i=e;i<=t;i++){let e=n.lines.get(n.ydisp+i),t=[],a=e?.translateToString(!0,void 0,void 0,t)||``,o=(n.ydisp+i+1).toString(),s=this._rowElements[i];s&&(a.length===0?(s.textContent=`\xA0`,this._rowColumns.set(s,[0,1])):(s.textContent=a,this._rowColumns.set(s,t)),s.setAttribute(`aria-posinset`,o),s.setAttribute(`aria-setsize`,r),this._alignRowWidth(s))}this._announceCharacters()}_announceCharacters(){this._charsToAnnounce.length!==0&&(this._liveRegion.textContent+=this._charsToAnnounce,this._charsToAnnounce=``)}_handleBoundaryFocus(e,t){let n=e.target,r=this._rowElements[t===0?1:this._rowElements.length-2];if(n.getAttribute(`aria-posinset`)===(t===0?`1`:`${this._terminal.buffer.lines.length}`)||e.relatedTarget!==r)return;let i,a;if(t===0?(i=n,a=this._rowElements.pop(),this._rowContainer.removeChild(a)):(i=this._rowElements.shift(),a=n,this._rowContainer.removeChild(i)),i.removeEventListener(`focus`,this._topBoundaryFocusListener),a.removeEventListener(`focus`,this._bottomBoundaryFocusListener),t===0){let e=this._createAccessibilityTreeNode();this._rowElements.unshift(e),this._rowContainer.insertAdjacentElement(`afterbegin`,e)}else{let e=this._createAccessibilityTreeNode();this._rowElements.push(e),this._rowContainer.appendChild(e)}this._rowElements[0].addEventListener(`focus`,this._topBoundaryFocusListener),this._rowElements[this._rowElements.length-1].addEventListener(`focus`,this._bottomBoundaryFocusListener),this._terminal.scrollLines(t===0?-1:1),this._rowElements[t===0?1:this._rowElements.length-2].focus(),e.preventDefault(),e.stopImmediatePropagation()}_handleSelectionChange(){if(this._rowElements.length===0)return;let e=this._coreBrowserService.mainDocument.getSelection();if(!e)return;if(e.isCollapsed){this._rowContainer.contains(e.anchorNode)&&this._terminal.clearSelection();return}if(!e.anchorNode||!e.focusNode){console.error(`anchorNode and/or focusNode are null`);return}let t={node:e.anchorNode,offset:e.anchorOffset},n={node:e.focusNode,offset:e.focusOffset};if((t.node.compareDocumentPosition(n.node)&Node.DOCUMENT_POSITION_PRECEDING||t.node===n.node&&t.offset>n.offset)&&([t,n]=[n,t]),t.node.compareDocumentPosition(this._rowElements[0])&(Node.DOCUMENT_POSITION_CONTAINED_BY|Node.DOCUMENT_POSITION_FOLLOWING)&&(t={node:this._rowElements[0].childNodes[0],offset:0}),!this._rowContainer.contains(t.node))return;let r=this._rowElements.slice(-1)[0];if(n.node.compareDocumentPosition(r)&(Node.DOCUMENT_POSITION_CONTAINED_BY|Node.DOCUMENT_POSITION_PRECEDING)&&(n={node:r,offset:r.textContent?.length??0}),!this._rowContainer.contains(n.node))return;let i=({node:e,offset:t})=>{let n=e instanceof Text?e.parentNode:e,r=parseInt(n?.getAttribute(`aria-posinset`),10)-1;if(isNaN(r))return console.warn(`row is invalid. Race condition?`),null;let i=this._rowColumns.get(n);if(!i)return console.warn(`columns is null. Race condition?`),null;let a=t<i.length?i[t]:i.slice(-1)[0]+1;return a>=this._terminal.cols&&(++r,a=0),{row:r,column:a}},a=i(t),o=i(n);if(!(!a||!o)){if(a.row>o.row||a.row===o.row&&a.column>=o.column)throw Error(`invalid range`);this._terminal.select(a.column,a.row,(o.row-a.row)*this._terminal.cols-a.column+o.column)}}_handleResize(e){this._rowElements[this._rowElements.length-1].removeEventListener(`focus`,this._bottomBoundaryFocusListener);for(let e=this._rowContainer.children.length;e<this._terminal.rows;e++)this._rowElements[e]=this._createAccessibilityTreeNode(),this._rowContainer.appendChild(this._rowElements[e]);for(;this._rowElements.length>e;)this._rowContainer.removeChild(this._rowElements.pop());this._rowElements[this._rowElements.length-1].addEventListener(`focus`,this._bottomBoundaryFocusListener),this._refreshRowsDimensions()}_createAccessibilityTreeNode(){let e=this._coreBrowserService.mainDocument.createElement(`div`);return e.setAttribute(`role`,`listitem`),e.tabIndex=-1,this._refreshRowDimensions(e),e}_refreshRowsDimensions(){if(this._renderService.dimensions.css.cell.height){Object.assign(this._accessibilityContainer.style,{width:`${this._renderService.dimensions.css.canvas.width}px`,fontSize:`${this._terminal.options.fontSize}px`}),this._rowElements.length!==this._terminal.rows&&this._handleResize(this._terminal.rows);for(let e=0;e<this._terminal.rows;e++)this._refreshRowDimensions(this._rowElements[e]),this._alignRowWidth(this._rowElements[e])}}_refreshRowDimensions(e){e.style.height=`${this._renderService.dimensions.css.cell.height}px`}_alignRowWidth(e){e.style.transform=``;let t=e.getBoundingClientRect().width,n=this._rowColumns.get(e)?.slice(-1)?.[0];if(!n)return;let r=n*this._renderService.dimensions.css.cell.width;e.style.transform=`scaleX(${r/t})`}};gs=r([i(1,x),i(2,T),i(3,E)],gs);var _s=class extends A{constructor(e,t,n,r,i){super(),this._element=e,this._mouseService=t,this._renderService=n,this._bufferService=r,this._linkProviderService=i,this._linkCacheDisposables=[],this._isMouseOut=!0,this._wasResized=!1,this._activeLine=-1,this._onShowLinkUnderline=this._register(new N),this.onShowLinkUnderline=this._onShowLinkUnderline.event,this._onHideLinkUnderline=this._register(new N),this.onHideLinkUnderline=this._onHideLinkUnderline.event,this._register(k(()=>{Xe(this._linkCacheDisposables),this._linkCacheDisposables.length=0,this._lastMouseEvent=void 0,this._activeProviderReplies?.clear()})),this._register(this._bufferService.onResize(()=>{this._clearCurrentLink(),this._wasResized=!0})),this._register(P(this._element,`mouseleave`,()=>{this._isMouseOut=!0,this._clearCurrentLink()})),this._register(P(this._element,`mousemove`,this._handleMouseMove.bind(this))),this._register(P(this._element,`mousedown`,this._handleMouseDown.bind(this))),this._register(P(this._element,`mouseup`,this._handleMouseUp.bind(this)))}get currentLink(){return this._currentLink}_handleMouseMove(e){this._lastMouseEvent=e;let t=this._positionFromMouseEvent(e,this._element,this._mouseService);if(!t)return;this._isMouseOut=!1;let n=e.composedPath();for(let e=0;e<n.length;e++){let t=n[e];if(t.classList.contains(`xterm`))break;if(t.classList.contains(`xterm-hover`))return}(!this._lastBufferCell||t.x!==this._lastBufferCell.x||t.y!==this._lastBufferCell.y)&&(this._handleHover(t),this._lastBufferCell=t)}_handleHover(e){if(this._activeLine!==e.y||this._wasResized){this._clearCurrentLink(),this._askForLink(e,!1),this._wasResized=!1;return}this._currentLink&&this._linkAtPosition(this._currentLink.link,e)||(this._clearCurrentLink(),this._askForLink(e,!0))}_askForLink(e,t){(!this._activeProviderReplies||!t)&&(this._activeProviderReplies?.forEach(e=>{e?.forEach(e=>{e.link.dispose&&e.link.dispose()})}),this._activeProviderReplies=new Map,this._activeLine=e.y);let n=!1;for(let[r,i]of this._linkProviderService.linkProviders.entries())t?this._activeProviderReplies?.get(r)&&(n=this._checkLinkProviderResult(r,e,n)):i.provideLinks(e.y,t=>{if(this._isMouseOut)return;let i=t?.map(e=>({link:e}));this._activeProviderReplies?.set(r,i),n=this._checkLinkProviderResult(r,e,n),this._activeProviderReplies?.size===this._linkProviderService.linkProviders.length&&this._removeIntersectingLinks(e.y,this._activeProviderReplies)})}_removeIntersectingLinks(e,t){let n=new Set;for(let r=0;r<t.size;r++){let i=t.get(r);if(i)for(let t=0;t<i.length;t++){let r=i[t],a=r.link.range.start.y<e?0:r.link.range.start.x,o=r.link.range.end.y>e?this._bufferService.cols:r.link.range.end.x;for(let e=a;e<=o;e++){if(n.has(e)){i.splice(t--,1);break}n.add(e)}}}}_checkLinkProviderResult(e,t,n){if(!this._activeProviderReplies)return n;let r=this._activeProviderReplies.get(e),i=!1;for(let t=0;t<e;t++)(!this._activeProviderReplies.has(t)||this._activeProviderReplies.get(t))&&(i=!0);if(!i&&r){let e=r.find(e=>this._linkAtPosition(e.link,t));e&&(n=!0,this._handleNewLink(e))}if(this._activeProviderReplies.size===this._linkProviderService.linkProviders.length&&!n)for(let e=0;e<this._activeProviderReplies.size;e++){let r=this._activeProviderReplies.get(e)?.find(e=>this._linkAtPosition(e.link,t));if(r){n=!0,this._handleNewLink(r);break}}return n}_handleMouseDown(){this._mouseDownLink=this._currentLink}_handleMouseUp(e){if(!this._currentLink)return;let t=this._positionFromMouseEvent(e,this._element,this._mouseService);t&&this._mouseDownLink&&vs(this._mouseDownLink.link,this._currentLink.link)&&this._linkAtPosition(this._currentLink.link,t)&&this._currentLink.link.activate(e,this._currentLink.link.text)}_clearCurrentLink(e,t){!this._currentLink||!this._lastMouseEvent||(!e||!t||this._currentLink.link.range.start.y>=e&&this._currentLink.link.range.end.y<=t)&&(this._linkLeave(this._element,this._currentLink.link,this._lastMouseEvent),this._currentLink=void 0,Xe(this._linkCacheDisposables),this._linkCacheDisposables.length=0)}_handleNewLink(e){if(!this._lastMouseEvent)return;let t=this._positionFromMouseEvent(this._lastMouseEvent,this._element,this._mouseService);t&&this._linkAtPosition(e.link,t)&&(this._currentLink=e,this._currentLink.state={decorations:{underline:e.link.decorations===void 0?!0:e.link.decorations.underline,pointerCursor:e.link.decorations===void 0?!0:e.link.decorations.pointerCursor},isHovered:!0},this._linkHover(this._element,e.link,this._lastMouseEvent),e.link.decorations={},Object.defineProperties(e.link.decorations,{pointerCursor:{get:()=>this._currentLink?.state?.decorations.pointerCursor,set:e=>{this._currentLink?.state&&this._currentLink.state.decorations.pointerCursor!==e&&(this._currentLink.state.decorations.pointerCursor=e,this._currentLink.state.isHovered&&this._element.classList.toggle(`xterm-cursor-pointer`,e))}},underline:{get:()=>this._currentLink?.state?.decorations.underline,set:t=>{this._currentLink?.state&&this._currentLink?.state?.decorations.underline!==t&&(this._currentLink.state.decorations.underline=t,this._currentLink.state.isHovered&&this._fireUnderlineEvent(e.link,t))}}}),this._linkCacheDisposables.push(this._renderService.onRenderedViewportChange(e=>{if(!this._currentLink)return;let t=e.start===0?0:e.start+1+this._bufferService.buffer.ydisp,n=this._bufferService.buffer.ydisp+1+e.end;if(this._currentLink.link.range.start.y>=t&&this._currentLink.link.range.end.y<=n&&(this._clearCurrentLink(t,n),this._lastMouseEvent)){let e=this._positionFromMouseEvent(this._lastMouseEvent,this._element,this._mouseService);e&&this._askForLink(e,!1)}})))}_linkHover(e,t,n){this._currentLink?.state&&(this._currentLink.state.isHovered=!0,this._currentLink.state.decorations.underline&&this._fireUnderlineEvent(t,!0),this._currentLink.state.decorations.pointerCursor&&e.classList.add(`xterm-cursor-pointer`)),t.hover&&t.hover(n,t.text)}_fireUnderlineEvent(e,t){let n=e.range,r=this._bufferService.buffer.ydisp,i=this._createLinkUnderlineEvent(n.start.x-1,n.start.y-r-1,n.end.x,n.end.y-r-1,void 0);(t?this._onShowLinkUnderline:this._onHideLinkUnderline).fire(i)}_linkLeave(e,t,n){this._currentLink?.state&&(this._currentLink.state.isHovered=!1,this._currentLink.state.decorations.underline&&this._fireUnderlineEvent(t,!1),this._currentLink.state.decorations.pointerCursor&&e.classList.remove(`xterm-cursor-pointer`)),t.leave&&t.leave(n,t.text)}_linkAtPosition(e,t){let n=e.range.start.y*this._bufferService.cols+e.range.start.x,r=e.range.end.y*this._bufferService.cols+e.range.end.x,i=t.y*this._bufferService.cols+t.x;return n<=i&&i<=r}_positionFromMouseEvent(e,t,n){let r=n.getCoords(e,t,this._bufferService.cols,this._bufferService.rows);if(r)return{x:r[0],y:r[1]+this._bufferService.buffer.ydisp}}_createLinkUnderlineEvent(e,t,n,r,i){return{x1:e,y1:t,x2:n,y2:r,cols:this._bufferService.cols,fg:i}}};_s=r([i(1,ye),i(2,E),i(3,b),i(4,Se)],_s);function vs(e,t){return e.text===t.text&&e.range.start.x===t.range.start.x&&e.range.start.y===t.range.start.y&&e.range.end.x===t.range.end.x&&e.range.end.y===t.range.end.y}var ys=class extends is{constructor(e={}){super(e),this._linkifier=this._register(new et),this.browser=Ii,this._keyDownHandled=!1,this._keyDownSeen=!1,this._keyPressHandled=!1,this._unprocessedDeadKey=!1,this._accessibilityManager=this._register(new et),this._onCursorMove=this._register(new N),this.onCursorMove=this._onCursorMove.event,this._onKey=this._register(new N),this.onKey=this._onKey.event,this._onRender=this._register(new N),this.onRender=this._onRender.event,this._onSelectionChange=this._register(new N),this.onSelectionChange=this._onSelectionChange.event,this._onTitleChange=this._register(new N),this.onTitleChange=this._onTitleChange.event,this._onBell=this._register(new N),this.onBell=this._onBell.event,this._onFocus=this._register(new N),this._onBlur=this._register(new N),this._onA11yCharEmitter=this._register(new N),this._onA11yTabEmitter=this._register(new N),this._onWillOpen=this._register(new N),this._setup(),this._decorationService=this._instantiationService.createInstance(us),this._instantiationService.setService(_e,this._decorationService),this._linkProviderService=this._instantiationService.createInstance(ji),this._instantiationService.setService(Se,this._linkProviderService),this._linkProviderService.registerLinkProvider(this._instantiationService.createInstance(C)),this._register(this._inputHandler.onRequestBell(()=>this._onBell.fire())),this._register(this._inputHandler.onRequestRefreshRows(e=>this.refresh(e?.start??0,e?.end??this.rows-1))),this._register(this._inputHandler.onRequestSendFocus(()=>this._reportFocus())),this._register(this._inputHandler.onRequestReset(()=>this.reset())),this._register(this._inputHandler.onRequestWindowsOptionsReport(e=>this._reportWindowsOptions(e))),this._register(this._inputHandler.onColor(e=>this._handleColorEvent(e))),this._register(M.forward(this._inputHandler.onCursorMove,this._onCursorMove)),this._register(M.forward(this._inputHandler.onTitleChange,this._onTitleChange)),this._register(M.forward(this._inputHandler.onA11yChar,this._onA11yCharEmitter)),this._register(M.forward(this._inputHandler.onA11yTab,this._onA11yTabEmitter)),this._register(this._bufferService.onResize(e=>this._afterResize(e.cols,e.rows))),this._register(k(()=>{this._customKeyEventHandler=void 0,this.element?.parentNode?.removeChild(this.element)}))}get linkifier(){return this._linkifier.value}get onFocus(){return this._onFocus.event}get onBlur(){return this._onBlur.event}get onA11yChar(){return this._onA11yCharEmitter.event}get onA11yTab(){return this._onA11yTabEmitter.event}get onWillOpen(){return this._onWillOpen.event}_handleColorEvent(e){if(this._themeService)for(let t of e){let e,n=``;switch(t.index){case 256:e=`foreground`,n=`10`;break;case 257:e=`background`,n=`11`;break;case 258:e=`cursor`,n=`12`;break;default:e=`ansi`,n=`4;`+t.index}switch(t.type){case 0:let r=U.toColorRGB(e===`ansi`?this._themeService.colors.ansi[t.index]:this._themeService.colors[e]);this.coreService.triggerDataEvent(`${L.ESC}]${n};${Ho(r)}${$r.ST}`);break;case 1:if(e===`ansi`)this._themeService.modifyColors(e=>e.ansi[t.index]=H.toColor(...t.color));else{let n=e;this._themeService.modifyColors(e=>e[n]=H.toColor(...t.color))}break;case 2:this._themeService.restoreColor(t.index);break}}}_setup(){super._setup(),this._customKeyEventHandler=void 0}get buffer(){return this.buffers.active}focus(){this.textarea&&this.textarea.focus({preventScroll:!0})}_handleScreenReaderModeOptionChange(e){e?!this._accessibilityManager.value&&this._renderService&&(this._accessibilityManager.value=this._instantiationService.createInstance(gs,this)):this._accessibilityManager.clear()}_handleTextAreaFocus(e){this.coreService.decPrivateModes.sendFocus&&this.coreService.triggerDataEvent(L.ESC+`[I`),this.element.classList.add(`focus`),this._showCursor(),this._onFocus.fire()}blur(){return this.textarea?.blur()}_handleTextAreaBlur(){this.textarea.value=``,this.refresh(this.buffer.y,this.buffer.y),this.coreService.decPrivateModes.sendFocus&&this.coreService.triggerDataEvent(L.ESC+`[O`),this.element.classList.remove(`focus`),this._onBlur.fire()}_syncTextArea(){if(!this.textarea||!this.buffer.isCursorInViewport||this._compositionHelper.isComposing||!this._renderService)return;let e=this.buffer.ybase+this.buffer.y,t=this.buffer.lines.get(e);if(!t)return;let n=Math.min(this.buffer.x,this.cols-1),r=this._renderService.dimensions.css.cell.height,i=t.getWidth(n),a=this._renderService.dimensions.css.cell.width*i,o=this.buffer.y*this._renderService.dimensions.css.cell.height,s=n*this._renderService.dimensions.css.cell.width;this.textarea.style.left=s+`px`,this.textarea.style.top=o+`px`,this.textarea.style.width=a+`px`,this.textarea.style.height=r+`px`,this.textarea.style.lineHeight=r+`px`,this.textarea.style.zIndex=`-5`}_initGlobal(){this._bindKeys(),this._register(P(this.element,`copy`,e=>{this.hasSelection()&&d(e,this._selectionService)}));let e=e=>f(e,this.textarea,this.coreService,this.optionsService);this._register(P(this.textarea,`paste`,e)),this._register(P(this.element,`paste`,e)),Bi?this._register(P(this.element,`mousedown`,e=>{e.button===2&&h(e,this.textarea,this.screenElement,this._selectionService,this.options.rightClickSelectsWord)})):this._register(P(this.element,`contextmenu`,e=>{h(e,this.textarea,this.screenElement,this._selectionService,this.options.rightClickSelectsWord)})),Ji&&this._register(P(this.element,`auxclick`,e=>{e.button===1&&m(e,this.textarea,this.screenElement)}))}_bindKeys(){this._register(P(this.textarea,`keyup`,e=>this._keyUp(e),!0)),this._register(P(this.textarea,`keydown`,e=>this._keyDown(e),!0)),this._register(P(this.textarea,`keypress`,e=>this._keyPress(e),!0)),this._register(P(this.textarea,`compositionstart`,()=>this._compositionHelper.compositionstart())),this._register(P(this.textarea,`compositionupdate`,e=>this._compositionHelper.compositionupdate(e))),this._register(P(this.textarea,`compositionend`,()=>this._compositionHelper.compositionend())),this._register(P(this.textarea,`input`,e=>this._inputEvent(e),!0)),this._register(this.onRender(()=>this._compositionHelper.updateCompositionElements()))}open(e){if(!e)throw Error(`Terminal requires a parent element.`);if(e.isConnected||this._logService.debug(`Terminal.open was called on an element that was not attached to the DOM`),this.element?.ownerDocument.defaultView&&this._coreBrowserService){this.element.ownerDocument.defaultView!==this._coreBrowserService.window&&(this._coreBrowserService.window=this.element.ownerDocument.defaultView);return}this._document=e.ownerDocument,this.options.documentOverride&&this.options.documentOverride instanceof Document&&(this._document=this.optionsService.rawOptions.documentOverride),this.element=this._document.createElement(`div`),this.element.dir=`ltr`,this.element.classList.add(`terminal`),this.element.classList.add(`xterm`),e.appendChild(this.element);let t=this._document.createDocumentFragment();this._viewportElement=this._document.createElement(`div`),this._viewportElement.classList.add(`xterm-viewport`),t.appendChild(this._viewportElement),this.screenElement=this._document.createElement(`div`),this.screenElement.classList.add(`xterm-screen`),this._register(P(this.screenElement,`mousemove`,e=>this.updateCursorStyle(e))),this._helperContainer=this._document.createElement(`div`),this._helperContainer.classList.add(`xterm-helpers`),this.screenElement.appendChild(this._helperContainer),t.appendChild(this.screenElement);let n=this.textarea=this._document.createElement(`textarea`);this.textarea.classList.add(`xterm-helper-textarea`),this.textarea.setAttribute(`aria-label`,o.get()),Yi||this.textarea.setAttribute(`aria-multiline`,`false`),this.textarea.setAttribute(`autocorrect`,`off`),this.textarea.setAttribute(`autocapitalize`,`off`),this.textarea.setAttribute(`spellcheck`,`false`),this.textarea.tabIndex=0,this._register(this.optionsService.onSpecificOptionChange(`disableStdin`,()=>n.readOnly=this.optionsService.rawOptions.disableStdin)),this.textarea.readOnly=this.optionsService.rawOptions.disableStdin,this._coreBrowserService=this._register(this._instantiationService.createInstance(ki,this.textarea,e.ownerDocument.defaultView??window,this._document??typeof window<`u`?window.document:null)),this._instantiationService.setService(T,this._coreBrowserService),this._register(P(this.textarea,`focus`,e=>this._handleTextAreaFocus(e))),this._register(P(this.textarea,`blur`,()=>this._handleTextAreaBlur())),this._helperContainer.appendChild(this.textarea),this._charSizeService=this._instantiationService.createInstance(Ti,this._document,this._helperContainer),this._instantiationService.setService(w,this._charSizeService),this._themeService=this._instantiationService.createInstance(Ma),this._instantiationService.setService(D,this._themeService),this._characterJoinerService=this._instantiationService.createInstance(oi),this._instantiationService.setService(xe,this._characterJoinerService),this._renderService=this._register(this._instantiationService.createInstance(ta,this.rows,this.screenElement)),this._instantiationService.setService(E,this._renderService),this._register(this._renderService.onRenderedViewportChange(e=>this._onRender.fire(e))),this.onResize(e=>this._renderService.resize(e.cols,e.rows)),this._compositionView=this._document.createElement(`div`),this._compositionView.classList.add(`composition-view`),this._compositionHelper=this._instantiationService.createInstance(ei,this.textarea,this._compositionView),this._helperContainer.appendChild(this._compositionView),this._mouseService=this._instantiationService.createInstance(Pi),this._instantiationService.setService(ye,this._mouseService);let r=this._linkifier.value=this._register(this._instantiationService.createInstance(_s,this.screenElement));this.element.appendChild(t);try{this._onWillOpen.fire(this.element)}catch{}this._renderService.hasRenderer()||this._renderService.setRenderer(this._createRenderer()),this._register(this.onCursorMove(()=>{this._renderService.handleCursorMove(),this._syncTextArea()})),this._register(this.onResize(()=>this._renderService.handleResize(this.cols,this.rows))),this._register(this.onBlur(()=>this._renderService.handleBlur())),this._register(this.onFocus(()=>this._renderService.handleFocus())),this._viewport=this._register(this._instantiationService.createInstance(Gr,this.element,this.screenElement)),this._register(this._viewport.onRequestScrollLines(e=>{super.scrollLines(e,!1),this.refresh(0,this.rows-1)})),this._selectionService=this._register(this._instantiationService.createInstance(Ca,this.element,this.screenElement,r)),this._instantiationService.setService(be,this._selectionService),this._register(this._selectionService.onRequestScrollLines(e=>this.scrollLines(e.amount,e.suppressScrollEvent))),this._register(this._selectionService.onSelectionChange(()=>this._onSelectionChange.fire())),this._register(this._selectionService.onRequestRedraw(e=>this._renderService.handleSelectionChanged(e.start,e.end,e.columnSelectMode))),this._register(this._selectionService.onLinuxMouseSelection(e=>{this.textarea.value=e,this.textarea.focus(),this.textarea.select()})),this._register(M.any(this._onScroll.event,this._inputHandler.onScroll)(()=>{this._selectionService.refresh(),this._viewport?.queueSync()})),this._register(this._instantiationService.createInstance(Kr,this.screenElement)),this._register(P(this.element,`mousedown`,e=>this._selectionService.handleMouseDown(e))),this.coreMouseService.areMouseEventsActive?(this._selectionService.disable(),this.element.classList.add(`enable-mouse-events`)):this._selectionService.enable(),this.options.screenReaderMode&&(this._accessibilityManager.value=this._instantiationService.createInstance(gs,this)),this._register(this.optionsService.onSpecificOptionChange(`screenReaderMode`,e=>this._handleScreenReaderModeOptionChange(e))),this.options.overviewRuler.width&&(this._overviewRulerRenderer=this._register(this._instantiationService.createInstance(Zr,this._viewportElement,this.screenElement))),this.optionsService.onSpecificOptionChange(`overviewRuler`,e=>{!this._overviewRulerRenderer&&e&&this._viewportElement&&this.screenElement&&(this._overviewRulerRenderer=this._register(this._instantiationService.createInstance(Zr,this._viewportElement,this.screenElement)))}),this._charSizeService.measure(),this.refresh(0,this.rows-1),this._initGlobal(),this.bindMouse()}_createRenderer(){return this._instantiationService.createInstance(wi,this,this._document,this.element,this.screenElement,this._viewportElement,this._helperContainer,this.linkifier)}bindMouse(){let e=this,t=this.element;function n(t){let n=e._mouseService.getMouseReportCoords(t,e.screenElement);if(!n)return!1;let r,i;switch(t.overrideType||t.type){case`mousemove`:i=32,t.buttons===void 0?(r=3,t.button!==void 0&&(r=t.button<3?t.button:3)):r=t.buttons&1?0:t.buttons&4?1:t.buttons&2?2:3;break;case`mouseup`:i=0,r=t.button<3?t.button:3;break;case`mousedown`:i=1,r=t.button<3?t.button:3;break;case`wheel`:if(e._customWheelEventHandler&&e._customWheelEventHandler(t)===!1)return!1;let n=t.deltaY;if(n===0||e.coreMouseService.consumeWheelEvent(t,e._renderService?.dimensions?.device?.cell?.height,e._coreBrowserService?.dpr)===0)return!1;i=n<0?0:1,r=4;break;default:return!1}return i===void 0||r===void 0||r>4?!1:e.coreMouseService.triggerMouseEvent({col:n.col,row:n.row,x:n.x,y:n.y,button:r,action:i,ctrl:t.ctrlKey,alt:t.altKey,shift:t.shiftKey})}let r={mouseup:null,wheel:null,mousedrag:null,mousemove:null},i={mouseup:e=>(n(e),e.buttons||(this._document.removeEventListener(`mouseup`,r.mouseup),r.mousedrag&&this._document.removeEventListener(`mousemove`,r.mousedrag)),this.cancel(e)),wheel:e=>(n(e),this.cancel(e,!0)),mousedrag:e=>{e.buttons&&n(e)},mousemove:e=>{e.buttons||n(e)}};this._register(this.coreMouseService.onProtocolChange(e=>{e?(this.optionsService.rawOptions.logLevel===`debug`&&this._logService.debug(`Binding to mouse events:`,this.coreMouseService.explainEvents(e)),this.element.classList.add(`enable-mouse-events`),this._selectionService.disable()):(this._logService.debug(`Unbinding from mouse events.`),this.element.classList.remove(`enable-mouse-events`),this._selectionService.enable()),e&8?r.mousemove||=(t.addEventListener(`mousemove`,i.mousemove),i.mousemove):(t.removeEventListener(`mousemove`,r.mousemove),r.mousemove=null),e&16?r.wheel||=(t.addEventListener(`wheel`,i.wheel,{passive:!1}),i.wheel):(t.removeEventListener(`wheel`,r.wheel),r.wheel=null),e&2?r.mouseup||=i.mouseup:(this._document.removeEventListener(`mouseup`,r.mouseup),r.mouseup=null),e&4?r.mousedrag||=i.mousedrag:(this._document.removeEventListener(`mousemove`,r.mousedrag),r.mousedrag=null)})),this.coreMouseService.activeProtocol=this.coreMouseService.activeProtocol,this._register(P(t,`mousedown`,e=>{if(e.preventDefault(),this.focus(),!(!this.coreMouseService.areMouseEventsActive||this._selectionService.shouldForceSelection(e)))return n(e),r.mouseup&&this._document.addEventListener(`mouseup`,r.mouseup),r.mousedrag&&this._document.addEventListener(`mousemove`,r.mousedrag),this.cancel(e)})),this._register(P(t,`wheel`,t=>{if(!r.wheel){if(this._customWheelEventHandler&&this._customWheelEventHandler(t)===!1)return!1;if(!this.buffer.hasScrollback){if(t.deltaY===0)return!1;if(e.coreMouseService.consumeWheelEvent(t,e._renderService?.dimensions?.device?.cell?.height,e._coreBrowserService?.dpr)===0)return this.cancel(t,!0);let n=L.ESC+(this.coreService.decPrivateModes.applicationCursorKeys?`O`:`[`)+(t.deltaY<0?`A`:`B`);return this.coreService.triggerDataEvent(n,!0),this.cancel(t,!0)}}},{passive:!1}))}refresh(e,t){this._renderService?.refreshRows(e,t)}updateCursorStyle(e){this._selectionService?.shouldColumnSelect(e)?this.element.classList.add(`column-select`):this.element.classList.remove(`column-select`)}_showCursor(){this.coreService.isCursorInitialized||(this.coreService.isCursorInitialized=!0,this.refresh(this.buffer.y,this.buffer.y))}scrollLines(e,t){this._viewport?this._viewport.scrollLines(e):super.scrollLines(e,t),this.refresh(0,this.rows-1)}scrollPages(e){this.scrollLines(e*(this.rows-1))}scrollToTop(){this.scrollLines(-this._bufferService.buffer.ydisp)}scrollToBottom(e){e&&this._viewport?this._viewport.scrollToLine(this.buffer.ybase,!0):this.scrollLines(this._bufferService.buffer.ybase-this._bufferService.buffer.ydisp)}scrollToLine(e){let t=e-this._bufferService.buffer.ydisp;t!==0&&this.scrollLines(t)}paste(e){p(e,this.textarea,this.coreService,this.optionsService)}attachCustomKeyEventHandler(e){this._customKeyEventHandler=e}attachCustomWheelEventHandler(e){this._customWheelEventHandler=e}registerLinkProvider(e){return this._linkProviderService.registerLinkProvider(e)}registerCharacterJoiner(e){if(!this._characterJoinerService)throw Error(`Terminal must be opened first`);let t=this._characterJoinerService.register(e);return this.refresh(0,this.rows-1),t}deregisterCharacterJoiner(e){if(!this._characterJoinerService)throw Error(`Terminal must be opened first`);this._characterJoinerService.deregister(e)&&this.refresh(0,this.rows-1)}get markers(){return this.buffer.markers}registerMarker(e){return this.buffer.addMarker(this.buffer.ybase+this.buffer.y+e)}registerDecoration(e){return this._decorationService.registerDecoration(e)}hasSelection(){return this._selectionService?this._selectionService.hasSelection:!1}select(e,t,n){this._selectionService.setSelection(e,t,n)}getSelection(){return this._selectionService?this._selectionService.selectionText:``}getSelectionPosition(){if(!(!this._selectionService||!this._selectionService.hasSelection))return{start:{x:this._selectionService.selectionStart[0],y:this._selectionService.selectionStart[1]},end:{x:this._selectionService.selectionEnd[0],y:this._selectionService.selectionEnd[1]}}}clearSelection(){this._selectionService?.clearSelection()}selectAll(){this._selectionService?.selectAll()}selectLines(e,t){this._selectionService?.selectLines(e,t)}_keyDown(e){if(this._keyDownHandled=!1,this._keyDownSeen=!0,this._customKeyEventHandler&&this._customKeyEventHandler(e)===!1)return!1;let t=this.browser.isMac&&this.options.macOptionIsMeta&&e.altKey;if(!t&&!this._compositionHelper.keydown(e))return this.options.scrollOnUserInput&&this.buffer.ybase!==this.buffer.ydisp&&this.scrollToBottom(!0),!1;!t&&(e.key===`Dead`||e.key===`AltGraph`)&&(this._unprocessedDeadKey=!0);let n=os(e,this.coreService.decPrivateModes.applicationCursorKeys,this.browser.isMac,this.options.macOptionIsMeta);if(this.updateCursorStyle(e),n.type===3||n.type===2){let t=this.rows-1;return this.scrollLines(n.type===2?-t:t),this.cancel(e,!0)}if(n.type===1&&this.selectAll(),this._isThirdLevelShift(this.browser,e)||(n.cancel&&this.cancel(e,!0),!n.key)||e.key&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&e.key.length===1&&e.key.charCodeAt(0)>=65&&e.key.charCodeAt(0)<=90)return!0;if(this._unprocessedDeadKey)return this._unprocessedDeadKey=!1,!0;if((n.key===L.ETX||n.key===L.CR)&&(this.textarea.value=``),this._onKey.fire({key:n.key,domEvent:e}),this._showCursor(),this.coreService.triggerDataEvent(n.key,!0),!this.optionsService.rawOptions.screenReaderMode||e.altKey||e.ctrlKey)return this.cancel(e,!0);this._keyDownHandled=!0}_isThirdLevelShift(e,t){let n=e.isMac&&!this.options.macOptionIsMeta&&t.altKey&&!t.ctrlKey&&!t.metaKey||e.isWindows&&t.altKey&&t.ctrlKey&&!t.metaKey||e.isWindows&&t.getModifierState(`AltGraph`);return t.type===`keypress`?n:n&&(!t.keyCode||t.keyCode>47)}_keyUp(e){this._keyDownSeen=!1,!(this._customKeyEventHandler&&this._customKeyEventHandler(e)===!1)&&(bs(e)||this.focus(),this.updateCursorStyle(e),this._keyPressHandled=!1)}_keyPress(e){let t;if(this._keyPressHandled=!1,this._keyDownHandled||this._customKeyEventHandler&&this._customKeyEventHandler(e)===!1)return!1;if(this.cancel(e),e.charCode)t=e.charCode;else if(e.which===null||e.which===void 0)t=e.keyCode;else if(e.which!==0&&e.charCode!==0)t=e.which;else return!1;return!t||(e.altKey||e.ctrlKey||e.metaKey)&&!this._isThirdLevelShift(this.browser,e)?!1:(t=String.fromCharCode(t),this._onKey.fire({key:t,domEvent:e}),this._showCursor(),this.coreService.triggerDataEvent(t,!0),this._keyPressHandled=!0,this._unprocessedDeadKey=!1,!0)}_inputEvent(e){if(e.data&&e.inputType===`insertText`&&(!e.composed||!this._keyDownSeen)&&!this.optionsService.rawOptions.screenReaderMode){if(this._keyPressHandled)return!1;this._unprocessedDeadKey=!1;let t=e.data;return this.coreService.triggerDataEvent(t,!0),this.cancel(e),!0}return!1}resize(e,t){if(e===this.cols&&t===this.rows){this._charSizeService&&!this._charSizeService.hasValidSize&&this._charSizeService.measure();return}super.resize(e,t)}_afterResize(e,t){this._charSizeService?.measure()}clear(){if(!(this.buffer.ybase===0&&this.buffer.y===0)){this.buffer.clearAllMarkers(),this.buffer.lines.set(0,this.buffer.lines.get(this.buffer.ybase+this.buffer.y)),this.buffer.lines.length=1,this.buffer.ydisp=0,this.buffer.ybase=0,this.buffer.y=0;for(let e=1;e<this.rows;e++)this.buffer.lines.push(this.buffer.getBlankLine(Y));this._onScroll.fire({position:this.buffer.ydisp}),this.refresh(0,this.rows-1)}}reset(){this.options.rows=this.rows,this.options.cols=this.cols;let e=this._customKeyEventHandler;this._setup(),super.reset(),this._selectionService?.reset(),this._decorationService.reset(),this._customKeyEventHandler=e,this.refresh(0,this.rows-1)}clearTextureAtlas(){this._renderService?.clearTextureAtlas()}_reportFocus(){this.element?.classList.contains(`focus`)?this.coreService.triggerDataEvent(L.ESC+`[I`):this.coreService.triggerDataEvent(L.ESC+`[O`)}_reportWindowsOptions(e){if(this._renderService)switch(e){case 0:let e=this._renderService.dimensions.css.canvas.width.toFixed(0),t=this._renderService.dimensions.css.canvas.height.toFixed(0);this.coreService.triggerDataEvent(`${L.ESC}[4;${t};${e}t`);break;case 1:let n=this._renderService.dimensions.css.cell.width.toFixed(0),r=this._renderService.dimensions.css.cell.height.toFixed(0);this.coreService.triggerDataEvent(`${L.ESC}[6;${r};${n}t`);break}}cancel(e,t){if(!(!this.options.cancelEvents&&!t))return e.preventDefault(),e.stopPropagation(),!1}};function bs(e){return e.keyCode===16||e.keyCode===17||e.keyCode===18}var xs=class{constructor(){this._addons=[]}dispose(){for(let e=this._addons.length-1;e>=0;e--)this._addons[e].instance.dispose()}loadAddon(e,t){let n={instance:t,dispose:t.dispose,isDisposed:!1};this._addons.push(n),t.dispose=()=>this._wrappedAddonDispose(n),t.activate(e)}_wrappedAddonDispose(e){if(e.isDisposed)return;let t=-1;for(let n=0;n<this._addons.length;n++)if(this._addons[n]===e){t=n;break}if(t===-1)throw Error(`Could not dispose an addon that has not been loaded`);e.isDisposed=!0,e.dispose.apply(e.instance),this._addons.splice(t,1)}},Ss=class{constructor(e){this._line=e}get isWrapped(){return this._line.isWrapped}get length(){return this._line.length}getCell(e,t){if(!(e<0||e>=this._line.length))return t?(this._line.loadCell(e,t),t):this._line.loadCell(e,new v)}translateToString(e,t,n){return this._line.translateToString(e,t,n)}},Cs=class{constructor(e,t){this._buffer=e,this.type=t}init(e){return this._buffer=e,this}get cursorY(){return this._buffer.y}get cursorX(){return this._buffer.x}get viewportY(){return this._buffer.ydisp}get baseY(){return this._buffer.ybase}get length(){return this._buffer.lines.length}getLine(e){let t=this._buffer.lines.get(e);if(t)return new Ss(t)}getNullCell(){return new v}},ws=class extends A{constructor(e){super(),this._core=e,this._onBufferChange=this._register(new N),this.onBufferChange=this._onBufferChange.event,this._normal=new Cs(this._core.buffers.normal,`normal`),this._alternate=new Cs(this._core.buffers.alt,`alternate`),this._core.buffers.onBufferActivate(()=>this._onBufferChange.fire(this.active))}get active(){if(this._core.buffers.active===this._core.buffers.normal)return this.normal;if(this._core.buffers.active===this._core.buffers.alt)return this.alternate;throw Error(`Active buffer is neither normal nor alternate`)}get normal(){return this._normal.init(this._core.buffers.normal)}get alternate(){return this._alternate.init(this._core.buffers.alt)}},Ts=class{constructor(e){this._core=e}registerCsiHandler(e,t){return this._core.registerCsiHandler(e,e=>t(e.toArray()))}addCsiHandler(e,t){return this.registerCsiHandler(e,t)}registerDcsHandler(e,t){return this._core.registerDcsHandler(e,(e,n)=>t(e,n.toArray()))}addDcsHandler(e,t){return this.registerDcsHandler(e,t)}registerEscHandler(e,t){return this._core.registerEscHandler(e,t)}addEscHandler(e,t){return this.registerEscHandler(e,t)}registerOscHandler(e,t){return this._core.registerOscHandler(e,t)}addOscHandler(e,t){return this.registerOscHandler(e,t)}},Es=class{constructor(e){this._core=e}register(e){this._core.unicodeService.register(e)}get versions(){return this._core.unicodeService.versions}get activeVersion(){return this._core.unicodeService.activeVersion}set activeVersion(e){this._core.unicodeService.activeVersion=e}},Ds=[`cols`,`rows`],Os=0,ks=class extends A{constructor(e){super(),this._core=this._register(new ys(e)),this._addonManager=this._register(new xs),this._publicOptions={...this._core.options};let t=e=>this._core.options[e],n=(e,t)=>{this._checkReadonlyOptions(e),this._core.options[e]=t};for(let e in this._core.options){let r={get:t.bind(this,e),set:n.bind(this,e)};Object.defineProperty(this._publicOptions,e,r)}}_checkReadonlyOptions(e){if(Ds.includes(e))throw Error(`Option "${e}" can only be set in the constructor`)}_checkProposedApi(){if(!this._core.optionsService.rawOptions.allowProposedApi)throw Error(`You must set the allowProposedApi option to true to use proposed API`)}get onBell(){return this._core.onBell}get onBinary(){return this._core.onBinary}get onCursorMove(){return this._core.onCursorMove}get onData(){return this._core.onData}get onKey(){return this._core.onKey}get onLineFeed(){return this._core.onLineFeed}get onRender(){return this._core.onRender}get onResize(){return this._core.onResize}get onScroll(){return this._core.onScroll}get onSelectionChange(){return this._core.onSelectionChange}get onTitleChange(){return this._core.onTitleChange}get onWriteParsed(){return this._core.onWriteParsed}get element(){return this._core.element}get parser(){return this._parser||=new Ts(this._core),this._parser}get unicode(){return this._checkProposedApi(),new Es(this._core)}get textarea(){return this._core.textarea}get rows(){return this._core.rows}get cols(){return this._core.cols}get buffer(){return this._buffer||=this._register(new ws(this._core)),this._buffer}get markers(){return this._checkProposedApi(),this._core.markers}get modes(){let e=this._core.coreService.decPrivateModes,t=`none`;switch(this._core.coreMouseService.activeProtocol){case`X10`:t=`x10`;break;case`VT200`:t=`vt200`;break;case`DRAG`:t=`drag`;break;case`ANY`:t=`any`;break}return{applicationCursorKeysMode:e.applicationCursorKeys,applicationKeypadMode:e.applicationKeypad,bracketedPasteMode:e.bracketedPasteMode,insertMode:this._core.coreService.modes.insertMode,mouseTrackingMode:t,originMode:e.origin,reverseWraparoundMode:e.reverseWraparound,sendFocusMode:e.sendFocus,synchronizedOutputMode:e.synchronizedOutput,wraparoundMode:e.wraparound}}get options(){return this._publicOptions}set options(e){for(let t in e)this._publicOptions[t]=e[t]}blur(){this._core.blur()}focus(){this._core.focus()}input(e,t=!0){this._core.input(e,t)}resize(e,t){this._verifyIntegers(e,t),this._core.resize(e,t)}open(e){this._core.open(e)}attachCustomKeyEventHandler(e){this._core.attachCustomKeyEventHandler(e)}attachCustomWheelEventHandler(e){this._core.attachCustomWheelEventHandler(e)}registerLinkProvider(e){return this._core.registerLinkProvider(e)}registerCharacterJoiner(e){return this._checkProposedApi(),this._core.registerCharacterJoiner(e)}deregisterCharacterJoiner(e){this._checkProposedApi(),this._core.deregisterCharacterJoiner(e)}registerMarker(e=0){return this._verifyIntegers(e),this._core.registerMarker(e)}registerDecoration(e){return this._checkProposedApi(),this._verifyPositiveIntegers(e.x??0,e.width??0,e.height??0),this._core.registerDecoration(e)}hasSelection(){return this._core.hasSelection()}select(e,t,n){this._verifyIntegers(e,t,n),this._core.select(e,t,n)}getSelection(){return this._core.getSelection()}getSelectionPosition(){return this._core.getSelectionPosition()}clearSelection(){this._core.clearSelection()}selectAll(){this._core.selectAll()}selectLines(e,t){this._verifyIntegers(e,t),this._core.selectLines(e,t)}dispose(){super.dispose()}scrollLines(e){this._verifyIntegers(e),this._core.scrollLines(e)}scrollPages(e){this._verifyIntegers(e),this._core.scrollPages(e)}scrollToTop(){this._core.scrollToTop()}scrollToBottom(){this._core.scrollToBottom()}scrollToLine(e){this._verifyIntegers(e),this._core.scrollToLine(e)}clear(){this._core.clear()}write(e,t){this._core.write(e,t)}writeln(e,t){this._core.write(e),this._core.write(`\r
-`,t)}paste(e){this._core.paste(e)}refresh(e,t){this._verifyIntegers(e,t),this._core.refresh(e,t)}reset(){this._core.reset()}clearTextureAtlas(){this._core.clearTextureAtlas()}loadAddon(e){this._addonManager.loadAddon(this,e)}static get strings(){return{get promptLabel(){return o.get()},set promptLabel(e){o.set(e)},get tooMuchOutput(){return c.get()},set tooMuchOutput(e){c.set(e)}}}_verifyIntegers(...e){for(Os of e)if(Os===1/0||isNaN(Os)||Os%1!=0)throw Error(`This API only accepts integers`)}_verifyPositiveIntegers(...e){for(Os of e)if(Os&&(Os===1/0||isNaN(Os)||Os%1!=0||Os<0))throw Error(`This API only accepts positive integers`)}},As=2,js=1,Ms=class{activate(e){this._terminal=e}dispose(){}fit(){let e=this.proposeDimensions();if(!e||!this._terminal||isNaN(e.cols)||isNaN(e.rows))return;let t=this._terminal._core;(this._terminal.rows!==e.rows||this._terminal.cols!==e.cols)&&(t._renderService.clear(),this._terminal.resize(e.cols,e.rows))}proposeDimensions(){if(!this._terminal||!this._terminal.element||!this._terminal.element.parentElement)return;let e=this._terminal._core._renderService.dimensions;if(e.css.cell.width===0||e.css.cell.height===0)return;let t=this._terminal.options.scrollback===0?0:this._terminal.options.overviewRuler?.width||14,n=window.getComputedStyle(this._terminal.element.parentElement),r=parseInt(n.getPropertyValue(`height`)),i=Math.max(0,parseInt(n.getPropertyValue(`width`))),a=window.getComputedStyle(this._terminal.element),o={top:parseInt(a.getPropertyValue(`padding-top`)),bottom:parseInt(a.getPropertyValue(`padding-bottom`)),right:parseInt(a.getPropertyValue(`padding-right`)),left:parseInt(a.getPropertyValue(`padding-left`))},s=o.top+o.bottom,c=o.right+o.left,l=r-s,u=i-c-t;return{cols:Math.max(As,Math.floor(u/e.css.cell.width)),rows:Math.max(js,Math.floor(l/e.css.cell.height))}}},Ns={".python-version":`3.12
-`,"README.md":`# pyComputer
-
-\`\`\`txt
-                            _/_/_/                                                  _/                          
-     _/_/_/    _/    _/  _/          _/_/    _/_/_/  _/_/    _/_/_/    _/    _/  _/_/_/_/    _/_/    _/  _/_/   
-    _/    _/  _/    _/  _/        _/    _/  _/    _/    _/  _/    _/  _/    _/    _/      _/_/_/_/  _/_/        
-   _/    _/  _/    _/  _/        _/    _/  _/    _/    _/  _/    _/  _/    _/    _/      _/        _/           
-  _/_/_/      _/_/_/    _/_/_/    _/_/    _/    _/    _/  _/_/_/      _/_/_/      _/_/    _/_/_/  _/            
- _/              _/                                      _/                                                     
-_/          _/_/                                        _/                                                      
-\`\`\`
-
-
-## Web Demo
-
-Try pyComputer instantly in your browser: [nellowtcs.me/pyComputer](https://nellowtcs.me/pyComputer)
-
-## Overview
-
-**pyComputer** is a Python-based virtual computer environment that simulates a full operating system experience, complete with a shell, virtual file system, package management, and user applications. Includes a built-in IDE and a variety of demo apps.
-
-
-## Features
-
-- **Custom Shell**: Built-in shell with ze Linux commands (\`ls\`, \`cd\`, \`cat\`, \`edit\`, \`echo\`, \`clear\`, \`help\`, \`exit\`, etc.)
-- **Virtual File System**: Filesystem (yes a real one, see the root folder) for file and directory operations
-- **App Loader**: Run and manage user applications (see \`root/usr/apps/\`)
-- **IDE**: Built-in TUI IDE with file tree, editor, toolbar, and run output (\`run ide\`)
-- **Package Manager**: Install, list, and remove apps with \`pkg\` command
-- **User Authentication**: Optional password protection and user settings
-- **Theming**: Changeable UI themes
-- **System Info**: \`pyfetch\` command as a neofetch clone
-- **Extensible**: Add your own shell commands and apps easily
-
-
-## Built-in Apps
-
-| App         | Description                                              |
-|-------------|----------------------------------------------------------|
-| calculator  | A simple calculator app for pyComputer                   |
-| ide         | TUI IDE with editor, file tree, toolbar, and run output  |
-| matrix      | Matrix-style terminal rain animation                     |
-| notes       | Simple notes app                                         |
-| settings    | Configure theme, username, and system preferences        |
-| snake       | A seemingly simple Snake game                            |
-
-Launch any app with \`run <appname>\`, e.g. \`run ide\` or \`run calculator\`.
-
-## How to Use
-
-### Installation
-
-Clone the repository and ensure you have Python 3.8+ installed.
-
-\`\`\`bash
-git clone https://github.com/NellowTCS/pyComputer.git
-cd pyComputer/pyComputer
-python main.py
-\`\`\`
-
-### Basic Shell Commands
-
-- \`help\` - List available commands
-- \`ls [dir]\` - List files in a directory
-- \`cd [dir]\` - Change current directory
-- \`cat <file>\` - View file contents
-- \`edit <file>\` - Append a line to a file
-- \`echo <text>\` - Print text
-- \`clear\` - Clear the terminal
-- \`exit\` - Exit the shell
-- \`pyfetch\` - Show system info and ASCII art
-- \`run <app>\` - Run an installed app
-- \`pkg [list|install|remove]\` - Manage apps/packages
-- \`rm [-r] <file>\` - Remove files or directories
-
-### Running Apps
-
-Apps are located in \`root/usr/apps/\`. To run an app:
-
-\`\`\`bash
-run calculator
-\`\`\`
-
-### Package Management
-
-- List installed apps: \`pkg list\`
-- Install an app: \`pkg install <source_path>\`
-- Remove an app: \`pkg remove <app_name>\`
-
-### Settings & Theming
-
-Open the Settings app to change your settings:
-\`\`\`bash
-run settings
-\`\`\`
-
-## Contributing
-
-Feel free to open issues or pull requests to add features, fix bugs, or improve documentation.
-
-## License
-
-This project is licensed under the MIT License.
-`,"main.py":`"""
-pyComputer entry point
-"""
-
-from src.kernel.kernel import main
-
-if __name__ == "__main__":
-    main()
-`,"pyproject.toml":`[project]
-name = "pycomputer"
-version = "0.1.0"
-description = "A text-based and TUI computer made in Python."
-readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "requests>=2.34.2",
-    "tuiro>=0.1.1",
-]
-`,"src/fs/__init__.py":`# pyComputer fs package
-`,"src/fs/opfs.py":`"""
+`,t)}paste(e){this._core.paste(e)}refresh(e,t){this._verifyIntegers(e,t),this._core.refresh(e,t)}reset(){this._core.reset()}clearTextureAtlas(){this._core.clearTextureAtlas()}loadAddon(e){this._addonManager.loadAddon(this,e)}static get strings(){return{get promptLabel(){return o.get()},set promptLabel(e){o.set(e)},get tooMuchOutput(){return c.get()},set tooMuchOutput(e){c.set(e)}}}_verifyIntegers(...e){for(Os of e)if(Os===1/0||isNaN(Os)||Os%1!=0)throw Error(`This API only accepts integers`)}_verifyPositiveIntegers(...e){for(Os of e)if(Os&&(Os===1/0||isNaN(Os)||Os%1!=0||Os<0))throw Error(`This API only accepts positive integers`)}},As=2,js=1,Ms=class{activate(e){this._terminal=e}dispose(){}fit(){let e=this.proposeDimensions();if(!e||!this._terminal||isNaN(e.cols)||isNaN(e.rows))return;let t=this._terminal._core;(this._terminal.rows!==e.rows||this._terminal.cols!==e.cols)&&(t._renderService.clear(),this._terminal.resize(e.cols,e.rows))}proposeDimensions(){if(!this._terminal||!this._terminal.element||!this._terminal.element.parentElement)return;let e=this._terminal._core._renderService.dimensions;if(e.css.cell.width===0||e.css.cell.height===0)return;let t=this._terminal.options.scrollback===0?0:this._terminal.options.overviewRuler?.width||14,n=window.getComputedStyle(this._terminal.element.parentElement),r=parseInt(n.getPropertyValue(`height`)),i=Math.max(0,parseInt(n.getPropertyValue(`width`))),a=window.getComputedStyle(this._terminal.element),o={top:parseInt(a.getPropertyValue(`padding-top`)),bottom:parseInt(a.getPropertyValue(`padding-bottom`)),right:parseInt(a.getPropertyValue(`padding-right`)),left:parseInt(a.getPropertyValue(`padding-left`))},s=o.top+o.bottom,c=o.right+o.left,l=r-s,u=i-c-t;return{cols:Math.max(As,Math.floor(u/e.css.cell.width)),rows:Math.max(js,Math.floor(l/e.css.cell.height))}}},Ns={"pycomputer/__init__.py":``,"pycomputer/fs/__init__.py":`# pyComputer fs package
+`,"pycomputer/fs/opfs.py":`"""
 opfs.py: Persistent storage: file-based fallback for browser OPFS.
 """
 
@@ -254,7 +132,7 @@ def listdir(path: str = "") -> list[str]:
 
 def mkdir(path: str) -> bool:
     return _default.mkdir(path)
-`,"src/fs/paths.py":`"""
+`,"pycomputer/fs/paths.py":`"""
 paths.py: Defines canonical paths for the virtual filesystem.
 """
 
@@ -264,21 +142,21 @@ APPS_PATH = "/usr/apps/"
 HOME_PATH = "/home/user/"
 TMP_PATH = "/tmp/"
 NET_CACHE_PATH = "/net/cache/"
-`,"src/fs/vfs.py":`"""
+`,"pycomputer/fs/vfs.py":`"""
 VFS: High-level FS API, path normalization, directory creation (real implementation).
 """
 
 import os
 import shutil
 
-from src.utils.platform import is_web
+from pycomputer.utils.platform import is_web
 
 
 class VFS:
     def __init__(self, root=None):
         if root is None:
             repo_root = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "../../../root")
+                os.path.join(os.path.dirname(__file__), "../../../data")
             )
             if is_web():
                 web_root = "/root"
@@ -330,19 +208,44 @@ class VFS:
 
     def move(self, src, dst):
         shutil.move(self.abspath(src), self.abspath(dst))
-`,"src/kernel/__init__.py":`# pyComputer kernel package
-`,"src/kernel/boot.py":`"""
+`,"pycomputer/kernel/__init__.py":`# pyComputer kernel package
+`,"pycomputer/kernel/boot.py":`"""
 Boot subsystem: renders ASCII logo, prints fake hardware logs.
 """
 
 import os
+import shutil
 import time
 
-from src.fs.vfs import VFS
+from pycomputer.fs.vfs import VFS
+
+
+def _data_dir():
+    return os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../../data")
+    )
+
+
+def _root_dir():
+    return os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../../root")
+    )
+
+
+def ensure_data_dir():
+    data = _data_dir()
+    root = _root_dir()
+    if not os.path.isdir(data):
+        print("[boot] Initializing data disk from golden master...")
+        staging = data + ".staging"
+        if os.path.isdir(staging):
+            shutil.rmtree(staging)
+        shutil.copytree(root, staging)
+        os.rename(staging, data)
 
 
 def _load_settings():
-    settings_path = os.path.join(os.path.dirname(__file__), "../../../root/apps/settings/config.json")
+    settings_path = os.path.join(_data_dir(), "apps/settings/config.json")
     if os.path.exists(settings_path):
         try:
             import json
@@ -382,7 +285,7 @@ class Boot:
 
     def uptime(self):
         return time.time() - self.start_time
-`,"src/kernel/io.py":`"""
+`,"pycomputer/kernel/io.py":`"""
 IO subsystem: routes stdin/stdout, supports fullscreen TUI mode.
 """
 
@@ -411,7 +314,7 @@ class IO:
 
     def read(self):
         return self.stdin.readline()
-`,"src/kernel/kernel.py":`"""
+`,"pycomputer/kernel/kernel.py":`"""
 pyComputer Kernel
 Initializes subsystems, starts boot sequence, launches shell, runs main async event loop.
 """
@@ -421,7 +324,7 @@ import hashlib
 import os
 import json
 from ..shell.shell import Shell
-from .boot import Boot
+from .boot import Boot, ensure_data_dir, _data_dir
 from .process import Process
 from .scheduler import Scheduler
 from .io import IO
@@ -431,7 +334,7 @@ from ..ui.renderer import Renderer
 
 
 def _load_settings():
-    settings_path = os.path.join(os.path.dirname(__file__), "../../../root/apps/settings/config.json")
+    settings_path = os.path.join(_data_dir(), "apps/settings/config.json")
     if os.path.exists(settings_path):
         try:
             with open(settings_path) as f:
@@ -441,17 +344,17 @@ def _load_settings():
     return {"theme": "default"}
 
 
-_settings = _load_settings()
+_settings = None
 
 
 def _require_login():
     password_hash = _settings.get("password", "")
     if not password_hash:
         return None
-    from src.stdlib.appstdlib import input, error
+    from pycomputer.stdlib.appstdlib import input as app_input, error
     import hashlib
     while True:
-        pw = input("Password: ").strip()
+        pw = app_input("Password: ").strip()
         if not pw:
             error("Login required.")
             continue
@@ -495,6 +398,7 @@ class Kernel:
 
 
 def main():
+    ensure_data_dir()
     global _settings
     _settings = _load_settings()
     theme = _settings.get("theme", "default")
@@ -516,7 +420,7 @@ def main():
         asyncio.run(kernel.run())
     except (KeyboardInterrupt, asyncio.CancelledError):
         print("[kernel] Shutdown complete.")
-`,"src/kernel/loader.py":`"""
+`,"pycomputer/kernel/loader.py":`"""
 Loader subsystem: discovers apps, loads manifests, imports entrypoints dynamically.
 """
 
@@ -524,7 +428,7 @@ import importlib.util
 import os
 import json
 import sys
-from src.fs.vfs import VFS
+from pycomputer.fs.vfs import VFS
 
 
 class Loader:
@@ -567,26 +471,68 @@ class Loader:
         if not os.path.isfile(entry_path):
             print(f"[loader] Entrypoint '{entry}' not found for app '{app_name}'")
             return None
-        # Ensure pyComputer/src and app_dir are in sys.path for import
-        src_path = os.path.join(os.path.dirname(self.apps_path), "../../pyComputer/src")
-        src_path = os.path.normpath(src_path)
-        sys.path.insert(0, src_path)
-        sys.path.insert(0, app_dir)
+        added = None
+        if app_dir not in sys.path:
+            sys.path.insert(0, app_dir)
+            added = app_dir
         spec = importlib.util.spec_from_file_location(f"{app_name}_main", entry_path)
         if spec is None or spec.loader is None:
             print(f"[loader] Failed to create import spec for app '{app_name}'")
-            sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             return None
         module = importlib.util.module_from_spec(spec)
         try:
             spec.loader.exec_module(module)
-            sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             return getattr(module, "main", None)
         except Exception as e:
-            sys.path.pop(0)
+            if added is not None:
+                sys.path.remove(added)
             print(f"[loader] Failed to import app '{app_name}': {e}")
             return None
-`,"src/kernel/process.py":`"""
+
+    def import_from_path(self, path):
+        app_dir = os.path.abspath(path)
+        manifest_path = os.path.join(app_dir, "manifest.json")
+        if not os.path.isfile(manifest_path):
+            print(f"[loader] manifest.json not found at {app_dir}")
+            return None
+        try:
+            with open(manifest_path) as f:
+                manifest = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"[loader] Failed to read manifest: {e}")
+            return None
+        entry = manifest.get("entry", "main.py")
+        entry_path = os.path.join(app_dir, entry)
+        if not os.path.isfile(entry_path):
+            print(f"[loader] Entrypoint '{entry}' not found at {app_dir}")
+            return None
+        app_name = manifest.get("name", os.path.basename(app_dir))
+        added = None
+        if app_dir not in sys.path:
+            sys.path.insert(0, app_dir)
+            added = app_dir
+        spec = importlib.util.spec_from_file_location(f"{app_name}_main", entry_path)
+        if spec is None or spec.loader is None:
+            print(f"[loader] Failed to create import spec for '{app_name}'")
+            if added is not None:
+                sys.path.remove(added)
+            return None
+        module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(module)
+            if added is not None:
+                sys.path.remove(added)
+            return getattr(module, "main", None)
+        except Exception as e:
+            if added is not None:
+                sys.path.remove(added)
+            print(f"[loader] Failed to import '{app_name}' from {app_dir}: {e}")
+            return None
+`,"pycomputer/kernel/process.py":`"""
 Process subsystem: defines Process objects, wraps coroutines, tracks state.
 """
 
@@ -617,7 +563,7 @@ class Process:
         if self.task:
             self.task.cancel()
         self.state = "terminated"
-`,"src/kernel/registry.py":`"""
+`,"pycomputer/kernel/registry.py":`"""
 Registry subsystem: stores installed apps list, persists to /sys/apps.json.
 """
 
@@ -625,7 +571,7 @@ import json
 import os
 
 
-from src.fs.vfs import VFS
+from pycomputer.fs.vfs import VFS
 
 
 class Registry:
@@ -639,8 +585,8 @@ class Registry:
         import os
 
         reg_dir = os.path.dirname(self.registry_path)
-        if not self.vfs.exists(reg_dir):
-            self.vfs.mkdir(reg_dir)
+        if not os.path.isdir(reg_dir):
+            os.makedirs(reg_dir, exist_ok=True)
         self.apps = []
         self.load()
 
@@ -666,7 +612,7 @@ class Registry:
         if app_name in self.apps:
             self.apps.remove(app_name)
             self.save()
-`,"src/kernel/scheduler.py":`"""
+`,"pycomputer/kernel/scheduler.py":`"""
 Scheduler subsystem: round-robin (no, not Red Robin, sadly) scheduling, yields between processes.
 """
 
@@ -701,8 +647,8 @@ class Scheduler:
                 if process.task and process.task.done():
                     process.state = "terminated"
             await asyncio.sleep(0)  # Yield to event loop
-`,"src/net/__init__.py":`# pyComputer net package
-`,"src/net/http.py":`"""
+`,"pycomputer/net/__init__.py":`# pyComputer net package
+`,"pycomputer/net/http.py":`"""
 http.py: Networking layer, get/post, JSON helpers, cache
 """
 
@@ -714,13 +660,27 @@ import json
 
 
 class HTTP:
+    _TIMEOUT = 30
+
     def get(self, url):
         if requests:
             try:
-                resp = requests.get(url)
+                resp = requests.get(url, timeout=self._TIMEOUT)
                 resp.raise_for_status()
                 return resp.text
-            except Exception as e:
+            except requests.exceptions.RequestException as e:
+                print(f"[net] GET error: {e}")
+                return None
+        print(f"[net] GET {url} (requests not installed)")
+        return None
+
+    def get_bytes(self, url):
+        if requests:
+            try:
+                resp = requests.get(url, timeout=self._TIMEOUT)
+                resp.raise_for_status()
+                return resp.content
+            except requests.exceptions.RequestException as e:
                 print(f"[net] GET error: {e}")
                 return None
         print(f"[net] GET {url} (requests not installed)")
@@ -729,10 +689,10 @@ class HTTP:
     def post(self, url, data=None):
         if requests:
             try:
-                resp = requests.post(url, data=data)
+                resp = requests.post(url, data=data, timeout=self._TIMEOUT)
                 resp.raise_for_status()
                 return resp.text
-            except Exception as e:
+            except requests.exceptions.RequestException as e:
                 print(f"[net] POST error: {e}")
                 return None
         print(f"[net] POST {url} (requests not installed)")
@@ -746,16 +706,104 @@ class HTTP:
             except Exception as e:
                 print(f"[net] JSON decode error: {e}")
         return None
-`,"src/pkg/__init__.py":`# pyComputer pkg package
-`,"src/pkg/manager.py":`"""
+`,"pycomputer/pkg/__init__.py":`# pyComputer pkg package
+`,"pycomputer/pkg/bundler.py":`"""
+bundler.py: Build .pycapp archives from app directories.
+
+Used by \`pkg build <app_name>\` for apps inside root/usr/apps/,
+or directly from any directory via bundle(path=...).
+"""
+
+import hashlib
+import json
+import os
+import zipfile
+
+from .manifest import Manifest, ManifestError
+
+_EXCLUDED_DIRS = frozenset({".git", "__pycache__", ".gitkeep"})
+_EXCLUDED_FILES = frozenset({
+    ".DS_Store", "Thumbs.db",
+    "LICENSE", "TODO.md", "CHANGELOG.md", "CONTRIBUTING.md",
+    ".gitignore", ".editorconfig", ".pre-commit-config.yaml",
+})
+
+
+def _default_apps_root():
+    return os.path.normpath(
+        os.path.join(os.path.dirname(__file__), "../../../data/usr/apps")
+    )
+
+
+def _should_include(root, name):
+    path = os.path.join(root, name)
+    if os.path.isdir(path):
+        return name not in _EXCLUDED_DIRS
+    return name not in _EXCLUDED_FILES and not name.startswith(".")
+
+
+def bundle(app_name: str, output_dir: str = "dist", source_dir: str | None = None) -> tuple[str, str]:
+    if source_dir is not None:
+        app_dir = os.path.abspath(source_dir)
+    else:
+        app_dir = os.path.normpath(os.path.join(_default_apps_root(), app_name))
+
+    if not os.path.isdir(app_dir):
+        raise FileNotFoundError(f"app '{app_name}' not found at {app_dir}")
+
+    manifest_path = os.path.join(app_dir, "manifest.json")
+    if not os.path.isfile(manifest_path):
+        raise FileNotFoundError(f"{manifest_path} not found")
+
+    try:
+        Manifest.from_file(manifest_path)
+    except (ManifestError, json.JSONDecodeError) as e:
+        raise ValueError(f"invalid manifest for '{app_name}': {e}")
+
+    if output_dir.endswith(".pycapp"):
+        output_path = output_dir
+    else:
+        output_path = os.path.join(output_dir, f"{app_name}.pycapp")
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(app_dir):
+            dirs[:] = [d for d in dirs if _should_include(root, d)]
+            for file in files:
+                if not _should_include(root, file):
+                    continue
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, app_dir)
+                zf.write(file_path, arcname)
+
+    sha256 = hashlib.sha256()
+    with open(output_path, "rb") as f:
+        sha256.update(f.read())
+    digest = sha256.hexdigest()
+
+    size = os.path.getsize(output_path)
+    print(f"created: {output_path}")
+    print(f"  size:     {size} bytes")
+    print(f"  sha256:   {digest}")
+
+    return output_path, digest
+`,"pycomputer/pkg/manager.py":`"""
 manager.py: Install/update/remove apps from URL or local file
 """
 
+import json
 import os
 import shutil
+import tempfile
+import zipfile
 from ..fs.vfs import VFS
 from ..kernel.registry import Registry
+from ..net.http import HTTP
 from .manifest import Manifest, ManifestError
+
+
+REGISTRY_CONF_PATH = "sys/registry.json"
+_DEFAULT_REGISTRY = "https://raw.githubusercontent.com/NellowTCS/pyComputer/main/root/sys/apps-index.json"
 
 
 class PackageManager:
@@ -766,9 +814,9 @@ class PackageManager:
         else:
             self.apps_path = self.vfs.abspath(apps_path)
         self.registry = Registry()
+        self.http = HTTP()
 
     def install(self, source):
-        # For now, source is a path to a local app directory
         app_name = os.path.basename(source.rstrip("/"))
         dest = os.path.join(self.apps_path, app_name)
         manifest_path = os.path.join(source, "manifest.json")
@@ -777,7 +825,7 @@ class PackageManager:
             return
         try:
             Manifest.from_file(manifest_path)
-        except ManifestError as e:
+        except (ManifestError, json.JSONDecodeError) as e:
             print(f"[pkg] ERROR: Invalid manifest for '{app_name}': {e}")
             return
         if os.path.exists(dest):
@@ -786,6 +834,98 @@ class PackageManager:
         shutil.copytree(source, dest)
         self.registry.add_app(app_name)
         print(f"[pkg] Installed '{app_name}'.")
+
+    def install_from_url(self, url):
+        if not url.startswith("https://"):
+            print("[pkg] ERROR: Only HTTPS URLs are allowed.")
+            return
+        tmpdir = tempfile.mkdtemp(prefix="pycapp_")
+        try:
+            tmp_path = os.path.join(tmpdir, "package.pycapp")
+            print(f"[pkg] Downloading {url} ...")
+            data = self.http.get_bytes(url)
+            if data is None:
+                print(f"[pkg] ERROR: Failed to download {url}.")
+                return
+            with open(tmp_path, "wb") as f:
+                f.write(data)
+
+            app_name = self._extract_pycapp(tmp_path)
+            if app_name:
+                print(f"[pkg] Installed '{app_name}' from URL.")
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def install_remote(self, name):
+        registry_url = self._get_registry_url()
+        print(f"[pkg] Fetching registry from {registry_url} ...")
+        data = self.http.get_json(registry_url)
+        if data is None:
+            print("[pkg] ERROR: Could not fetch registry.")
+            return
+
+        apps = data.get("apps", {})
+        entry = apps.get(name)
+        if entry is None:
+            matches = [k for k in apps if name.lower() in k.lower()]
+            if matches:
+                print(f"[pkg] App '{name}' not found. Did you mean:")
+                for m in matches:
+                    desc = apps[m].get("description", "")
+                    print(f"      {m}  - {desc}")
+            else:
+                print(f"[pkg] App '{name}' not found in registry.")
+            return
+
+        url = entry.get("url")
+        if not url:
+            print(f"[pkg] ERROR: No download URL for '{name}'.")
+            return
+
+        self.install_from_url(url)
+
+    def _extract_pycapp(self, pycapp_path, force=False):
+        dest_name = None
+        with zipfile.ZipFile(pycapp_path, "r") as zf:
+            names = zf.namelist()
+            if "manifest.json" not in names:
+                print("[pkg] ERROR: .pycapp does not contain manifest.json.")
+                return None
+
+            manifest_data = json.loads(zf.read("manifest.json"))
+            try:
+                manifest = Manifest(manifest_data)
+            except (ManifestError, json.JSONDecodeError) as e:
+                print(f"[pkg] ERROR: Invalid manifest in .pycapp: {e}")
+                return None
+
+            dest_name = manifest.get("name")
+            if not dest_name or "/" in dest_name or ".." in dest_name:
+                print("[pkg] ERROR: Invalid app name in manifest.")
+                return None
+            dest = os.path.join(self.apps_path, dest_name)
+            if os.path.exists(dest):
+                if not force:
+                    print(f"[pkg] App '{dest_name}' already installed. Use --force to overwrite.")
+                    return None
+                shutil.rmtree(dest)
+
+            os.makedirs(dest, exist_ok=True)
+            for name in names:
+                if name.endswith("/"):
+                    os.makedirs(os.path.join(dest, name), exist_ok=True)
+                else:
+                    out_path = os.path.join(dest, name)
+                    resolved = os.path.normpath(out_path)
+                    if not resolved.startswith(os.path.normpath(dest) + os.sep):
+                        print(f"[pkg] WARNING: Skipping path traversal entry: {name}")
+                        continue
+                    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+                    with zf.open(name) as src, open(out_path, "wb") as dst:
+                        dst.write(src.read())
+
+        self.registry.add_app(dest_name)
+        return dest_name
 
     def remove(self, app_name):
         dest = os.path.join(self.apps_path, app_name)
@@ -801,7 +941,62 @@ class PackageManager:
         print("[pkg] Installed apps:")
         for app in self.registry.apps:
             print(f"  {app}")
-`,"src/pkg/manifest.py":`"""
+
+    def search_registry(self, term=None):
+        registry_url = self._get_registry_url()
+        print(f"[pkg] Fetching registry from {registry_url} ...")
+        data = self.http.get_json(registry_url)
+        if data is None:
+            print("[pkg] ERROR: Could not fetch registry.")
+            return
+
+        apps = data.get("apps", {})
+        if not apps:
+            print("[pkg] Registry is empty.")
+            return
+
+        filtered = []
+        for name, info in apps.items():
+            if term is None or term.lower() in name.lower() or term.lower() in info.get("description", "").lower():
+                filtered.append((name, info))
+
+        if not filtered:
+            print(f"[pkg] No apps match '{term}'.")
+            return
+
+        print(f"[pkg] Available apps ({len(filtered)}):")
+        for name, info in sorted(filtered):
+            ver = info.get("version", "?")
+            desc = info.get("description", "")
+            print(f"  {name:<20} {ver:<10} {desc}")
+
+    def _get_registry_url(self):
+        conf_path = self.vfs.abspath(REGISTRY_CONF_PATH)
+        try:
+            with open(conf_path) as f:
+                conf = json.load(f)
+                return conf.get("url", _DEFAULT_REGISTRY)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return _DEFAULT_REGISTRY
+
+    def set_registry_url(self, url):
+        if not url:
+            conf_path = self.vfs.abspath(REGISTRY_CONF_PATH)
+            try:
+                with open(conf_path) as f:
+                    conf = json.load(f)
+                current = conf.get("url", _DEFAULT_REGISTRY)
+            except (FileNotFoundError, json.JSONDecodeError):
+                current = _DEFAULT_REGISTRY
+            print(f"[pkg] Registry URL: {current}")
+            return
+
+        conf_path = self.vfs.abspath(REGISTRY_CONF_PATH)
+        os.makedirs(os.path.dirname(conf_path), exist_ok=True)
+        with open(conf_path, "w") as f:
+            json.dump({"url": url, "updated": None}, f)
+        print(f"[pkg] Registry URL set to: {url}")
+`,"pycomputer/pkg/manifest.py":`"""
 manifest.py: Manifest schema and validation for pyComputer apps.
 """
 
@@ -843,8 +1038,8 @@ class Manifest:
 
 	def get(self, key, default=None):
 		return self.data.get(key, default)
-`,"src/shell/__init__.py":`# pyComputer shell package
-`,"src/shell/commands/__init__.py":`# Makes shell.commands a package
+`,"pycomputer/shell/__init__.py":`# pyComputer shell package
+`,"pycomputer/shell/commands/__init__.py":`# Makes shell.commands a package
 
 from .help import cmd_help
 from .exit import cmd_exit
@@ -873,7 +1068,7 @@ BUILTIN_COMMANDS = {
     "pyfetch": cmd_pyfetch,
     "rm": cmd_rm,
 }
-`,"src/shell/commands/cat.py":`def cmd_cat(shell, *args):
+`,"pycomputer/shell/commands/cat.py":`def cmd_cat(shell, *args):
     if not args:
         print("Usage: cat <filename>")
         return
@@ -883,11 +1078,11 @@ BUILTIN_COMMANDS = {
             print(f.read())
     except Exception as e:
         print(f"[cat] Error: {e}")
-`,"src/shell/commands/cd.py":`"""
+`,"pycomputer/shell/commands/cd.py":`"""
 cd.py: Change directory command for shell
 """
 
-from src.fs.vfs import VFS
+from pycomputer.fs.vfs import VFS
 import os
 
 
@@ -906,11 +1101,11 @@ def cmd_cd(shell, *args):
         os.chdir(abspath)
     else:
         print(f"[cd] Directory not found: {path}")
-`,"src/shell/commands/clear.py":`"""
+`,"pycomputer/shell/commands/clear.py":`"""
 Shell command: clear the terminal screen.
 """
 
-from src.utils.platform import is_web
+from pycomputer.utils.platform import is_web
 
 
 def cmd_clear(shell, *args):
@@ -920,9 +1115,9 @@ def cmd_clear(shell, *args):
         import os
 
         os.system("clear")
-`,"src/shell/commands/echo.py":`def cmd_echo(shell, *args):
+`,"pycomputer/shell/commands/echo.py":`def cmd_echo(shell, *args):
     print(" ".join(args))
-`,"src/shell/commands/edit.py":`from src.utils.platform import pyc_input
+`,"pycomputer/shell/commands/edit.py":`from pycomputer.utils.platform import pyc_input
 
 def cmd_edit(shell, *args):
     if not args:
@@ -936,7 +1131,7 @@ def cmd_edit(shell, *args):
         print(f"[edit] Line appended to {filename}.")
     except Exception as e:
         print(f"[edit] Error: {e}")
-`,"src/shell/commands/exit.py":`from src.utils.platform import is_web
+`,"pycomputer/shell/commands/exit.py":`from pycomputer.utils.platform import is_web
 
 
 def cmd_exit(shell, *args):
@@ -946,9 +1141,9 @@ def cmd_exit(shell, *args):
     else:
         print("[shell] Exiting shell.")
     raise SystemExit
-`,"src/shell/commands/help.py":`def cmd_help(shell, *args):
+`,"pycomputer/shell/commands/help.py":`def cmd_help(shell, *args):
     print("Available commands: help, exit, echo, ls, cat, edit, run, pkg, rm, cd, pyfetch, clear")
-`,"src/shell/commands/ls.py":`from src.fs.vfs import VFS
+`,"pycomputer/shell/commands/ls.py":`from pycomputer.fs.vfs import VFS
 
 
 def cmd_ls(shell, *args):
@@ -961,29 +1156,85 @@ def cmd_ls(shell, *args):
             print(f)
     except Exception as e:
         print(f"[ls] {e}")
-`,"src/shell/commands/pkg.py":`def cmd_pkg(shell, *args):
-    from src.pkg.manager import PackageManager
+`,"pycomputer/shell/commands/pkg.py":`def cmd_pkg(shell, *args):
+    import os
+    from pycomputer.pkg.manager import PackageManager
+    from pycomputer.pkg.bundler import bundle
 
     pm = PackageManager()
     if not args:
         pm.list()
         return
+
     action = args[0]
+
     if action == "list":
         pm.list()
+
     elif action == "install":
         if len(args) < 2:
-            print("Usage: pkg install <source_path>")
+            print("Usage: pkg install <path>          local directory")
+            print("       pkg install <url>            .pycapp URL")
+            print("       pkg install <name>           from registry")
             return
-        pm.install(args[1])
+        force = "--force" in args
+        targets = [a for a in args[1:] if not a.startswith("--")]
+        target = targets[0] if targets else None
+        if target is None:
+            print("[pkg] Specify an app.")
+            return
+        if target.startswith("http://") or target.startswith("https://"):
+            pm.install_from_url(target)
+        elif target.endswith(".pycapp"):
+            print(f"[pkg] Installing from {target} ...")
+            result = pm._extract_pycapp(target, force=force)
+            if result:
+                print(f"[pkg] Installed '{result}'.")
+        elif target.startswith("/") or target.startswith("./") or target.startswith("..") or target.startswith("~"):
+            pm.install(target)
+        elif os.path.isdir(target):
+            pm.install(target)
+        else:
+            pm.install_remote(target)
+
     elif action == "remove":
         if len(args) < 2:
             print("Usage: pkg remove <app_name>")
             return
         pm.remove(args[1])
+
+    elif action == "search":
+        term = args[1] if len(args) > 1 else None
+        pm.search_registry(term)
+
+    elif action == "registry":
+        url = args[1] if len(args) > 1 else None
+        pm.set_registry_url(url)
+
+    elif action == "build":
+        if len(args) < 2:
+            print("Usage: pkg build <app_name> [--source <path>]")
+            return
+        app_name = args[1]
+        source_dir = None
+        if "--source" in args:
+            idx = args.index("--source")
+            if idx + 1 < len(args):
+                source_dir = args[idx + 1]
+        try:
+            bundle(app_name, source_dir=source_dir)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"[pkg] ERROR: {e}")
+
     else:
-        print("Usage: pkg [list|install <source>|remove <app>]")
-`,"src/shell/commands/pyfetch.py":`"""
+        print("Usage: pkg [list|install|remove|search|registry|build]")
+        print("  pkg list                          show installed apps")
+        print("  pkg install <path|url|name>       install an app")
+        print("  pkg remove <name>                 uninstall an app")
+        print("  pkg search [term]                 browse registry")
+        print("  pkg registry [url]                show/set registry URL")
+        print("  pkg build <name> [--source <path>]  build .pycapp")
+`,"pycomputer/shell/commands/pyfetch.py":`"""
 pyfetch: Python/pyComputer system info and ASCII art (neofetch clone)
 thanks to https://github.com/o2sh/onefetch for the python ascii :3
 """
@@ -991,7 +1242,7 @@ thanks to https://github.com/o2sh/onefetch for the python ascii :3
 import platform
 import sys
 import os
-from src.stdlib.appstdlib import info, banner
+from pycomputer.stdlib.appstdlib import info, banner
 
 # ANSI color codes
 BLUE = "\\033[34m"
@@ -1090,15 +1341,15 @@ def cmd_pyfetch(shell, *args):
     info(f"Memory: {get_mem()}")
     info(f"Shell: pyComputer")
     info(f"Executable: {sys.executable}")
-`,"src/shell/commands/rm.py":`import os
-from src.fs.vfs import VFS
-from src.stdlib.appstdlib import confirm
+`,"pycomputer/shell/commands/rm.py":`import os
+from pycomputer.fs.vfs import VFS
+from pycomputer.stdlib.appstdlib import confirm
 
 
 def _load_settings():
     try:
         import json
-        settings_path = os.path.join(os.path.dirname(__file__), "../../../root/apps/settings/config.json")
+        settings_path = os.path.join(os.path.dirname(__file__), "../../../data/apps/settings/config.json")
         if os.path.exists(settings_path):
             with open(settings_path) as f:
                 return json.load(f)
@@ -1148,35 +1399,53 @@ def cmd_rm(shell, *args):
                 vfs.remove(path)
                 print(f"[rm] Removed: {path}")
         except Exception as e:
-            print(f"[rm] {e}")`,"src/shell/commands/run.py":`def cmd_run(shell, *args):
+            print(f"[rm] {e}")`,"pycomputer/shell/commands/run.py":`import os
+
+
+def cmd_run(shell, *args):
     if not args:
-        print("Usage: run <app>")
+        print("Usage: run <app>          installed app")
+        print("       run <path>         app from any directory")
         return
-    app_name = args[0]
-    shell.kernel.loader.discover_apps()
-    if app_name not in shell.kernel.loader.apps:
-        print(f"[run] App '{app_name}' not found.")
-        return
-    entry = shell.kernel.loader.import_entrypoint(app_name)
-    if entry:
-        entry(*args[1:])
+
+    target = args[0]
+
+    # Absolute, relative, or home-relative path => load from path
+    if target.startswith("/") or target.startswith("./") or target.startswith("..") or target.startswith("~"):
+        path = os.path.expanduser(target)
+        entry = shell.kernel.loader.import_from_path(path)
     else:
-        print(f"[run] Failed to launch '{app_name}'.")
-`,"src/shell/commands.py":`"""
+        # Try installed app
+        shell.kernel.loader.discover_apps()
+        if target not in shell.kernel.loader.apps:
+            print(f"[run] App '{target}' not found.")
+            return
+        entry = shell.kernel.loader.import_entrypoint(target)
+
+    if not entry or not callable(entry):
+        print(f"[run] Failed to launch '{target}'.")
+        return
+    try:
+        entry(*args[1:])
+    except SystemExit:
+        raise
+    except Exception as e:
+        print(f"[run] Error running '{target}': {e}")
+`,"pycomputer/shell/commands.py":`"""
 Shell commands: built-in commands
 """
 
-from .commands.help import cmd_help
-from .commands.exit import cmd_exit
-from .commands.echo import cmd_echo
-from .commands.ls import cmd_ls
-from .commands.cat import cmd_cat
-from .commands.edit import cmd_edit
-from .commands.run import cmd_run
-from .commands.pkg import cmd_pkg
-from .commands.clear import cmd_clear
-from .commands.cd import cmd_cd
-from .commands.rm import cmd_rm
+from pycomputer.shell.commands.help import cmd_help
+from pycomputer.shell.commands.exit import cmd_exit
+from pycomputer.shell.commands.echo import cmd_echo
+from pycomputer.shell.commands.ls import cmd_ls
+from pycomputer.shell.commands.cat import cmd_cat
+from pycomputer.shell.commands.edit import cmd_edit
+from pycomputer.shell.commands.run import cmd_run
+from pycomputer.shell.commands.pkg import cmd_pkg
+from pycomputer.shell.commands.clear import cmd_clear
+from pycomputer.shell.commands.cd import cmd_cd
+from pycomputer.shell.commands.rm import cmd_rm
 
 BUILTIN_COMMANDS = {
     "help": cmd_help,
@@ -1191,7 +1460,7 @@ BUILTIN_COMMANDS = {
     "cd": cmd_cd,
     "rm": cmd_rm,
 }
-`,"src/shell/parser.py":`"""
+`,"pycomputer/shell/parser.py":`"""
 Shell parser: tokenization, quoting rules.
 """
 
@@ -1201,7 +1470,7 @@ import shlex
 def parse_command(cmd):
     """Parse a shell command string into command and args, handling quotes."""
     return shlex.split(cmd)
-`,"src/shell/shell.py":`"""
+`,"pycomputer/shell/shell.py":`"""
 Shell subsystem: main command loop, history, autocomplete.
 """
 
@@ -1213,7 +1482,7 @@ try:
 except ImportError:
     readline = None
 
-from src.utils.platform import pyc_input
+from pycomputer.utils.platform import pyc_input
 
 class Shell:
     def __init__(self, kernel=None):
@@ -1264,17 +1533,17 @@ class Shell:
                 print(f"[shell] Error: {e}")
         else:
             print(f"[shell] Unknown command: {command}")
-`,"src/stdlib/appstdlib.py":`"""
+`,"pycomputer/stdlib/appstdlib.py":`"""
 appstdlib.py: Standard library for pyComputer apps.
 Provides unified input/output, error reporting, and common helpers.
 """
 
 
-from src.utils.platform import pyc_input, is_web, is_native
-from src.ui.renderer import Renderer
-from src.utils.text import truncate, wrap, indent, pad_center, pad_left, pad_right, strip_ansi
-from src.fs.vfs import VFS
-from src.utils.logging import Logger, Level
+from pycomputer.utils.platform import pyc_input, is_web, is_native
+from pycomputer.ui.renderer import Renderer
+from pycomputer.utils.text import truncate, wrap, indent, pad_center, pad_left, pad_right, strip_ansi
+from pycomputer.fs.vfs import VFS
+from pycomputer.utils.logging import Logger, Level
 import sys
 import traceback
 import time
@@ -1428,68 +1697,26 @@ def box_at(x, y, width, height, title=None):
 # Text utils: truncate, wrap, indent, pad_center, pad_left, pad_right, strip_ansi (imported)
 # FS: VFS (imported)
 # Logging: Logger, Level (imported)
-`,"src/ui/__init__.py":`# pyComputer ui package
-`,"src/ui/input.py":`"""
+`,"pycomputer/ui/__init__.py":`# pyComputer ui package
+`,"pycomputer/ui/input.py":`"""
 input.py: Keyboard events, keybindings, input handling.
 """
 
 import sys
 import os
-import ctypes
-import ctypes.util
 from typing import Callable, Optional
-from src.utils.platform import is_web
+from pycomputer.utils.platform import is_web
+
+_HAS_TERMIOS = False
+if not is_web() and sys.platform != "win32":
+    try:
+        import termios
+        import tty
+        _HAS_TERMIOS = True
+    except ImportError:
+        pass
 
 web_input_queue: list = []
-
-if sys.platform != "win32" and not is_web():
-    _libc_name = ctypes.util.find_library("c")
-    _libc = ctypes.CDLL(_libc_name, use_errno=True)
-
-    NCCS = 32
-    TCSANOW = 0
-    TCSADRAIN = 1
-    ICANON = 0o000002
-    ECHO = 0o000010
-    VMIN = 6
-    VTIME = 5
-
-    class Termios(ctypes.Structure):
-        _fields_ = [
-            ("c_iflag", ctypes.c_uint32),
-            ("c_oflag", ctypes.c_uint32),
-            ("c_cflag", ctypes.c_uint32),
-            ("c_lflag", ctypes.c_uint32),
-            ("c_line", ctypes.c_uint8),
-            ("c_cc", ctypes.c_uint8 * NCCS),
-            ("c_ispeed", ctypes.c_uint32),
-            ("c_ospeed", ctypes.c_uint32),
-        ]
-
-    _libc.tcgetattr.argtypes = [ctypes.c_int, ctypes.POINTER(Termios)]
-    _libc.tcgetattr.restype = ctypes.c_int
-    _libc.tcsetattr.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.POINTER(Termios)]
-    _libc.tcsetattr.restype = ctypes.c_int
-
-    def _tcgetattr(fd: int) -> Termios:
-        t = Termios()
-        if _libc.tcgetattr(fd, ctypes.byref(t)) != 0:
-            raise OSError(ctypes.get_errno(), "tcgetattr failed")
-        return t
-
-    def _tcsetattr(fd: int, when: int, t: Termios):
-        if _libc.tcsetattr(fd, when, ctypes.byref(t)) != 0:
-            raise OSError(ctypes.get_errno(), "tcsetattr failed")
-
-    def _setraw(fd: int, old: Termios) -> None:
-        raw = Termios()
-        ctypes.memmove(
-            ctypes.addressof(raw), ctypes.addressof(old), ctypes.sizeof(Termios)
-        )
-        raw.c_lflag &= ~(ICANON | ECHO)
-        raw.c_cc[VMIN] = 1
-        raw.c_cc[VTIME] = 0
-        _tcsetattr(fd, TCSANOW, raw)
 
 
 class Key:
@@ -1676,12 +1903,17 @@ def setup_raw():
         except Exception:
             pass
         return None
-    if sys.platform == "win32":
+    if sys.platform == "win32" or not _HAS_TERMIOS:
         return None
     fd = sys.stdin.fileno()
-    old = _tcgetattr(fd)
-    _setraw(fd, old)
-    return old
+    if not os.isatty(fd):
+        return None
+    try:
+        old = termios.tcgetattr(fd)
+        tty.setraw(fd)
+        return old
+    except (termios.error, OSError):
+        return None
 
 
 def restore(settings):
@@ -1695,21 +1927,26 @@ def restore(settings):
         return
     if settings is None:
         return
-    if sys.platform == "win32":
-        return
+    if sys.platform == "win32" or not _HAS_TERMIOS:
+        return None
     fd = sys.stdin.fileno()
-    _tcsetattr(fd, TCSADRAIN, settings)
+    if not os.isatty(fd):
+        return
+    try:
+        termios.tcsetattr(fd, termios.TCSADRAIN, settings)
+    except (termios.error, OSError):
+        pass
 
 
 def cleanup():
     sys.stdout.write("\\033[2J\\033[H\\033[?25h\\r\\n")
     sys.stdout.flush()
-`,"src/ui/layout.py":`"""
+`,"pycomputer/ui/layout.py":`"""
 layout.py: Window manager, stacking, focus (stub).
 """
 
 # Placeholder for layout manager
-`,"src/ui/palettes.py":`"""
+`,"pycomputer/ui/palettes.py":`"""
 Custom palettes for pyComputer themes.
 """
 
@@ -1747,14 +1984,14 @@ class DarkPalette(Palette):
     error = Colors.BRIGHT_RED
     accent = Colors.BRIGHT_MAGENTA
     dim = Colors.BLACK
-    text = Colors.WHITE`,"src/ui/renderer.py":`"""
+    text = Colors.WHITE`,"pycomputer/ui/renderer.py":`"""
 renderer.py: TUI renderer using tuiro, double-buffering.
+tuiro import is deferred, all basic ANSI methods work without it.
 """
 
 import sys
-from tuiro import TUI
-from src.ui.theme import Color, Style, RESET
-from src.ui.palettes import RetroPalette, LightPalette, DarkPalette
+from pycomputer.ui.theme import Color, Style, RESET
+from pycomputer.ui.palettes import RetroPalette, LightPalette, DarkPalette
 
 
 _current_theme = "default"
@@ -1768,66 +2005,102 @@ _CUSTOM_THEMES = {
 }
 
 
+def _tuiro_available():
+    try:
+        import tuiro
+        return True
+    except ImportError:
+        return False
+
+
+_TUIRO_OK = _tuiro_available()
+
+
+def _make_tui(ci_mode=False, theme="default"):
+    from tuiro import TUI
+    if theme in _CUSTOM_THEMES:
+        return TUI(ci_mode=ci_mode, theme=_CUSTOM_THEMES[theme]())
+    return TUI(ci_mode=ci_mode, theme=theme)
+
+
 class Renderer:
     def __init__(self, ci_mode=False, theme="default"):
-        if theme in _CUSTOM_THEMES:
-            self.tui = TUI(ci_mode=ci_mode, theme=_CUSTOM_THEMES[theme]())
-        else:
-            self.tui = TUI(ci_mode=ci_mode, theme=theme)
+        self._tui = None
+        self._ci_mode = ci_mode
+        self._theme_name = theme
+        if _TUIRO_OK:
+            self._tui = _make_tui(ci_mode, theme)
         global _current_theme
         _current_theme = theme
 
+    @property
+    def tui(self):
+        if self._tui is None and _TUIRO_OK:
+            self._tui = _make_tui(self._ci_mode, self._theme_name)
+        return self._tui
+
     def set_theme(self, theme_name):
         global _current_theme
-        if theme_name in _CUSTOM_THEMES:
-            _current_theme = theme_name
-            self.tui = TUI(theme=_CUSTOM_THEMES[theme_name])
-        elif theme_name in _TUIRO_THEMES:
-            _current_theme = theme_name
-            self.tui = TUI(theme=theme_name)
+        _current_theme = theme_name
+        self._theme_name = theme_name
+        if _TUIRO_OK:
+            self._tui = _make_tui(ci_mode=self._ci_mode, theme=theme_name)
         else:
-            _current_theme = "default"
-            self.tui = TUI(theme="default")
+            self._tui = None
 
     def get_theme(self):
         global _current_theme
         return _current_theme
 
     def section(self, title):
-        self.tui.section(title)
+        if self.tui:
+            self.tui.section(title)
 
     def subsection(self, title):
-        self.tui.subsection(title)
+        if self.tui:
+            self.tui.subsection(title)
 
     def success(self, message):
-        self.tui.success(message)
+        if self.tui:
+            self.tui.success(message)
 
     def info(self, message):
-        self.tui.info(message)
+        if self.tui:
+            self.tui.info(message)
 
     def warning(self, message):
-        self.tui.warning(message)
+        if self.tui:
+            self.tui.warning(message)
 
     def error(self, message):
-        self.tui.error(message)
+        if self.tui:
+            self.tui.error(message)
 
     def command(self, cmd):
-        self.tui.command(cmd)
+        if self.tui:
+            self.tui.command(cmd)
 
     def result(self, label, value):
-        self.tui.result(label, value)
+        if self.tui:
+            self.tui.result(label, value)
 
     def table(self, rows):
-        self.tui.table(rows)
+        if self.tui:
+            self.tui.table(rows)
 
     def banner(self, title):
-        self.tui.banner(title)
+        if self.tui:
+            self.tui.banner(title)
 
     def spinner(self, message):
-        return self.tui.spinner(message)
+        if self.tui:
+            return self.tui.spinner(message)
+        raise RuntimeError("tuiro not available")
 
     def step(self, title):
-        return self.tui.step(title)
+        if self.tui:
+            return self.tui.step(title)
+        raise RuntimeError("tuiro not available")
 
     def move(self, x, y):
         sys.stdout.write(f"\\033[{y};{x}H")
@@ -1881,6 +2154,9 @@ class Renderer:
     def cyan(self, text):
         return f"{Color.CYAN}{text}{RESET}"
 
+    def bright_cyan(self, text):
+        return f"{Color.BRIGHT_CYAN}{text}{RESET}"
+
     def box(self, width, height, title=None):
         lines = []
         lines.append("╔" + "═" * (width - 2) + "╗")
@@ -1899,11 +2175,10 @@ class Renderer:
 
     def box_at(self, x, y, width, height, title=None):
         box_str = self.box(width, height, title)
-        lines = box_str.split("\\n")
-        for i, line in enumerate(lines):
+        for i, line in enumerate(box_str.split("\\n")):
             self.move(x, y + i).write(line)
         return self
-`,"src/ui/theme.py":`"""
+`,"pycomputer/ui/theme.py":`"""
 theme.py: Colors, styles, presets for TUI rendering.
 """
 
@@ -2032,7 +2307,7 @@ def apply(name: str, text: str) -> str:
     if preset:
         return preset.apply(text)
     return text
-`,"src/ui/widgets.py":`"""
+`,"pycomputer/ui/widgets.py":`"""
 widgets.py: TUI widgets: buttons, lists, menus, dialogs, progress bar.
 """
 
@@ -2249,12 +2524,12 @@ class Input(Widget):
             if self.on_change:
                 self.on_change(self.value)
         return True
-`,"src/utils/__init__.py":`# pyComputer utils package
+`,"pycomputer/utils/__init__.py":`# pyComputer utils package
 
 from .platform import is_native, is_web, pyc_input
 
 __all__ = ["is_native", "is_web", "pyc_input"]
-`,"src/utils/async_tools.py":`"""
+`,"pycomputer/utils/async_tools.py":`"""
 async_tools.py: Async helpers: debounce, throttle, background tasks, cancellation.
 """
 
@@ -2359,7 +2634,7 @@ class AsyncQueue:
 
     def full(self):
         return self._queue.full()
-`,"src/utils/logging.py":`"""
+`,"pycomputer/utils/logging.py":`"""
 logging.py: Logging utilities with levels, formatting, handlers.
 """
 
@@ -2442,7 +2717,7 @@ def error(msg: str):
 
 def critical(msg: str):
     _default.critical(msg)
-`,"src/utils/platform.py":`"""Platform helpers for web vs native runtime detection."""
+`,"pycomputer/utils/platform.py":`"""Platform helpers for web vs native runtime detection."""
 
 import sys
 
@@ -2486,7 +2761,7 @@ def pyc_input(prompt: str = "") -> str:
         return run_sync(js.pyc_readline())
     except Exception:
         return ""
-`,"src/utils/text.py":`"""
+`,"pycomputer/utils/text.py":`"""
 text.py: Text utilities for formatting, manipulation.
 """
 
@@ -2575,147 +2850,84 @@ def uniq(items: list) -> list:
             seen.add(item)
             result.append(item)
     return result
-`,"uv.lock":`version = 1
-revision = 3
-requires-python = ">=3.12"
+`,"main.py":`"""
+pyComputer entry point
+"""
 
-[[package]]
-name = "certifi"
-version = "2026.4.22"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/25/ee/6caf7a40c36a1220410afe15a1cc64993a1f864871f698c0f93acb72842a/certifi-2026.4.22.tar.gz", hash = "sha256:8d455352a37b71bf76a79caa83a3d6c25afee4a385d632127b6afb3963f1c580", size = 137077, upload-time = "2026-04-22T11:26:11.191Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/22/30/7cd8fdcdfbc5b869528b079bfb76dcdf6056b1a2097a662e5e8c04f42965/certifi-2026.4.22-py3-none-any.whl", hash = "sha256:3cb2210c8f88ba2318d29b0388d1023c8492ff72ecdde4ebdaddbb13a31b1c4a", size = 135707, upload-time = "2026-04-22T11:26:09.372Z" },
-]
+from pycomputer.kernel.kernel import main
 
-[[package]]
-name = "charset-normalizer"
-version = "3.4.7"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e7/a1/67fe25fac3c7642725500a3f6cfe5821ad557c3abb11c9d20d12c7008d3e/charset_normalizer-3.4.7.tar.gz", hash = "sha256:ae89db9e5f98a11a4bf50407d4363e7b09b31e55bc117b4f7d80aab97ba009e5", size = 144271, upload-time = "2026-04-02T09:28:39.342Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/0c/eb/4fc8d0a7110eb5fc9cc161723a34a8a6c200ce3b4fbf681bc86feee22308/charset_normalizer-3.4.7-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:eca9705049ad3c7345d574e3510665cb2cf844c2f2dcfe675332677f081cbd46", size = 311328, upload-time = "2026-04-02T09:26:24.331Z" },
-    { url = "https://files.pythonhosted.org/packages/f8/e3/0fadc706008ac9d7b9b5be6dc767c05f9d3e5df51744ce4cc9605de7b9f4/charset_normalizer-3.4.7-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:6178f72c5508bfc5fd446a5905e698c6212932f25bcdd4b47a757a50605a90e2", size = 208061, upload-time = "2026-04-02T09:26:25.568Z" },
-    { url = "https://files.pythonhosted.org/packages/42/f0/3dd1045c47f4a4604df85ec18ad093912ae1344ac706993aff91d38773a2/charset_normalizer-3.4.7-cp312-cp312-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:e1421b502d83040e6d7fb2fb18dff63957f720da3d77b2fbd3187ceb63755d7b", size = 229031, upload-time = "2026-04-02T09:26:26.865Z" },
-    { url = "https://files.pythonhosted.org/packages/dc/67/675a46eb016118a2fbde5a277a5d15f4f69d5f3f5f338e5ee2f8948fcf43/charset_normalizer-3.4.7-cp312-cp312-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:edac0f1ab77644605be2cbba52e6b7f630731fc42b34cb0f634be1a6eface56a", size = 225239, upload-time = "2026-04-02T09:26:28.044Z" },
-    { url = "https://files.pythonhosted.org/packages/4b/f8/d0118a2f5f23b02cd166fa385c60f9b0d4f9194f574e2b31cef350ad7223/charset_normalizer-3.4.7-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5649fd1c7bade02f320a462fdefd0b4bd3ce036065836d4f42e0de958038e116", size = 216589, upload-time = "2026-04-02T09:26:29.239Z" },
-    { url = "https://files.pythonhosted.org/packages/b1/f1/6d2b0b261b6c4ceef0fcb0d17a01cc5bc53586c2d4796fa04b5c540bc13d/charset_normalizer-3.4.7-cp312-cp312-manylinux_2_31_armv7l.whl", hash = "sha256:203104ed3e428044fd943bc4bf45fa73c0730391f9621e37fe39ecf477b128cb", size = 202733, upload-time = "2026-04-02T09:26:30.5Z" },
-    { url = "https://files.pythonhosted.org/packages/6f/c0/7b1f943f7e87cc3db9626ba17807d042c38645f0a1d4415c7a14afb5591f/charset_normalizer-3.4.7-cp312-cp312-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:298930cec56029e05497a76988377cbd7457ba864beeea92ad7e844fe74cd1f1", size = 212652, upload-time = "2026-04-02T09:26:31.709Z" },
-    { url = "https://files.pythonhosted.org/packages/38/dd/5a9ab159fe45c6e72079398f277b7d2b523e7f716acc489726115a910097/charset_normalizer-3.4.7-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:708838739abf24b2ceb208d0e22403dd018faeef86ddac04319a62ae884c4f15", size = 211229, upload-time = "2026-04-02T09:26:33.282Z" },
-    { url = "https://files.pythonhosted.org/packages/d5/ff/531a1cad5ca855d1c1a8b69cb71abfd6d85c0291580146fda7c82857caa1/charset_normalizer-3.4.7-cp312-cp312-musllinux_1_2_armv7l.whl", hash = "sha256:0f7eb884681e3938906ed0434f20c63046eacd0111c4ba96f27b76084cd679f5", size = 203552, upload-time = "2026-04-02T09:26:34.845Z" },
-    { url = "https://files.pythonhosted.org/packages/c1/4c/a5fb52d528a8ca41f7598cb619409ece30a169fbdf9cdce592e53b46c3a6/charset_normalizer-3.4.7-cp312-cp312-musllinux_1_2_ppc64le.whl", hash = "sha256:4dc1e73c36828f982bfe79fadf5919923f8a6f4df2860804db9a98c48824ce8d", size = 230806, upload-time = "2026-04-02T09:26:36.152Z" },
-    { url = "https://files.pythonhosted.org/packages/59/7a/071feed8124111a32b316b33ae4de83d36923039ef8cf48120266844285b/charset_normalizer-3.4.7-cp312-cp312-musllinux_1_2_riscv64.whl", hash = "sha256:aed52fea0513bac0ccde438c188c8a471c4e0f457c2dd20cdbf6ea7a450046c7", size = 212316, upload-time = "2026-04-02T09:26:37.672Z" },
-    { url = "https://files.pythonhosted.org/packages/fd/35/f7dba3994312d7ba508e041eaac39a36b120f32d4c8662b8814dab876431/charset_normalizer-3.4.7-cp312-cp312-musllinux_1_2_s390x.whl", hash = "sha256:fea24543955a6a729c45a73fe90e08c743f0b3334bbf3201e6c4bc1b0c7fa464", size = 227274, upload-time = "2026-04-02T09:26:38.93Z" },
-    { url = "https://files.pythonhosted.org/packages/8a/2d/a572df5c9204ab7688ec1edc895a73ebded3b023bb07364710b05dd1c9be/charset_normalizer-3.4.7-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:bb6d88045545b26da47aa879dd4a89a71d1dce0f0e549b1abcb31dfe4a8eac49", size = 218468, upload-time = "2026-04-02T09:26:40.17Z" },
-    { url = "https://files.pythonhosted.org/packages/86/eb/890922a8b03a568ca2f336c36585a4713c55d4d67bf0f0c78924be6315ca/charset_normalizer-3.4.7-cp312-cp312-win32.whl", hash = "sha256:2257141f39fe65a3fdf38aeccae4b953e5f3b3324f4ff0daf9f15b8518666a2c", size = 148460, upload-time = "2026-04-02T09:26:41.416Z" },
-    { url = "https://files.pythonhosted.org/packages/35/d9/0e7dffa06c5ab081f75b1b786f0aefc88365825dfcd0ac544bdb7b2b6853/charset_normalizer-3.4.7-cp312-cp312-win_amd64.whl", hash = "sha256:5ed6ab538499c8644b8a3e18debabcd7ce684f3fa91cf867521a7a0279cab2d6", size = 159330, upload-time = "2026-04-02T09:26:42.554Z" },
-    { url = "https://files.pythonhosted.org/packages/9e/5d/481bcc2a7c88ea6b0878c299547843b2521ccbc40980cb406267088bc701/charset_normalizer-3.4.7-cp312-cp312-win_arm64.whl", hash = "sha256:56be790f86bfb2c98fb742ce566dfb4816e5a83384616ab59c49e0604d49c51d", size = 147828, upload-time = "2026-04-02T09:26:44.075Z" },
-    { url = "https://files.pythonhosted.org/packages/c1/3b/66777e39d3ae1ddc77ee606be4ec6d8cbd4c801f65e5a1b6f2b11b8346dd/charset_normalizer-3.4.7-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:f496c9c3cc02230093d8330875c4c3cdfc3b73612a5fd921c65d39cbcef08063", size = 309627, upload-time = "2026-04-02T09:26:45.198Z" },
-    { url = "https://files.pythonhosted.org/packages/2e/4e/b7f84e617b4854ade48a1b7915c8ccfadeba444d2a18c291f696e37f0d3b/charset_normalizer-3.4.7-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0ea948db76d31190bf08bd371623927ee1339d5f2a0b4b1b4a4439a65298703c", size = 207008, upload-time = "2026-04-02T09:26:46.824Z" },
-    { url = "https://files.pythonhosted.org/packages/c4/bb/ec73c0257c9e11b268f018f068f5d00aa0ef8c8b09f7753ebd5f2880e248/charset_normalizer-3.4.7-cp313-cp313-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:a277ab8928b9f299723bc1a2dabb1265911b1a76341f90a510368ca44ad9ab66", size = 228303, upload-time = "2026-04-02T09:26:48.397Z" },
-    { url = "https://files.pythonhosted.org/packages/85/fb/32d1f5033484494619f701e719429c69b766bfc4dbc61aa9e9c8c166528b/charset_normalizer-3.4.7-cp313-cp313-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:3bec022aec2c514d9cf199522a802bd007cd588ab17ab2525f20f9c34d067c18", size = 224282, upload-time = "2026-04-02T09:26:49.684Z" },
-    { url = "https://files.pythonhosted.org/packages/fa/07/330e3a0dda4c404d6da83b327270906e9654a24f6c546dc886a0eb0ffb23/charset_normalizer-3.4.7-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e044c39e41b92c845bc815e5ae4230804e8e7bc29e399b0437d64222d92809dd", size = 215595, upload-time = "2026-04-02T09:26:50.915Z" },
-    { url = "https://files.pythonhosted.org/packages/e3/7c/fc890655786e423f02556e0216d4b8c6bcb6bdfa890160dc66bf52dee468/charset_normalizer-3.4.7-cp313-cp313-manylinux_2_31_armv7l.whl", hash = "sha256:f495a1652cf3fbab2eb0639776dad966c2fb874d79d87ca07f9d5f059b8bd215", size = 201986, upload-time = "2026-04-02T09:26:52.197Z" },
-    { url = "https://files.pythonhosted.org/packages/d8/97/bfb18b3db2aed3b90cf54dc292ad79fdd5ad65c4eae454099475cbeadd0d/charset_normalizer-3.4.7-cp313-cp313-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:e712b419df8ba5e42b226c510472b37bd57b38e897d3eca5e8cfd410a29fa859", size = 211711, upload-time = "2026-04-02T09:26:53.49Z" },
-    { url = "https://files.pythonhosted.org/packages/6f/a5/a581c13798546a7fd557c82614a5c65a13df2157e9ad6373166d2a3e645d/charset_normalizer-3.4.7-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:7804338df6fcc08105c7745f1502ba68d900f45fd770d5bdd5288ddccb8a42d8", size = 210036, upload-time = "2026-04-02T09:26:54.975Z" },
-    { url = "https://files.pythonhosted.org/packages/8c/bf/b3ab5bcb478e4193d517644b0fb2bf5497fbceeaa7a1bc0f4d5b50953861/charset_normalizer-3.4.7-cp313-cp313-musllinux_1_2_armv7l.whl", hash = "sha256:481551899c856c704d58119b5025793fa6730adda3571971af568f66d2424bb5", size = 202998, upload-time = "2026-04-02T09:26:56.303Z" },
-    { url = "https://files.pythonhosted.org/packages/e7/4e/23efd79b65d314fa320ec6017b4b5834d5c12a58ba4610aa353af2e2f577/charset_normalizer-3.4.7-cp313-cp313-musllinux_1_2_ppc64le.whl", hash = "sha256:f59099f9b66f0d7145115e6f80dd8b1d847176df89b234a5a6b3f00437aa0832", size = 230056, upload-time = "2026-04-02T09:26:57.554Z" },
-    { url = "https://files.pythonhosted.org/packages/b9/9f/1e1941bc3f0e01df116e68dc37a55c4d249df5e6fa77f008841aef68264f/charset_normalizer-3.4.7-cp313-cp313-musllinux_1_2_riscv64.whl", hash = "sha256:f59ad4c0e8f6bba240a9bb85504faa1ab438237199d4cce5f622761507b8f6a6", size = 211537, upload-time = "2026-04-02T09:26:58.843Z" },
-    { url = "https://files.pythonhosted.org/packages/80/0f/088cbb3020d44428964a6c97fe1edfb1b9550396bf6d278330281e8b709c/charset_normalizer-3.4.7-cp313-cp313-musllinux_1_2_s390x.whl", hash = "sha256:3dedcc22d73ec993f42055eff4fcfed9318d1eeb9a6606c55892a26964964e48", size = 226176, upload-time = "2026-04-02T09:27:00.437Z" },
-    { url = "https://files.pythonhosted.org/packages/6a/9f/130394f9bbe06f4f63e22641d32fc9b202b7e251c9aef4db044324dac493/charset_normalizer-3.4.7-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:64f02c6841d7d83f832cd97ccf8eb8a906d06eb95d5276069175c696b024b60a", size = 217723, upload-time = "2026-04-02T09:27:02.021Z" },
-    { url = "https://files.pythonhosted.org/packages/73/55/c469897448a06e49f8fa03f6caae97074fde823f432a98f979cc42b90e69/charset_normalizer-3.4.7-cp313-cp313-win32.whl", hash = "sha256:4042d5c8f957e15221d423ba781e85d553722fc4113f523f2feb7b188cc34c5e", size = 148085, upload-time = "2026-04-02T09:27:03.192Z" },
-    { url = "https://files.pythonhosted.org/packages/5d/78/1b74c5bbb3f99b77a1715c91b3e0b5bdb6fe302d95ace4f5b1bec37b0167/charset_normalizer-3.4.7-cp313-cp313-win_amd64.whl", hash = "sha256:3946fa46a0cf3e4c8cb1cc52f56bb536310d34f25f01ca9b6c16afa767dab110", size = 158819, upload-time = "2026-04-02T09:27:04.454Z" },
-    { url = "https://files.pythonhosted.org/packages/68/86/46bd42279d323deb8687c4a5a811fd548cb7d1de10cf6535d099877a9a9f/charset_normalizer-3.4.7-cp313-cp313-win_arm64.whl", hash = "sha256:80d04837f55fc81da168b98de4f4b797ef007fc8a79ab71c6ec9bc4dd662b15b", size = 147915, upload-time = "2026-04-02T09:27:05.971Z" },
-    { url = "https://files.pythonhosted.org/packages/97/c8/c67cb8c70e19ef1960b97b22ed2a1567711de46c4ddf19799923adc836c2/charset_normalizer-3.4.7-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:c36c333c39be2dbca264d7803333c896ab8fa7d4d6f0ab7edb7dfd7aea6e98c0", size = 309234, upload-time = "2026-04-02T09:27:07.194Z" },
-    { url = "https://files.pythonhosted.org/packages/99/85/c091fdee33f20de70d6c8b522743b6f831a2f1cd3ff86de4c6a827c48a76/charset_normalizer-3.4.7-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:1c2aed2e5e41f24ea8ef1590b8e848a79b56f3a5564a65ceec43c9d692dc7d8a", size = 208042, upload-time = "2026-04-02T09:27:08.749Z" },
-    { url = "https://files.pythonhosted.org/packages/87/1c/ab2ce611b984d2fd5d86a5a8a19c1ae26acac6bad967da4967562c75114d/charset_normalizer-3.4.7-cp314-cp314-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:54523e136b8948060c0fa0bc7b1b50c32c186f2fceee897a495406bb6e311d2b", size = 228706, upload-time = "2026-04-02T09:27:09.951Z" },
-    { url = "https://files.pythonhosted.org/packages/a8/29/2b1d2cb00bf085f59d29eb773ce58ec2d325430f8c216804a0a5cd83cbca/charset_normalizer-3.4.7-cp314-cp314-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:715479b9a2802ecac752a3b0efa2b0b60285cf962ee38414211abdfccc233b41", size = 224727, upload-time = "2026-04-02T09:27:11.175Z" },
-    { url = "https://files.pythonhosted.org/packages/47/5c/032c2d5a07fe4d4855fea851209cca2b6f03ebeb6d4e3afdb3358386a684/charset_normalizer-3.4.7-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:bd6c2a1c7573c64738d716488d2cdd3c00e340e4835707d8fdb8dc1a66ef164e", size = 215882, upload-time = "2026-04-02T09:27:12.446Z" },
-    { url = "https://files.pythonhosted.org/packages/2c/c2/356065d5a8b78ed04499cae5f339f091946a6a74f91e03476c33f0ab7100/charset_normalizer-3.4.7-cp314-cp314-manylinux_2_31_armv7l.whl", hash = "sha256:c45e9440fb78f8ddabcf714b68f936737a121355bf59f3907f4e17721b9d1aae", size = 200860, upload-time = "2026-04-02T09:27:13.721Z" },
-    { url = "https://files.pythonhosted.org/packages/0c/cd/a32a84217ced5039f53b29f460962abb2d4420def55afabe45b1c3c7483d/charset_normalizer-3.4.7-cp314-cp314-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:3534e7dcbdcf757da6b85a0bbf5b6868786d5982dd959b065e65481644817a18", size = 211564, upload-time = "2026-04-02T09:27:15.272Z" },
-    { url = "https://files.pythonhosted.org/packages/44/86/58e6f13ce26cc3b8f4a36b94a0f22ae2f00a72534520f4ae6857c4b81f89/charset_normalizer-3.4.7-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:e8ac484bf18ce6975760921bb6148041faa8fef0547200386ea0b52b5d27bf7b", size = 211276, upload-time = "2026-04-02T09:27:16.834Z" },
-    { url = "https://files.pythonhosted.org/packages/8f/fe/d17c32dc72e17e155e06883efa84514ca375f8a528ba2546bee73fc4df81/charset_normalizer-3.4.7-cp314-cp314-musllinux_1_2_armv7l.whl", hash = "sha256:a5fe03b42827c13cdccd08e6c0247b6a6d4b5e3cdc53fd1749f5896adcdc2356", size = 201238, upload-time = "2026-04-02T09:27:18.229Z" },
-    { url = "https://files.pythonhosted.org/packages/6a/29/f33daa50b06525a237451cdb6c69da366c381a3dadcd833fa5676bc468b3/charset_normalizer-3.4.7-cp314-cp314-musllinux_1_2_ppc64le.whl", hash = "sha256:2d6eb928e13016cea4f1f21d1e10c1cebd5a421bc57ddf5b1142ae3f86824fab", size = 230189, upload-time = "2026-04-02T09:27:19.445Z" },
-    { url = "https://files.pythonhosted.org/packages/b6/6e/52c84015394a6a0bdcd435210a7e944c5f94ea1055f5cc5d56c5fe368e7b/charset_normalizer-3.4.7-cp314-cp314-musllinux_1_2_riscv64.whl", hash = "sha256:e74327fb75de8986940def6e8dee4f127cc9752bee7355bb323cc5b2659b6d46", size = 211352, upload-time = "2026-04-02T09:27:20.79Z" },
-    { url = "https://files.pythonhosted.org/packages/8c/d7/4353be581b373033fb9198bf1da3cf8f09c1082561e8e922aa7b39bf9fe8/charset_normalizer-3.4.7-cp314-cp314-musllinux_1_2_s390x.whl", hash = "sha256:d6038d37043bced98a66e68d3aa2b6a35505dc01328cd65217cefe82f25def44", size = 227024, upload-time = "2026-04-02T09:27:22.063Z" },
-    { url = "https://files.pythonhosted.org/packages/30/45/99d18aa925bd1740098ccd3060e238e21115fffbfdcb8f3ece837d0ace6c/charset_normalizer-3.4.7-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:7579e913a5339fb8fa133f6bbcfd8e6749696206cf05acdbdca71a1b436d8e72", size = 217869, upload-time = "2026-04-02T09:27:23.486Z" },
-    { url = "https://files.pythonhosted.org/packages/5c/05/5ee478aa53f4bb7996482153d4bfe1b89e0f087f0ab6b294fcf92d595873/charset_normalizer-3.4.7-cp314-cp314-win32.whl", hash = "sha256:5b77459df20e08151cd6f8b9ef8ef1f961ef73d85c21a555c7eed5b79410ec10", size = 148541, upload-time = "2026-04-02T09:27:25.146Z" },
-    { url = "https://files.pythonhosted.org/packages/48/77/72dcb0921b2ce86420b2d79d454c7022bf5be40202a2a07906b9f2a35c97/charset_normalizer-3.4.7-cp314-cp314-win_amd64.whl", hash = "sha256:92a0a01ead5e668468e952e4238cccd7c537364eb7d851ab144ab6627dbbe12f", size = 159634, upload-time = "2026-04-02T09:27:26.642Z" },
-    { url = "https://files.pythonhosted.org/packages/c6/a3/c2369911cd72f02386e4e340770f6e158c7980267da16af8f668217abaa0/charset_normalizer-3.4.7-cp314-cp314-win_arm64.whl", hash = "sha256:67f6279d125ca0046a7fd386d01b311c6363844deac3e5b069b514ba3e63c246", size = 148384, upload-time = "2026-04-02T09:27:28.271Z" },
-    { url = "https://files.pythonhosted.org/packages/94/09/7e8a7f73d24dba1f0035fbbf014d2c36828fc1bf9c88f84093e57d315935/charset_normalizer-3.4.7-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:effc3f449787117233702311a1b7d8f59cba9ced946ba727bdc329ec69028e24", size = 330133, upload-time = "2026-04-02T09:27:29.474Z" },
-    { url = "https://files.pythonhosted.org/packages/8d/da/96975ddb11f8e977f706f45cddd8540fd8242f71ecdb5d18a80723dcf62c/charset_normalizer-3.4.7-cp314-cp314t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:fbccdc05410c9ee21bbf16a35f4c1d16123dcdeb8a1d38f33654fa21d0234f79", size = 216257, upload-time = "2026-04-02T09:27:30.793Z" },
-    { url = "https://files.pythonhosted.org/packages/e5/e8/1d63bf8ef2d388e95c64b2098f45f84758f6d102a087552da1485912637b/charset_normalizer-3.4.7-cp314-cp314t-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:733784b6d6def852c814bce5f318d25da2ee65dd4839a0718641c696e09a2960", size = 234851, upload-time = "2026-04-02T09:27:32.44Z" },
-    { url = "https://files.pythonhosted.org/packages/9b/40/e5ff04233e70da2681fa43969ad6f66ca5611d7e669be0246c4c7aaf6dc8/charset_normalizer-3.4.7-cp314-cp314t-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:a89c23ef8d2c6b27fd200a42aa4ac72786e7c60d40efdc76e6011260b6e949c4", size = 233393, upload-time = "2026-04-02T09:27:34.03Z" },
-    { url = "https://files.pythonhosted.org/packages/be/c1/06c6c49d5a5450f76899992f1ee40b41d076aee9279b49cf9974d2f313d5/charset_normalizer-3.4.7-cp314-cp314t-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6c114670c45346afedc0d947faf3c7f701051d2518b943679c8ff88befe14f8e", size = 223251, upload-time = "2026-04-02T09:27:35.369Z" },
-    { url = "https://files.pythonhosted.org/packages/2b/9f/f2ff16fb050946169e3e1f82134d107e5d4ae72647ec8a1b1446c148480f/charset_normalizer-3.4.7-cp314-cp314t-manylinux_2_31_armv7l.whl", hash = "sha256:a180c5e59792af262bf263b21a3c49353f25945d8d9f70628e73de370d55e1e1", size = 206609, upload-time = "2026-04-02T09:27:36.661Z" },
-    { url = "https://files.pythonhosted.org/packages/69/d5/a527c0cd8d64d2eab7459784fb4169a0ac76e5a6fc5237337982fd61347e/charset_normalizer-3.4.7-cp314-cp314t-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:3c9a494bc5ec77d43cea229c4f6db1e4d8fe7e1bbffa8b6f0f0032430ff8ab44", size = 220014, upload-time = "2026-04-02T09:27:38.019Z" },
-    { url = "https://files.pythonhosted.org/packages/7e/80/8a7b8104a3e203074dc9aa2c613d4b726c0e136bad1cc734594b02867972/charset_normalizer-3.4.7-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:8d828b6667a32a728a1ad1d93957cdf37489c57b97ae6c4de2860fa749b8fc1e", size = 218979, upload-time = "2026-04-02T09:27:39.37Z" },
-    { url = "https://files.pythonhosted.org/packages/02/9a/b759b503d507f375b2b5c153e4d2ee0a75aa215b7f2489cf314f4541f2c0/charset_normalizer-3.4.7-cp314-cp314t-musllinux_1_2_armv7l.whl", hash = "sha256:cf1493cd8607bec4d8a7b9b004e699fcf8f9103a9284cc94962cb73d20f9d4a3", size = 209238, upload-time = "2026-04-02T09:27:40.722Z" },
-    { url = "https://files.pythonhosted.org/packages/c2/4e/0f3f5d47b86bdb79256e7290b26ac847a2832d9a4033f7eb2cd4bcf4bb5b/charset_normalizer-3.4.7-cp314-cp314t-musllinux_1_2_ppc64le.whl", hash = "sha256:0c96c3b819b5c3e9e165495db84d41914d6894d55181d2d108cc1a69bfc9cce0", size = 236110, upload-time = "2026-04-02T09:27:42.33Z" },
-    { url = "https://files.pythonhosted.org/packages/96/23/bce28734eb3ed2c91dcf93abeb8a5cf393a7b2749725030bb630e554fdd8/charset_normalizer-3.4.7-cp314-cp314t-musllinux_1_2_riscv64.whl", hash = "sha256:752a45dc4a6934060b3b0dab47e04edc3326575f82be64bc4fc293914566503e", size = 219824, upload-time = "2026-04-02T09:27:43.924Z" },
-    { url = "https://files.pythonhosted.org/packages/2c/6f/6e897c6984cc4d41af319b077f2f600fc8214eb2fe2d6bcb79141b882400/charset_normalizer-3.4.7-cp314-cp314t-musllinux_1_2_s390x.whl", hash = "sha256:8778f0c7a52e56f75d12dae53ae320fae900a8b9b4164b981b9c5ce059cd1fcb", size = 233103, upload-time = "2026-04-02T09:27:45.348Z" },
-    { url = "https://files.pythonhosted.org/packages/76/22/ef7bd0fe480a0ae9b656189ec00744b60933f68b4f42a7bb06589f6f576a/charset_normalizer-3.4.7-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:ce3412fbe1e31eb81ea42f4169ed94861c56e643189e1e75f0041f3fe7020abe", size = 225194, upload-time = "2026-04-02T09:27:46.706Z" },
-    { url = "https://files.pythonhosted.org/packages/c5/a7/0e0ab3e0b5bc1219bd80a6a0d4d72ca74d9250cb2382b7c699c147e06017/charset_normalizer-3.4.7-cp314-cp314t-win32.whl", hash = "sha256:c03a41a8784091e67a39648f70c5f97b5b6a37f216896d44d2cdcb82615339a0", size = 159827, upload-time = "2026-04-02T09:27:48.053Z" },
-    { url = "https://files.pythonhosted.org/packages/7a/1d/29d32e0fb40864b1f878c7f5a0b343ae676c6e2b271a2d55cc3a152391da/charset_normalizer-3.4.7-cp314-cp314t-win_amd64.whl", hash = "sha256:03853ed82eeebbce3c2abfdbc98c96dc205f32a79627688ac9a27370ea61a49c", size = 174168, upload-time = "2026-04-02T09:27:49.795Z" },
-    { url = "https://files.pythonhosted.org/packages/de/32/d92444ad05c7a6e41fb2036749777c163baf7a0301a040cb672d6b2b1ae9/charset_normalizer-3.4.7-cp314-cp314t-win_arm64.whl", hash = "sha256:c35abb8bfff0185efac5878da64c45dafd2b37fb0383add1be155a763c1f083d", size = 153018, upload-time = "2026-04-02T09:27:51.116Z" },
-    { url = "https://files.pythonhosted.org/packages/db/8f/61959034484a4a7c527811f4721e75d02d653a35afb0b6054474d8185d4c/charset_normalizer-3.4.7-py3-none-any.whl", hash = "sha256:3dce51d0f5e7951f8bb4900c257dad282f49190fdbebecd4ba99bcc41fef404d", size = 61958, upload-time = "2026-04-02T09:28:37.794Z" },
-]
+if __name__ == "__main__":
+    main()
+`,"pycomputersdk/__init__.py":`"""
+pyComputer SDK: re-exports from pycomputer for standalone app development
+"""
 
-[[package]]
-name = "idna"
-version = "3.15"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/82/77/7b3966d0b9d1d31a36ddf1746926a11dface89a83409bf1483f0237aa758/idna-3.15.tar.gz", hash = "sha256:ca962446ea538f7092a95e057da437618e886f4d349216d2b1e294abfdb65fdc", size = 199245, upload-time = "2026-05-12T22:45:57.011Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d2/23/408243171aa9aaba178d3e2559159c24c1171a641aa83b67bdd3394ead8e/idna-3.15-py3-none-any.whl", hash = "sha256:048adeaf8c2d788c40fee287673ccaa74c24ffd8dcf09ffa555a2fbb59f10ac8", size = 72340, upload-time = "2026-05-12T22:45:55.733Z" },
-]
+from pycomputer.ui.renderer import Renderer, _TUIRO_THEMES, _CUSTOM_THEMES
+from pycomputer.ui.input import get_key, Key, web_input_queue, setup_raw, restore, cleanup
+from pycomputer.ui.widgets import Dialog
+from pycomputer.ui.theme import Theme, Color, Bg, Style, Preset
+from pycomputer.utils.platform import is_web, is_native
+from pycomputer.utils.text import truncate, wrap, indent, pad_center, pad_left, pad_right, strip_ansi
 
-[[package]]
-name = "pycomputer"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "requests" },
-    { name = "tuiro" },
+__all__ = [
+    "Renderer",
+    "_TUIRO_THEMES",
+    "_CUSTOM_THEMES",
+    "get_key",
+    "Key",
+    "web_input_queue",
+    "setup_raw",
+    "restore",
+    "cleanup",
+    "Dialog",
+    "Theme",
+    "Color",
+    "Bg",
+    "Style",
+    "Preset",
+    "is_web",
+    "is_native",
+    "truncate",
+    "wrap",
+    "indent",
+    "pad_center",
+    "pad_left",
+    "pad_right",
+    "strip_ansi",
 ]
+`,"pycomputersdk/fs.py":`"""
+SDK filesystem module: re-exports from pycomputer.fs
+"""
 
-[package.metadata]
-requires-dist = [
-    { name = "requests", specifier = ">=2.34.2" },
-    { name = "tuiro", specifier = ">=0.1.1" },
-]
+from pycomputer.fs.vfs import VFS
 
-[[package]]
-name = "requests"
-version = "2.34.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "certifi" },
-    { name = "charset-normalizer" },
-    { name = "idna" },
-    { name = "urllib3" },
+__all__ = [
+    "VFS",
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ac/c3/e2a2b89f2d3e2179abd6d00ebd70bff6273f37fb3e0cc209f48b39d00cbf/requests-2.34.2.tar.gz", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed", size = 142856, upload-time = "2026-05-14T19:25:27.735Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0", size = 73075, upload-time = "2026-05-14T19:25:26.443Z" },
-]
+`,"pycomputersdk/py.typed":``,"pycomputersdk/std.py":`"""
+SDK std module: re-exports app-level utilities from pycomputer.stdlib.appstdlib
+"""
 
-[[package]]
-name = "tuiro"
-version = "0.1.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/12/54/29c5e6ab7b9162d33aede17e44bbcc895be19fbbf1c82e50c129b8e94b67/tuiro-0.1.1.tar.gz", hash = "sha256:6dc598518a29343c91d9fb96e25b60c01c9f7c5f0a8756a48560d69234337c25", size = 6137, upload-time = "2026-02-14T20:50:41.981Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/a7/87ce670c3dfe303f8c947bd987113cfff4973f7cdb197002b1d2f7498581/tuiro-0.1.1-py3-none-any.whl", hash = "sha256:3aebf84edab48cd9cd55eb4435b7476ae6fc70d8e695d1de5ad1ac7fc8efac7f", size = 8549, upload-time = "2026-02-14T20:50:40.778Z" },
-]
+from pycomputer.stdlib.appstdlib import (
+    input, info, error, success, warning, confirm, pause,  # noqa: A004, re-export, not shadowing
+    section, subsection, banner, table, spinner, step,
+    clear, clear_line, hide_cursor, show_cursor,
+    bold, dim, green, red, yellow, cyan,
+    box, box_at,
+    print_exception, sleep, get_env, set_env, app_exit,
+    print_table, print_banner, ask_choice,
+    set_theme, get_theme,
+)
 
-[[package]]
-name = "urllib3"
-version = "2.7.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/53/0c/06f8b233b8fd13b9e5ee11424ef85419ba0d8ba0b3138bf360be2ff56953/urllib3-2.7.0.tar.gz", hash = "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c", size = 433602, upload-time = "2026-05-07T16:13:18.596Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl", hash = "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897", size = 131087, upload-time = "2026-05-07T16:13:17.151Z" },
+__all__ = [
+    "input", "info", "error", "success", "warning", "confirm", "pause",
+    "section", "subsection", "banner", "table", "spinner", "step",
+    "clear", "clear_line", "hide_cursor", "show_cursor",
+    "bold", "dim", "green", "red", "yellow", "cyan",
+    "box", "box_at",
+    "print_exception", "sleep", "get_env", "set_env", "app_exit",
+    "print_table", "print_banner", "ask_choice",
+    "set_theme", "get_theme",
 ]
 `,"apps/calculator/data/history.txt":`2 + 2 = 4
 4+4 = 8
@@ -2729,12 +2941,25 @@ wheels = [
 _/          _/_/                                        _/                                                      
                               
 pyComputer Kernel Booting...
-`,"sys/apps.json":`[]`,"usr/apps/calculator/main.py":`"""
+`,"sys/apps-index.json":`{
+  "apps": {
+    "glyphformer": {
+      "url": "https://raw.githubusercontent.com/NellowTCS/Glyphformer/main/Glyphformer/Glyphformer.pycapp",
+      "version": "0.1.0",
+      "description": "2D text-based platformer with physics, coins, and scrolling levels."
+    }
+  }
+}
+`,"sys/apps.json":`[]`,"sys/registry.json":`{
+  "url": "https://raw.githubusercontent.com/NellowTCS/pyComputer/main/root/sys/apps-index.json",
+  "updated": null
+}
+`,"usr/apps/calculator/main.py":`"""
 Calculator app entrypoint for pyComputer (full implementation)
 """
 
-from src.fs.vfs import VFS
-from src.stdlib.appstdlib import input, info, error, success, banner, pause
+from pycomputersdk.fs import VFS
+from pycomputersdk.std import input, info, error, success, banner, pause  # noqa: A004
 
 import math
 
@@ -2815,10 +3040,8 @@ import traceback
 import io
 import contextlib
 from collections import deque
-from src.ui.renderer import Renderer
-from src.ui.input import get_key, setup_raw, restore, cleanup, Key, web_input_queue
-from src.fs.vfs import VFS
-from src.utils.platform import is_web
+from pycomputersdk import Renderer, get_key, setup_raw, restore, cleanup, Key, web_input_queue, is_web
+from pycomputersdk.fs import VFS
 
 #  Layout constants
 TOOLBAR_H   = 2   # top toolbar rows
@@ -2877,7 +3100,7 @@ SYNTAX_KEYWORDS = {
 
 def syntax_highlight_line(line):
     """Very simple token-by-token syntax highlighting."""
-    # We do a basic pass — strings, comments, keywords, numbers
+    # We do a basic pass, strings, comments, keywords, numbers
     result = []
     i = 0
     in_string = None
@@ -3906,7 +4129,7 @@ Renders a Matrix-style rain animation in the terminal.
 import random
 import sys
 import time
-from src.ui.renderer import Renderer
+from pycomputersdk import Renderer
 
 
 CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()"
@@ -3968,9 +4191,9 @@ def main(*args):
 Notes app entrypoint for pyComputer (separate text files per note)
 """
 
-from src.fs.vfs import VFS
-from src.utils.text import truncate
-from src.stdlib.appstdlib import input, info, error, success, banner, table
+from pycomputersdk.fs import VFS
+from pycomputersdk import truncate
+from pycomputersdk.std import input, info, error, success, banner, table  # noqa: A004
 
 NOTES_DIR = "apps/notes/data"
 
@@ -4088,11 +4311,11 @@ Provides theme selection, user preferences, and system configuration.
 
 import json
 import os
-from src.fs.vfs import VFS
-from src.stdlib.appstdlib import (
-    banner, info, error, success, confirm, input, table, warning, set_theme
+from pycomputersdk.fs import VFS
+from pycomputersdk.std import (
+    banner, info, error, success, confirm, input, table, warning, set_theme  # noqa: A004
 )
-from src.ui.theme import Theme
+from pycomputersdk import Theme
 
 SETTINGS_DIR = "apps/settings"
 SETTINGS_FILE = "apps/settings/config.json"
@@ -4129,7 +4352,7 @@ def save_settings(vfs, settings):
 
 
 def get_available_themes():
-    from src.ui.renderer import _TUIRO_THEMES, _CUSTOM_THEMES
+    from pycomputersdk import _TUIRO_THEMES, _CUSTOM_THEMES
     return _TUIRO_THEMES + list(_CUSTOM_THEMES.keys())
 
 
@@ -4306,10 +4529,7 @@ import random
 import sys
 import time
 from collections import deque
-from src.ui.renderer import Renderer
-from src.ui.input import get_key as _ui_get_key, Key as UI_Key, web_input_queue
-from src.ui.widgets import Dialog
-from src.utils.platform import is_web
+from pycomputersdk import Renderer, get_key as _ui_get_key, Key as UI_Key, web_input_queue, Dialog, is_web
 
 COLS = 30
 ROWS = 15
@@ -4521,7 +4741,7 @@ def flush_input():
 
 
 def main(*args):
-    from src.ui.input import setup_raw as setup_terminal, restore as restore_terminal, cleanup
+    from pycomputersdk import setup_raw as setup_terminal, restore as restore_terminal, cleanup
 
     game = SnakeGame()
     old_settings = setup_terminal()
@@ -4607,7 +4827,7 @@ def main(*args):
 `},Ps=`modulepreload`,Fs=function(e,t){return new URL(e,t).href},Is={},Ls=function(e,t,n){let r=Promise.resolve();if(t&&t.length>0){let e=document.getElementsByTagName(`link`),i=document.querySelector(`meta[property=csp-nonce]`),a=i?.nonce||i?.getAttribute(`nonce`);function o(e){return Promise.all(e.map(e=>Promise.resolve(e).then(e=>({status:`fulfilled`,value:e}),e=>({status:`rejected`,reason:e}))))}r=o(t.map(t=>{if(t=Fs(t,n),t in Is)return;Is[t]=!0;let r=t.endsWith(`.css`),i=r?`[rel="stylesheet"]`:``;if(n)for(let n=e.length-1;n>=0;n--){let i=e[n];if(i.href===t&&(!r||i.rel===`stylesheet`))return}else if(document.querySelector(`link[href="${t}"]${i}`))return;let o=document.createElement(`link`);if(o.rel=r?`stylesheet`:Ps,r||(o.as=`script`),o.crossOrigin=``,o.href=t,a&&o.setAttribute(`nonce`,a),document.head.appendChild(o),r)return new Promise((e,n)=>{o.addEventListener(`load`,e),o.addEventListener(`error`,()=>n(Error(`Unable to preload CSS for ${t}`)))})}))}function i(e){let t=new Event(`vite:preloadError`,{cancelable:!0});if(t.payload=e,window.dispatchEvent(t),!t.defaultPrevented)throw e}return r.then(t=>{for(let e of t||[])e.status===`rejected`&&i(e.reason);return e().catch(i)})};async function Rs(){let{loadPyodide:e}=await Ls(async()=>{let{loadPyodide:e}=await import(`https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.mjs`);return{loadPyodide:e}},[],import.meta.url);return e({indexURL:`https://cdn.jsdelivr.net/pyodide/v0.29.3/full/`})}async function zs(e,t){await e.loadPackage(`micropip`),await e.runPythonAsync(`import micropip`);let n=JSON.stringify(t);await e.runPythonAsync(`import micropip\nawait micropip.install(${n})`)}var Bs=document.getElementById(`status`),Vs=document.getElementById(`terminal`),Hs={default:{bg:`#0a0a0a`,fg:`#ffffff`,cursor:`#ffffff`,selection:`rgba(255, 255, 255, 0.3)`},retro:{bg:`#0a0a0a`,fg:`#00ff41`,cursor:`#00ff41`,selection:`rgba(0, 255, 65, 0.3)`},light:{bg:`#ffffff`,fg:`#000000`,cursor:`#000000`,selection:`rgba(0, 0, 0, 0.2)`},dark:{bg:`#0a0a0a`,fg:`#ffffff`,cursor:`#ffffff`,selection:`rgba(255, 255, 255, 0.3)`},mono:{bg:`#0a0a0a`,fg:`#cccccc`,cursor:`#cccccc`,selection:`rgba(255, 255, 255, 0.2)`},pastel:{bg:`#1e1e2e`,fg:`#cba6f7`,cursor:`#cba6f7`,selection:`rgba(203, 166, 247, 0.3)`}};function Us(e){let t=Hs[e]||Hs.default;document.body.style.background=t.bg,document.body.style.color=t.fg,document.documentElement.style.setProperty(`--term-bg`,t.bg);let n=document.getElementById(`terminal-container`);n&&(n.style.background=t.bg),window.term&&(window.term.options.theme={background:t.bg,foreground:t.fg,cursor:t.cursor,selection:t.selection}),document.querySelectorAll(`#theme-buttons button`).forEach(e=>e.classList.remove(`active`));let r=document.querySelector(`#theme-buttons button[data-theme="${e}"]`);r&&r.classList.add(`active`)}window.setWebTheme=Us;var $=new ks({cursorBlink:!0,cursorStyle:`block`,fontSize:14,fontFamily:`'Fira Code', 'Consolas', monospace`,theme:{background:`#0a0a0a`,foreground:`#ffffff`,cursor:`#ffffff`,selection:`rgba(255, 255, 255, 0.3)`}});window.term=$;var Ws=new Ms;$.loadAddon(Ws),$.open(Vs),Ws.fit(),window.addEventListener(`resize`,()=>Ws.fit()),window.pythonLineBuffer=[],window.termWrite=e=>{let t=e.replace(/\r\n/g,`
 `).replace(/\r/g,`
 `).replace(/\n/g,`\r
-`);$.write(t)};var Gs=!1;window.setRawInput=e=>{Gs=e};var Ks=null,qs=[],Js=``,Ys=null;window.pyc_readline=()=>new Promise(e=>{qs.length>0?e(qs.shift()):Ys=e});function Xs(e){Ys?(Ys(e),Ys=null):qs.push(e)}function Zs(){return qs.length>0?Promise.resolve(qs.shift()):new Promise(e=>{Ys=e})}$.onData(e=>{if(Gs){try{Ks.pyimport(`src.ui.input`).web_input_queue.append(e)}catch{}return}for(let t of e)t===`\r`?($.write(`\r
+`);$.write(t)};var Gs=!1;window.setRawInput=e=>{Gs=e};var Ks=null,qs=[],Js=``,Ys=null;window.pyc_readline=()=>new Promise(e=>{qs.length>0?e(qs.shift()):Ys=e});function Xs(e){Ys?(Ys(e),Ys=null):qs.push(e)}function Zs(){return qs.length>0?Promise.resolve(qs.shift()):new Promise(e=>{Ys=e})}$.onData(e=>{if(Gs){try{Ks.pyimport(`pycomputer.ui.input`).web_input_queue.append(e)}catch{}return}for(let t of e)t===`\r`?($.write(`\r
 `),Xs(Js),Js=``):t===``?Js.length>0&&(Js=Js.slice(0,-1),$.write(`\b \b`)):t===``?($.write(`^C\r
 `),Xs(`exit`),Js=``):(Js+=t,$.write(t))}),$.write(`\x1B[2J\x1B[1;1HLoading pyComputer...
 `);async function Qs(){Ks=await Rs(),Bs.textContent=`Ready`,Bs.className=`ready`,$.write(`\r
@@ -4648,8 +4868,8 @@ except:
 
 # Extract files
 for filepath, content in FILES.items():
-    if filepath.startswith('src/'):
-        target_path = '/pyComputer/' + filepath
+    if filepath.startswith('pycomputer/') or filepath.startswith('pycomputersdk/') or filepath == 'main.py':
+        target_path = '/app/' + filepath
     else:
         target_path = '/root/' + filepath
     dir = os.path.dirname(target_path)
@@ -4659,20 +4879,11 @@ for filepath, content in FILES.items():
     with open(target_path, 'w') as f:
         f.write(content)
 
-# Load settings and sync web theme (but don't override if already set)
-import json
-try:
-    with open('/root/apps/settings/config.json') as f:
-        web_settings = json.load(f)
-        # Let browser handle theme initially - don't override
-except:
-    pass
-
 print(f"Extracted {len(FILES)} files")
 
-sys.path.insert(0, '/pyComputer')
+sys.path.insert(0, '/app')
 
-from src.kernel.kernel import Kernel
+from pycomputer.kernel.kernel import Kernel
 kernel = Kernel()
 kernel.initialize()
 kernel.boot_sequence()
