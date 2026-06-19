@@ -17,8 +17,8 @@ from pycomputersdk import Renderer
 Renderer(ci_mode=False, theme="default")
 ```
 
-- `ci_mode` — disable tuiro rendering for CI/output-redirected environments
-- `theme` — one of `"default"`, `"mono"`, `"pastel"`, `"retro"`, `"light"`, `"dark"`
+- `ci_mode` - disable tuiro rendering for CI/output-redirected environments
+- `theme` - one of `"default"`, `"mono"`, `"pastel"`, `"retro"`, `"light"`, `"dark"`
 
 ### Methods
 

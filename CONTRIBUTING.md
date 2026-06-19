@@ -15,7 +15,7 @@ uv run python main.py
 - Use `ruff` for linting
 - All public API functions must have docstrings
 - No commented-out dead code
-- Handle errors explicitly — no bare `except:`
+- Handle errors explicitly - no bare `except:`
 - Type hints preferred
 
 ## Testing
@@ -36,17 +36,17 @@ uv run pytest --cov
 ```text
 pyComputer/pyComputer/
   pycomputer/
-    kernel/      — Boot, Kernel, Loader, Registry, Scheduler
-    shell/       — Shell loop, commands, parser
-    ui/          — Renderer, input, theme, widgets, palettes
-    pkg/         — Package manager, bundler, manifest
-    fs/          — Virtual filesystem
-    net/         — HTTP networking
-    utils/       — Platform detection, text, logging
-    stdlib/      — App standard library
-  root/          — Golden master (read-only, version-controlled)
-  data/          — Runtime disk (gitignored, ephemeral)
-  main.py        — Entry point
+    kernel/      - Boot, Kernel, Loader, Registry, Scheduler
+    shell/       - Shell loop, commands, parser
+    ui/          - Renderer, input, theme, widgets, palettes
+    pkg/         - Package manager, bundler, manifest
+    fs/          - Virtual filesystem
+    net/         - HTTP networking
+    utils/       - Platform detection, text, logging
+    stdlib/      - App standard library
+  root/          - Golden master (read-only, version-controlled)
+  data/          - Runtime disk (gitignored, ephemeral)
+  main.py        - Entry point
 ```
 
 ## Web Demo
