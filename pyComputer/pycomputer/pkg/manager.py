@@ -14,7 +14,7 @@ from .manifest import Manifest, ManifestError
 
 
 REGISTRY_CONF_PATH = "sys/registry.json"
-_DEFAULT_REGISTRY = "https://raw.githubusercontent.com/NellowTCS/pyComputer/main/root/sys/registry.json"
+_DEFAULT_REGISTRY = "https://raw.githubusercontent.com/NellowTCS/pyComputer/main/root/sys/apps-index.json"
 
 
 class PackageManager:
