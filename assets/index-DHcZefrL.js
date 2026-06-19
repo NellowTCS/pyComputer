@@ -2944,7 +2944,7 @@ pyComputer Kernel Booting...
 `,"sys/apps-index.json":`{
   "apps": {
     "glyphformer": {
-      "url": "https://raw.githubusercontent.com/NellowTCS/Glyphformer/main/Glyphformer/Glyphformer.pycapp",
+      "url": "https://raw.githubusercontent.com/NellowTCS/Glyphformer/main/Glyphformer.pycapp",
       "version": "0.1.0",
       "description": "2D text-based platformer with physics, coins, and scrolling levels."
     }
