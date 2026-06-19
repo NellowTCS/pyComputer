@@ -1,0 +1,126 @@
+{
+  "title": "pyComputer",
+  "description": "",
+  "pages": [
+    {
+      "title": "Building Apps",
+      "url": "https://nisoku.org/pyComputer/docs/apps/building/",
+      "description": "How to create a pyComputer application",
+      "priority": "medium"
+    },
+    {
+      "title": "Built-in Apps",
+      "url": "https://nisoku.org/pyComputer/docs/apps/builtin/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Apps",
+      "url": "https://nisoku.org/pyComputer/docs/apps/",
+      "description": "Overview of pyComputer's app system",
+      "priority": "medium"
+    },
+    {
+      "title": ".pycapp Format",
+      "url": "https://nisoku.org/pyComputer/docs/apps/pycapp/",
+      "description": "The .pycapp distribution format",
+      "priority": "medium"
+    },
+    {
+      "title": "Boot Sequence",
+      "url": "https://nisoku.org/pyComputer/docs/architecture/boot/",
+      "description": "What happens when pyComputer starts",
+      "priority": "medium"
+    },
+    {
+      "title": "Architecture",
+      "url": "https://nisoku.org/pyComputer/docs/architecture/",
+      "description": "pyComputer architecture overview",
+      "priority": "medium"
+    },
+    {
+      "title": "Kernel",
+      "url": "https://nisoku.org/pyComputer/docs/architecture/kernel/",
+      "description": "pyComputer kernel architecture",
+      "priority": "medium"
+    },
+    {
+      "title": "VFS Layer",
+      "url": "https://nisoku.org/pyComputer/docs/architecture/vfs/",
+      "description": "Virtual filesystem architecture",
+      "priority": "medium"
+    },
+    {
+      "title": "Core Concepts",
+      "url": "https://nisoku.org/pyComputer/docs/getting-started/concepts/",
+      "description": "How pyComputer works",
+      "priority": "medium"
+    },
+    {
+      "title": "Installation",
+      "url": "https://nisoku.org/pyComputer/docs/getting-started/installation/",
+      "description": "Install pyComputer on your system",
+      "priority": "medium"
+    },
+    {
+      "title": "Quick Start",
+      "url": "https://nisoku.org/pyComputer/docs/getting-started/quickstart/",
+      "description": "Get pyComputer running in under a minute",
+      "priority": "medium"
+    },
+    {
+      "title": "pyComputer",
+      "url": "https://nisoku.org/pyComputer/docs/",
+      "description": "A virtual computer in your terminal.",
+      "priority": "high"
+    },
+    {
+      "title": "SDK Reference",
+      "url": "https://nisoku.org/pyComputer/docs/sdk/",
+      "description": "pyComputer SDK reference",
+      "priority": "medium"
+    },
+    {
+      "title": "Input Handling",
+      "url": "https://nisoku.org/pyComputer/docs/sdk/input/",
+      "description": "SDK keyboard input reference",
+      "priority": "medium"
+    },
+    {
+      "title": "Renderer",
+      "url": "https://nisoku.org/pyComputer/docs/sdk/renderer/",
+      "description": "SDK Renderer class reference",
+      "priority": "medium"
+    },
+    {
+      "title": "Standard Library",
+      "url": "https://nisoku.org/pyComputer/docs/sdk/stdlib/",
+      "description": "SDK std module reference",
+      "priority": "medium"
+    },
+    {
+      "title": "Virtual Filesystem",
+      "url": "https://nisoku.org/pyComputer/docs/sdk/vfs/",
+      "description": "VFS SDK reference",
+      "priority": "medium"
+    },
+    {
+      "title": "Shell Commands",
+      "url": "https://nisoku.org/pyComputer/docs/shell/commands/",
+      "description": "Detailed shell command reference",
+      "priority": "medium"
+    },
+    {
+      "title": "Shell",
+      "url": "https://nisoku.org/pyComputer/docs/shell/",
+      "description": "pyComputer shell overview",
+      "priority": "medium"
+    },
+    {
+      "title": "Package Manager",
+      "url": "https://nisoku.org/pyComputer/docs/shell/pkg/",
+      "description": "The pkg command reference",
+      "priority": "medium"
+    }
+  ]
+}

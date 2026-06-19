@@ -155,6 +155,10 @@ from pycomputer.utils.platform import is_web
 class VFS:
     def __init__(self, root=None):
         if root is None:
+            env_root = os.environ.get("PYCOMPUTER_DATA_DIR")
+            if env_root:
+                self.root = os.path.abspath(env_root)
+                return
             repo_root = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "../../../data")
             )
@@ -221,12 +225,18 @@ from pycomputer.fs.vfs import VFS
 
 
 def _data_dir():
+    env = os.environ.get("PYCOMPUTER_DATA_DIR")
+    if env:
+        return os.path.abspath(env)
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../../data")
     )
 
 
 def _root_dir():
+    env = os.environ.get("PYCOMPUTER_ROOT_DIR")
+    if env:
+        return os.path.abspath(env)
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../../root")
     )
@@ -738,7 +748,7 @@ def _default_apps_root():
 def _should_include(root, name):
     path = os.path.join(root, name)
     if os.path.isdir(path):
-        return name not in _EXCLUDED_DIRS
+        return name not in _EXCLUDED_DIRS and not name.startswith(".")
     return name not in _EXCLUDED_FILES and not name.startswith(".")
 
 
@@ -2866,7 +2876,7 @@ from pycomputer.ui.renderer import Renderer, _TUIRO_THEMES, _CUSTOM_THEMES
 from pycomputer.ui.input import get_key, Key, web_input_queue, setup_raw, restore, cleanup
 from pycomputer.ui.widgets import Dialog
 from pycomputer.ui.theme import Theme, Color, Bg, Style, Preset
-from pycomputer.utils.platform import is_web, is_native
+from pycomputer.utils.platform import is_web, is_native, pyc_input
 from pycomputer.utils.text import truncate, wrap, indent, pad_center, pad_left, pad_right, strip_ansi
 
 __all__ = [
@@ -2887,6 +2897,7 @@ __all__ = [
     "Preset",
     "is_web",
     "is_native",
+    "pyc_input",
     "truncate",
     "wrap",
     "indent",
@@ -2895,7 +2906,332 @@ __all__ = [
     "pad_right",
     "strip_ansi",
 ]
-`,"pycomputersdk/fs.py":`"""
+`,"pycomputersdk/async_utils.py":`from pycomputer.utils.async_tools import (
+    debounce,
+    throttle,
+    with_timeout,
+    BackgroundTask,
+    run_in_background,
+    synced,
+    AsyncQueue,
+)
+
+__all__ = [
+    "debounce",
+    "throttle",
+    "with_timeout",
+    "BackgroundTask",
+    "run_in_background",
+    "synced",
+    "AsyncQueue",
+]
+`,"pycomputersdk/cli/__init__.py":``,"pycomputersdk/cli/commands/__init__.py":``,"pycomputersdk/cli/commands/build.py":`import os
+import sys
+
+
+def cmd_build(path: str, output: str | None = None) -> int:
+    app_dir = os.path.abspath(path)
+
+    if not os.path.isdir(app_dir):
+        print(f"Error: directory not found: {app_dir}")
+        return 1
+
+    manifest_path = os.path.join(app_dir, "manifest.json")
+    if not os.path.isfile(manifest_path):
+        print(f"Error: manifest.json not found in {app_dir}")
+        return 1
+
+    try:
+        from pycomputersdk.pkg import Manifest, ManifestError
+        import json
+
+        manifest = Manifest.from_file(manifest_path)
+    except (ManifestError, json.JSONDecodeError) as e:
+        print(f"Invalid manifest: {e}")
+        return 1
+
+    app_name = manifest.data["name"]
+
+    from pycomputersdk.pkg import bundle
+
+    try:
+        result_path, digest = bundle(app_name, output_dir=output or "dist", source_dir=app_dir)
+        print(f"Build complete: {result_path}")
+        return 0
+    except Exception as e:
+        print(f"Build failed: {e}")
+        return 1
+`,"pycomputersdk/cli/commands/init.py":`import os
+
+MANIFEST_JSON = """\\
+{{
+    "name": "{name}",
+    "version": "0.1.0",
+    "entry": "main.py",
+    "permissions": [],
+    "description": ""
+}}
+"""
+
+MAIN_PY = """\\
+from pycomputersdk import Renderer, get_key, Key
+from pycomputersdk.std import info
+
+
+def main():
+    r = Renderer()
+    r.clear()
+    info("Hello from {name}!")
+
+    while True:
+        key = get_key()
+        if key == Key.ESC:
+            break
+
+    r.clear()
+    r.show_cursor()
+
+
+if __name__ == "__main__":
+    main()
+"""
+
+TEST_MAIN_PY = """\\
+from pycomputersdk.testing import MockRenderer, MockInput, assert_screen
+
+from main import main
+
+
+def test_placeholder():
+    assert True
+"""
+
+
+def cmd_init(name: str) -> int:
+    if not name.isidentifier():
+        print(f"Error: '{name}' is not a valid Python identifier")
+        return 1
+
+    dst = os.path.join(os.getcwd(), name)
+    if os.path.exists(dst):
+        print(f"Error: '{dst}' already exists")
+        return 1
+
+    os.makedirs(os.path.join(dst, "tests"))
+
+    with open(os.path.join(dst, "manifest.json"), "w") as f:
+        f.write(MANIFEST_JSON.format(name=name))
+
+    with open(os.path.join(dst, "main.py"), "w") as f:
+        f.write(MAIN_PY.format(name=name))
+
+    with open(os.path.join(dst, "tests", "test_main.py"), "w") as f:
+        f.write(TEST_MAIN_PY.format(name=name))
+
+    print(f"Created app '{name}' at {dst}")
+    print(f"  cd {name}")
+    print("  pycomp validate .")
+    print("  pycomp run .")
+    print("  pycomp build .")
+    return 0
+`,"pycomputersdk/cli/commands/run.py":`import os
+import sys
+import json
+
+
+def cmd_run(path: str, app_args: list[str] | None = None) -> int:
+    app_dir = os.path.abspath(path)
+
+    if not os.path.isdir(app_dir):
+        print(f"Error: directory not found: {app_dir}")
+        return 1
+
+    manifest_path = os.path.join(app_dir, "manifest.json")
+    if not os.path.isfile(manifest_path):
+        print(f"Error: manifest.json not found in {app_dir}")
+        return 1
+
+    try:
+        with open(manifest_path) as f:
+            manifest = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"Error: failed to read manifest: {e}")
+        return 1
+
+    app_name = manifest.get("name", os.path.basename(app_dir))
+
+    pyc_dir = os.path.join(os.path.dirname(app_dir), ".pyc")
+    data_dir = os.path.join(pyc_dir, "data")
+
+    if not os.path.isdir(data_dir):
+        print(f"[pyc] Initializing data disk at {data_dir}...")
+        os.makedirs(os.path.join(data_dir, "boot"), exist_ok=True)
+        os.makedirs(os.path.join(data_dir, "sys"), exist_ok=True)
+        os.makedirs(os.path.join(data_dir, "usr/apps"), exist_ok=True)
+        with open(os.path.join(data_dir, "sys/apps.json"), "w") as f:
+            json.dump([], f)
+
+    os.environ["PYCOMPUTER_DATA_DIR"] = data_dir
+    os.environ["PYCOMPUTER_ROOT_DIR"] = os.path.join(pyc_dir, "root")
+
+    from pycomputer.kernel.loader import Loader
+    from pycomputer.stdlib.appstdlib import set_theme
+
+    theme = manifest.get("theme", "default")
+    set_theme(theme)
+
+    loader = Loader()
+    main_fn = loader.import_from_path(app_dir)
+
+    if not main_fn or not callable(main_fn):
+        print(f"Error: failed to load app '{app_name}' from {app_dir}")
+        return 1
+
+    args = list(app_args) if app_args else []
+    try:
+        main_fn(*args)
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(f"Error running '{app_name}': {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
+    return 0
+`,"pycomputersdk/cli/commands/test.py":`import os
+import sys
+
+
+def cmd_test(path: str, pytest_args: list[str] | None = None) -> int:
+    app_dir = os.path.abspath(path)
+
+    if not os.path.isdir(app_dir):
+        print(f"Error: directory not found: {app_dir}")
+        return 1
+
+    tests_dir = os.path.join(app_dir, "tests")
+    if not os.path.isdir(tests_dir):
+        print(f"No tests/ directory found in {app_dir}")
+        return 1
+
+    import pytest
+
+    args = [tests_dir]
+    if pytest_args:
+        args.extend(pytest_args)
+
+    sys.path.insert(0, app_dir)
+    try:
+        return pytest.main(args)
+    finally:
+        try:
+            sys.path.remove(app_dir)
+        except ValueError:
+            pass
+`,"pycomputersdk/cli/commands/validate.py":`import os
+import json
+
+
+def cmd_validate(path: str) -> int:
+    app_dir = os.path.abspath(path)
+    manifest_path = os.path.join(app_dir, "manifest.json")
+
+    if not os.path.isdir(app_dir):
+        print(f"Error: directory not found: {app_dir}")
+        return 1
+
+    if not os.path.isfile(manifest_path):
+        print(f"Error: manifest.json not found in {app_dir}")
+        return 1
+
+    try:
+        from pycomputersdk.pkg import Manifest, ManifestError
+
+        manifest = Manifest.from_file(manifest_path)
+        print(f"Valid manifest for '{manifest.data.get('name', '?')}'")
+        print(f"  version:     {manifest.data.get('version', '?')}")
+        print(f"  entry:       {manifest.data.get('entry', '?')}")
+        print(f"  permissions: {', '.join(manifest.data.get('permissions', [])) or 'none'}")
+        print(f"  description: {manifest.data.get('description', '(no description)')}")
+
+        entry_path = os.path.join(app_dir, manifest.data["entry"])
+        if not os.path.isfile(entry_path):
+            print(f"  Warning: entry '{manifest.data['entry']}' not found (expected at {entry_path})")
+        else:
+            print("  entry file:  ok")
+
+        return 0
+
+    except (ManifestError, json.JSONDecodeError) as e:
+        print(f"Invalid manifest: {e}")
+        return 1
+`,"pycomputersdk/cli/main.py":`import sys
+import argparse
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="pycomp",
+        description="pyComputer app developer tool",
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    init_parser = subparsers.add_parser("init", help="Scaffold a new app project")
+    init_parser.add_argument("name", help="App name")
+
+    build_parser = subparsers.add_parser("build", help="Build a .pycapp archive")
+    build_parser.add_argument("path", nargs="?", default=".", help="App directory")
+    build_parser.add_argument("--output", "-o", default=None, help="Output path or filename")
+
+    val_parser = subparsers.add_parser("validate", help="Validate app manifest")
+    val_parser.add_argument("path", nargs="?", default=".", help="App directory")
+
+    test_parser = subparsers.add_parser("test", help="Run app tests with pytest")
+    test_parser.add_argument("path", nargs="?", default=".", help="App directory")
+    test_parser.add_argument("pytest_args", nargs=argparse.REMAINDER, help="Extra pytest flags")
+
+    run_parser = subparsers.add_parser("run", help="Run an app in a full kernel environment")
+    run_parser.add_argument("path", help="App directory")
+    run_parser.add_argument("app_args", nargs=argparse.REMAINDER, help="Arguments to forward to the app")
+
+    args = parser.parse_args()
+
+    if args.command == "init":
+        from .commands.init import cmd_init
+        return cmd_init(args.name)
+    elif args.command == "build":
+        from .commands.build import cmd_build
+        return cmd_build(args.path, output=args.output)
+    elif args.command == "validate":
+        from .commands.validate import cmd_validate
+        return cmd_validate(args.path)
+    elif args.command == "test":
+        from .commands.test import cmd_test
+        return cmd_test(args.path, args.pytest_args)
+    elif args.command == "run":
+        from .commands.run import cmd_run
+        return cmd_run(args.path, args.app_args)
+
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+`,"pycomputersdk/cli/root/boot/logo.txt":`                                                                                                                
+                                                                                                                
+                            _/_/_/                                                  _/                          
+     _/_/_/    _/    _/  _/          _/_/    _/_/_/  _/_/    _/_/_/    _/    _/  _/_/_/_/    _/_/    _/  _/_/   
+    _/    _/  _/    _/  _/        _/    _/  _/    _/    _/  _/    _/  _/    _/    _/      _/_/_/_/  _/_/        
+   _/    _/  _/    _/  _/        _/    _/  _/    _/    _/  _/    _/  _/    _/    _/      _/        _/           
+  _/_/_/      _/_/_/    _/_/_/    _/_/    _/    _/    _/  _/_/_/      _/_/_/      _/_/    _/_/_/  _/            
+ _/              _/                                      _/                                                     
+_/          _/_/                                        _/                                                      
+                                                                 
+pyComputer (Developer Mode) Kernel Booting...
+`,"pycomputersdk/cli/root/sys/apps.json":`[]
+`,"pycomputersdk/cli/root/sys/motd.txt":`Welcome to pyComputer SDK mode!
+`,"pycomputersdk/cli/root/usr/apps/.gitkeep":``,"pycomputersdk/fs.py":`"""
 SDK filesystem module: re-exports from pycomputer.fs
 """
 
@@ -2903,6 +3239,38 @@ from pycomputer.fs.vfs import VFS
 
 __all__ = [
     "VFS",
+]
+`,"pycomputersdk/logging.py":`from pycomputer.utils.logging import (
+    Logger,
+    Level,
+    debug,
+    info,
+    warning,
+    error,
+    critical,
+)
+
+__all__ = [
+    "Logger",
+    "Level",
+    "debug",
+    "info",
+    "warning",
+    "error",
+    "critical",
+]
+`,"pycomputersdk/net.py":`from pycomputer.net.http import HTTP
+
+__all__ = [
+    "HTTP",
+]
+`,"pycomputersdk/pkg.py":`from pycomputer.pkg.manifest import Manifest, ManifestError
+from pycomputer.pkg.bundler import bundle
+
+__all__ = [
+    "Manifest",
+    "ManifestError",
+    "bundle",
 ]
 `,"pycomputersdk/py.typed":``,"pycomputersdk/std.py":`"""
 SDK std module: re-exports app-level utilities from pycomputer.stdlib.appstdlib
@@ -2929,6 +3297,110 @@ __all__ = [
     "print_table", "print_banner", "ask_choice",
     "set_theme", "get_theme",
 ]
+`,"pycomputersdk/testing.py":`class MockRenderer:
+    def __init__(self):
+        self._buffer = []
+        self._cursor_x = 1
+        self._cursor_y = 1
+        self._output = []
+
+    def clear(self):
+        self._output = []
+        self._cursor_x = 1
+        self._cursor_y = 1
+        return self
+
+    def clear_line(self):
+        return self
+
+    def move(self, x, y):
+        self._cursor_x = x
+        self._cursor_y = y
+        return self
+
+    def write(self, text):
+        self._output.append(text)
+        return self
+
+    def flush(self):
+        return self
+
+    def hide_cursor(self):
+        return self
+
+    def show_cursor(self):
+        return self
+
+    def bold(self, text):
+        return text
+
+    def dim(self, text):
+        return text
+
+    def green(self, text):
+        return text
+
+    def bright_green(self, text):
+        return text
+
+    def red(self, text):
+        return text
+
+    def bright_red(self, text):
+        return text
+
+    def yellow(self, text):
+        return text
+
+    def cyan(self, text):
+        return text
+
+    def bright_cyan(self, text):
+        return text
+
+    def box(self, width, height, title=None):
+        return ""
+
+    def box_at(self, x, y, width, height, title=None):
+        return self
+
+    def capture(self):
+        return "".join(self._output)
+
+    def capture_lines(self):
+        return list(self._output)
+
+
+class MockInput:
+    def __init__(self, keys=None):
+        self._keys = list(keys or [])
+        self._index = 0
+
+    def get_key(self):
+        if self._index < len(self._keys):
+            key = self._keys[self._index]
+            self._index += 1
+            return key
+        return None
+
+    def feed(self, key):
+        self._keys.append(key)
+
+    def remaining(self):
+        return len(self._keys) - self._index
+
+
+def assert_screen(mock_renderer, *expected_lines):
+    lines = mock_renderer.capture_lines()
+    if lines != list(expected_lines):
+        import difflib
+        diff = "\\n".join(
+            difflib.ndiff(
+                [line + "\\n" for line in expected_lines],
+                [line + "\\n" for line in lines],
+            )
+        )
+        raise AssertionError(f"Screen mismatch:\\n{diff}")
 `,"apps/calculator/data/history.txt":`2 + 2 = 4
 4+4 = 8
 `,"apps/notes/data/Test.txt":`Hello, world!`,"apps/settings/config.json":`{"theme": "default", "username": "user", "show_splash": true, "confirm_actions": true, "editor_width": 40, "password": ""}`,"boot/logo.txt":`                                                                                                                
