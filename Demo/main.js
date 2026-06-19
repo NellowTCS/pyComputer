@@ -81,6 +81,15 @@ window.termWrite = (data) => {
 };
 
 let rawInputMode = false;
+let webInputModule = null;
+function getWebInputModule() {
+  if (!webInputModule) {
+    try {
+      webInputModule = pyodide.pyimport("pycomputer.ui.input");
+    } catch (_) {}
+  }
+  return webInputModule;
+}
 window.setRawInput = (enabled) => {
   rawInputMode = enabled;
 };
@@ -121,10 +130,14 @@ function getLine() {
 
 term.onData((data) => {
   if (rawInputMode) {
-    try {
-      const inputMod = pyodide.pyimport("pycomputer.ui.input");
-      inputMod.web_input_queue.append(data);
-    } catch (_) {}
+    const mod = getWebInputModule();
+    if (mod) {
+      try {
+        for (const ch of data) {
+          mod.web_input_queue.append(ch);
+        }
+      } catch (_) {}
+    }
     return;
   }
 
