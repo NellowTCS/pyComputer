@@ -5,6 +5,7 @@ description = "A text-based and TUI computer made in Python."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "pycomputersdk",
     "requests>=2.34.2",
     "tuiro>=0.1.1",
 ]
@@ -16,3 +17,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel.force-include]
 "README.md" = "README.md"
 "LICENSE" = "LICENSE"
+
+[tool.uv.sources]
+pycomputersdk = { workspace = true }

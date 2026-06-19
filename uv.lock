@@ -140,12 +140,14 @@ name = "pycomputer"
 version = "0.1.1"
 source = { editable = "pyComputer" }
 dependencies = [
+    { name = "pycomputersdk" },
     { name = "requests" },
     { name = "tuiro" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "pycomputersdk", editable = "pyComputerSDK" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "tuiro", specifier = ">=0.1.1" },
 ]
