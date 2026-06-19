@@ -21,7 +21,7 @@ Loads `data/apps/settings/config.json` for theme, username, and preferences. Fal
 
 ### Step 3: (Optional) Authentication
 
-If a password hash is configured in settings, the user must log in before the shell starts.
+If a `password` setting is configured, the user must log in before the shell starts.
 
 ### Step 4: Logo and Hardware Logs
 

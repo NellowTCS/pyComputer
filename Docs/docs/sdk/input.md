@@ -6,10 +6,14 @@ description: "SDK keyboard input reference"
 ## Input Handling
 
 ```python
-from pycomputersdk import get_key, Key, web_input_queue, setup_raw, restore, cleanup
+from pycomputersdk import get_key, Key, web_input_queue, setup_raw, restore, cleanup, pyc_input
 ```
 
 ### Functions
+
+#### `pyc_input(prompt="") -> str`
+
+Cross-platform `input()` replacement that works on web and native. Use this instead of `input()` for web compatibility.
 
 #### `get_key() -> str | None`
 
@@ -43,7 +47,10 @@ Key.HOME       # "\x1b[H"
 Key.END        # "\x1b[F"
 Key.PAGE_UP    # "\x1b[5~"
 Key.PAGE_DOWN  # "\x1b[6~"
-Key.F1 - F4    # Function keys
+Key.F1         # "\x1bOP"
+Key.F2         # "\x1bOQ"
+Key.F3         # "\x1bOR"
+Key.F4         # "\x1bOS"
 ```
 
 ### Web Input

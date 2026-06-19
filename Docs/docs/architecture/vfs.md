@@ -11,10 +11,11 @@ The Virtual Filesystem (VFS) is a thin wrapper that maps logical paths to real f
 
 The VFS root depends on the environment:
 
-| Environment          | Root Path                     |
-|----------------------|-------------------------------|
-| Native (macOS/Linux) | `<project>/../data`           |
-| Web (Pyodide)        | `/root` or `/pyComputer/root` |
+| Environment            | Root Path                      |
+|------------------------|--------------------------------|
+| `PYCOMPUTER_DATA_DIR`  | Value of the environment var   |
+| Native (macOS/Linux)   | `<project>/../data`            |
+| Web (Pyodide)          | `/root` or `/pyComputer/root`  |
 
 ### Path Mapping
 

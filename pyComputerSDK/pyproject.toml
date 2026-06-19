@@ -7,13 +7,27 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "pytest>=8.0",
+    "requests>=2.34.2",
     "tuiro>=0.1.1",
-    "pycomputer",
 ]
+optional-dependencies = { dev = ["pytest>=8.0"] }
 
-[tool.uv.sources]
-pycomputer = { path = "../pyComputer" }
+[project.scripts]
+pycomp = "pycomputersdk.cli.main:main"
 
 [build-system]
-requires = ["uv_build>=0.11.21,<0.12.0"]
-build-backend = "uv_build"
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist.force-include]
+"../pyComputer/pycomputer" = "pycomputer"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pycomputersdk"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"pycomputer" = "pycomputer"
+
+[tool.uv.sources]
+pycomputer = { workspace = true }

@@ -58,30 +58,76 @@ def main(*args):
 
 ### Testing Locally
 
+Use the SDK CLI to run an app directly:
+
+```bash
+pycomp run /path/to/myapp
+```
+
+Or inside pyComputer:
+
 ```bash
 cd pyComputer/pyComputer
 uv run python main.py
-```
-
-Then inside pyComputer:
-
-```bash
 [/] $ pkg install /path/to/myapp
 [/] $ run myapp
 ```
 
+### Testing
+
+The SDK provides test utilities in `pycomputersdk.testing`:
+
+```python
+from pycomputersdk.testing import MockRenderer, MockInput, assert_screen
+
+def test_my_app():
+    mock = MockRenderer()
+    mock.write("Hello")
+    assert mock.capture() == "Hello"
+```
+
+Run tests with `pycomp test`:
+
+```bash
+pycomp test .                           # run all tests
+pycomp test . -v                        # verbose mode
+pycomp test . -- tests/test_main.py     # specific test file
+```
+
+The `pycomp init` scaffold creates a `tests/test_main.py` with `MockRenderer` and `MockInput` already wired up.
+
+### CLI Workflow
+
+The `pycomp` CLI provides a full development workflow:
+
+```bash
+pycomp init myapp              # Scaffold a new app project
+cd myapp
+pycomp validate .              # Validate the manifest
+pycomp run .                   # Run the app in kernel environment
+pycomp test .                  # Run tests
+pycomp build .                 # Build .pycapp archive
+```
+
 ### Packaging
 
-Use `pkg build` to create a `.pycapp` archive:
+Use `pycomp build` to create a `.pycapp` archive:
+
+```bash
+pycomp build .
+```
+
+Or inside pyComputer:
 
 ```bash
 [/] $ pkg build myapp
 ```
 
-Or use the standalone build script:
+Or use the Python API directly:
 
-```bash
-python scripts/build.py /path/to/myapp
+```python
+from pycomputersdk.pkg import bundle
+result_path, digest = bundle("myapp", source_dir="/path/to/myapp")
 ```
 
-The `.pycapp` is a ZIP file containing all app files plus `manifest.json`.
+The `.pycapp` is a ZIP file containing all app files plus `manifest.json`. The build command prints a SHA-256 hash for integrity verification.

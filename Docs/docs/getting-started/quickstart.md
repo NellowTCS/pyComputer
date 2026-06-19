@@ -56,8 +56,17 @@ Install from the registry:
 
 ### Build a .pycapp
 
+From inside pyComputer:
+
 ```bash
 [/] $ pkg build myapp
+```
+
+Or using the SDK CLI:
+
+```bash
+cd myapp
+pycomp build .
 ```
 
 ### Run the Web Demo

@@ -11,6 +11,10 @@ from pycomputer.utils.platform import is_web
 class VFS:
     def __init__(self, root=None):
         if root is None:
+            env_root = os.environ.get("PYCOMPUTER_DATA_DIR")
+            if env_root:
+                self.root = os.path.abspath(env_root)
+                return
             repo_root = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "../../../data")
             )

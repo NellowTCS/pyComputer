@@ -1,7 +1,7 @@
 export default {
   title: "pyComputer",
-  url: "https://nisoku.org/pyComputer",
-  logo: { alt: "pyComputer", href: "./" },
+  url: "https://nisoku.org/pyComputer/docs/",
+  logo: { alt: "pyComputer", href: "/" },
   favicon: "",
   theme: {
     name: "ruby",
@@ -24,9 +24,9 @@ export default {
         {
           title: "Resources",
           links: [
-            { text: "Quick Start", url: "./getting-started/quickstart" },
-            { text: "SDK Reference", url: "./sdk/" },
-            { text: "Shell Commands", url: "./shell/" },
+            { text: "Quick Start", url: "/docs/getting-started/quickstart" },
+            { text: "SDK Reference", url: "/docs/sdk/" },
+            { text: "Shell Commands", url: "/docs/shell/" },
           ],
         },
         {

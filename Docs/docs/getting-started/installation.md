@@ -19,6 +19,15 @@ cd pyComputer/pyComputer
 uv run python main.py
 ```
 
+Or with pip:
+
+```bash
+git clone https://github.com/NellowTCS/pyComputer
+cd pyComputer/pyComputer
+pip install -e .
+python main.py
+```
+
 The first boot copies the golden master (`root/`) to the data disk (`data/`). Subsequent boots skip this step.
 
 ### Web Demo
@@ -36,10 +45,23 @@ cd pyComputerSDK
 uv pip install -e .
 ```
 
-Or from PyPI:
+Or with pip:
+
+```bash
+cd pyComputerSDK
+pip install -e .
+```
+
+Or from PyPI with uv:
 
 ```bash
 uv pip install pycomputersdk
+```
+
+Or from PyPI with pip:
+
+```bash
+pip install pycomputersdk
 ```
 
 ### Dependencies

@@ -17,7 +17,11 @@ The VFS provides filesystem access from within apps. It maps VFS paths to real p
 VFS()
 ```
 
-The root is automatically determined from the environment (data dir for native, Pyodide root for web).
+The root is automatically determined from:
+
+1. `PYCOMPUTER_DATA_DIR` environment variable (if set)
+2. Relative path to `data/` from the pyComputer package directory (native)
+3. Pyodide root path (web)
 
 ### Methods
 
@@ -36,7 +40,7 @@ The root is automatically determined from the environment (data dir for native, 
 ### Path Resolution
 
 ```text
-VFS root → data/ (native) or /app/ (web)
+VFS root → $PYCOMPUTER_DATA_DIR (if set), data/ (native), or /app/ (web)
 abspath("usr/apps") → /path/to/data/usr/apps
 abspath("/sys/apps.json") → /path/to/data/sys/apps.json
 ```

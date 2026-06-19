@@ -37,10 +37,12 @@ flowchart TB
 
 ### Initialization Order
 
-1. `ensure_data_dir()` — copies `root/` to `data/` if `data/` does not exist (atomic staging)
-2. `_load_settings()` — loads theme and user preferences
-3. `Kernel()` — creates all subsystems
-4. `kernel.initialize()` — prints init messages
-5. `kernel.boot_sequence()` — renders logo and hardware logs
-6. `kernel.launch_shell()` — starts shell event loop
-7. `asyncio.run(kernel.run())` — main async event loop
+1. `ensure_data_dir()` - copies `root/` to `data/` if `data/` does not exist (atomic staging)
+2. `_load_settings()` - loads theme and user preferences
+3. Theme setup - applies the configured theme via `set_theme()`
+4. `_require_login()` - if a `password` setting exists, prompts for credentials before continuing
+5. `Kernel()` - creates all subsystems
+6. `kernel.initialize()` - prints init messages
+7. `kernel.boot_sequence()` - renders logo and hardware logs
+8. `kernel.launch_shell()` - starts shell event loop
+9. `asyncio.run(kernel.run())` - main async event loop

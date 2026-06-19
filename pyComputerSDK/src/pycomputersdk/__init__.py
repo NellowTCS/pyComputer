@@ -6,7 +6,7 @@ from pycomputer.ui.renderer import Renderer, _TUIRO_THEMES, _CUSTOM_THEMES
 from pycomputer.ui.input import get_key, Key, web_input_queue, setup_raw, restore, cleanup
 from pycomputer.ui.widgets import Dialog
 from pycomputer.ui.theme import Theme, Color, Bg, Style, Preset
-from pycomputer.utils.platform import is_web, is_native
+from pycomputer.utils.platform import is_web, is_native, pyc_input
 from pycomputer.utils.text import truncate, wrap, indent, pad_center, pad_left, pad_right, strip_ansi
 
 __all__ = [
@@ -27,6 +27,7 @@ __all__ = [
     "Preset",
     "is_web",
     "is_native",
+    "pyc_input",
     "truncate",
     "wrap",
     "indent",

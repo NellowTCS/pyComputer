@@ -57,12 +57,27 @@ Each app has an entry point (`main.py` by default) that exports a `main()` funct
 
 ### SDK
 
-The `pycomputersdk` package provides the API for building standalone apps:
+The `pycomputersdk` package provides the API and tooling for building standalone apps:
 
 - `Renderer` - TUI rendering (box-drawing, themes, ANSI output)
-- `get_key()`, `Key` - keyboard input handling
+- `get_key()`, `Key`, `pyc_input` - keyboard and text input handling
 - `std.*` - standard library (input, info, error, confirm, dialogs)
 - `VFS` - filesystem access from within apps
+- `testing.*` - `MockRenderer`, `MockInput`, `assert_screen` for unit testing
+- `pkg.*` - `Manifest`, `bundle()` for programmatic app packaging
+- `logging.*` - structured logging with levels
+- `net.*` - `HTTP` client
+- `async_utils.*` - async utilities (debounce, throttle, BackgroundTask, etc.)
+
+The `pycomp` CLI provides a full development workflow:
+
+```bash
+pycomp init myapp       # scaffold a new app
+pycomp validate .       # validate the manifest
+pycomp run .            # run the app
+pycomp test .           # run tests
+pycomp build .          # package as .pycapp
+```
 
 ### Shell
 

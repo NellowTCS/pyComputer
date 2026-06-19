@@ -2,6 +2,12 @@ version = 1
 revision = 3
 requires-python = ">=3.12"
 
+[manifest]
+members = [
+    "pycomputer",
+    "pycomputersdk",
+]
+
 [[package]]
 name = "certifi"
 version = "2026.6.17"
@@ -132,7 +138,7 @@ wheels = [
 [[package]]
 name = "pycomputer"
 version = "0.1.0"
-source = { editable = "../pyComputer" }
+source = { editable = "pyComputer" }
 dependencies = [
     { name = "requests" },
     { name = "tuiro" },
@@ -147,9 +153,8 @@ requires-dist = [
 [[package]]
 name = "pycomputersdk"
 version = "0.1.0"
-source = { editable = "." }
+source = { editable = "pyComputerSDK" }
 dependencies = [
-    { name = "pycomputer" },
     { name = "pytest" },
     { name = "requests" },
     { name = "tuiro" },
@@ -162,7 +167,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pycomputer", editable = "../pyComputer" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "requests", specifier = ">=2.34.2" },

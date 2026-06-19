@@ -26,17 +26,18 @@ Inside pyComputer:
 [/] $ pkg build myapp
 ```
 
-From the command line:
+From the command line with the SDK CLI:
 
 ```bash
-python pyComputer/pycomputer/pycomputer/pkg/bundler.py
+cd myapp
+pycomp build .
 ```
 
 Or using the `bundle()` function directly:
 
 ```python
-from pycomputer.pkg.bundler import bundle
-bundle("myapp", source_dir="/path/to/myapp")
+from pycomputersdk.pkg import bundle
+result_path, digest = bundle("myapp", source_dir="/path/to/myapp")
 ```
 
 ### Installing
@@ -48,12 +49,14 @@ bundle("myapp", source_dir="/path/to/myapp")
 
 ### Security
 
-The `pkg install` command validates:
+When installing a `.pycapp` archive or downloading from a URL, `pkg install` validates:
 
 - The manifest is valid JSON and conforms to the Manifest schema
 - The app name does not contain path separators or `..`
 - Each extracted file stays within the destination directory (no path traversal)
 - Remote URLs require HTTPS
+
+For plain directory installs (`pkg install /path/to/dir`), only the manifest is validated; the directory is copied as-is without additional security checks.
 
 ### Checksum
 
