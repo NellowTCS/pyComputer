@@ -133,8 +133,12 @@ term.onData((data) => {
     const mod = getWebInputModule();
     if (mod) {
       try {
-        for (const ch of data) {
-          mod.web_input_queue.append(ch);
+        if (data.startsWith("\x1b")) {
+          mod.web_input_queue.append(data);
+        } else {
+          for (const ch of data) {
+            mod.web_input_queue.append(ch);
+          }
         }
       } catch (_) {}
     }
