@@ -72,7 +72,7 @@ class Boot:
             print(f"[boot] Logo not found at {self.logo_path}.")
 
     def print_hardware_logs(self):
-        print("[boot] pyComputer Kernel v0.1.0")
+        print("[boot] pyComputer Kernel v0.1.1")
         print("[boot] Initializing subsystems...")
         print("[boot] Checking memory...")
         print("[boot] All systems normal.")

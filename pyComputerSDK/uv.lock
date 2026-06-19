@@ -131,7 +131,7 @@ wheels = [
 
 [[package]]
 name = "pycomputer"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "../pyComputer" }
 dependencies = [
     { name = "requests" },
@@ -146,7 +146,7 @@ requires-dist = [
 
 [[package]]
 name = "pycomputersdk"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "pycomputer" },
