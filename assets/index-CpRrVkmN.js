@@ -731,12 +731,13 @@ import zipfile
 
 from .manifest import Manifest, ManifestError
 
-_EXCLUDED_DIRS = frozenset({".git", "__pycache__", ".gitkeep"})
+_EXCLUDED_DIRS = frozenset({".git", "__pycache__", ".gitkeep", "dist", "node_modules"})
 _EXCLUDED_FILES = frozenset({
     ".DS_Store", "Thumbs.db",
     "LICENSE", "TODO.md", "CHANGELOG.md", "CONTRIBUTING.md",
     ".gitignore", ".editorconfig", ".pre-commit-config.yaml",
 })
+_EXCLUDED_EXTS = frozenset({".pycapp"})
 
 
 def _default_apps_root():
@@ -749,7 +750,10 @@ def _should_include(root, name):
     path = os.path.join(root, name)
     if os.path.isdir(path):
         return name not in _EXCLUDED_DIRS and not name.startswith(".")
-    return name not in _EXCLUDED_FILES and not name.startswith(".")
+    _, ext = os.path.splitext(name)
+    return (name not in _EXCLUDED_FILES
+            and not name.startswith(".")
+            and ext not in _EXCLUDED_EXTS)
 
 
 def bundle(app_name: str, output_dir: str = "dist", source_dir: str | None = None) -> tuple[str, str]:
