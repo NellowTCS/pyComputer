@@ -1,5 +1,11 @@
 # pyComputer
 
+[![Python >=3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue?logo=python)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Web Demo](https://img.shields.io/badge/Web-Demo-brightgreen?logo=googlechrome)](https://nellowtcs.me/pyComputer)
+[![GitHub](https://img.shields.io/badge/GitHub-NellowTCS%2FpyComputer-181717?logo=github)](https://github.com/NellowTCS/pyComputer)
+[![PyPI - SDK](https://img.shields.io/badge/PyPI-pycomputersdk-blue?logo=pypi)](https://pypi.org/project/pycomputersdk/)
+
 ```txt
                             _/_/_/                                                  _/                          
      _/_/_/    _/    _/  _/          _/_/    _/_/_/  _/_/    _/_/_/    _/    _/  _/_/_/_/    _/_/    _/  _/_/   

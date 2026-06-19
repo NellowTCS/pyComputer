@@ -2,6 +2,7 @@
 name = "pycomputersdk"
 version = "0.1.1"
 description = "SDK for developing pyComputer apps"
+readme = "README.md"
 authors = [
     { name = "NellowTCS", email = "neeljaiswal23@gmail.com" }
 ]
@@ -28,6 +29,8 @@ packages = ["src/pycomputersdk"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "pycomputer" = "pycomputer"
+"README.md" = "README.md"
+"LICENSE" = "LICENSE"
 
 [tool.uv.sources]
 pycomputer = { workspace = true }
