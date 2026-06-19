@@ -87,10 +87,10 @@
       Renderer : pyComputer
     </title>
     
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mqkh89jz">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mqkhjgpa">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mqkh89jz" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mqkh89jz" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mqkhjgpa" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mqkhjgpa" id="hljs-dark" disabled>
     
     
 <meta name="description" content="SDK Renderer class reference">
@@ -105,9 +105,9 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-theme-ruby.css?v=mqkh89jz" >
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mqkh89jz" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mqkh89jz" >
+<link rel="stylesheet" href="../../assets/css/docmd-theme-ruby.css?v=mqkhjgpa" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mqkhjgpa" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mqkhjgpa" >
 
     
     <script>/**
@@ -1134,7 +1134,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22Renderer%22%0Adescription%3A%20%22SDK%20Renderer%20class%20reference%22%0A---%0A%0A%23%23%20Renderer%0A%0AThe%20%60Renderer%60%20class%20manages%20terminal%20output%20with%20double-buffering%2C%20themes%2C%20and%20ANSI%20styling.%0A%0A%60%60%60python%0Afrom%20pycomputersdk%20import%20Renderer%0A%60%60%60%0A%0A%23%23%23%20Constructor%0A%0A%60%60%60python%0ARenderer(ci_mode%3DFalse%2C%20theme%3D%22default%22)%0A%60%60%60%0A%0A-%20%60ci_mode%60%20%E2%80%94%20disable%20tuiro%20rendering%20for%20CI%2Foutput-redirected%20environments%0A-%20%60theme%60%20%E2%80%94%20one%20of%20%60%22default%22%60%2C%20%60%22mono%22%60%2C%20%60%22pastel%22%60%2C%20%60%22retro%22%60%2C%20%60%22light%22%60%2C%20%60%22dark%22%60%0A%0A%23%23%23%20Methods%0A%0A%23%23%23%23%20Screen%20Control%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C-----------------%7C------------------------------------------------%7C%0A%7C%20%60clear()%60%20%20%20%20%20%20%20%7C%20Clear%20entire%20screen%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60clear_line()%60%20%20%7C%20Clear%20current%20line%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60move(x%2C%20y)%60%20%20%20%20%7C%20Move%20cursor%20to%20column%20%60x%60%2C%20row%20%60y%60%20(1-indexed)%20%7C%0A%7C%20%60write(text)%60%20%20%20%7C%20Write%20text%20at%20current%20cursor%20position%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60flush()%60%20%20%20%20%20%20%20%7C%20Flush%20output%20buffer%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60hide_cursor()%60%20%7C%20Hide%20terminal%20cursor%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60show_cursor()%60%20%7C%20Show%20terminal%20cursor%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%0A%23%23%23%23%20Styling%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%7C%0A%7C----------------------%7C--------------%7C%0A%7C%20%60bold(text)%60%20%20%20%20%20%20%20%20%20%7C%20Render%20bold%20%20%7C%0A%7C%20%60dim(text)%60%20%20%20%20%20%20%20%20%20%20%7C%20Render%20dim%20%20%20%7C%0A%7C%20%60green(text)%60%20%20%20%20%20%20%20%20%7C%20Green%20text%20%20%20%7C%0A%7C%20%60red(text)%60%20%20%20%20%20%20%20%20%20%20%7C%20Red%20text%20%20%20%20%20%7C%0A%7C%20%60yellow(text)%60%20%20%20%20%20%20%20%7C%20Yellow%20text%20%20%7C%0A%7C%20%60cyan(text)%60%20%20%20%20%20%20%20%20%20%7C%20Cyan%20text%20%20%20%20%7C%0A%7C%20%60bright_green(text)%60%20%7C%20Bright%20green%20%7C%0A%7C%20%60bright_red(text)%60%20%20%20%7C%20Bright%20red%20%20%20%7C%0A%7C%20%60bright_cyan(text)%60%20%20%7C%20Bright%20cyan%20%20%7C%0A%0A%23%23%23%23%20Box%20Drawing%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C-------------------------------------------%7C------------------------------%7C%0A%7C%20%60box(width%2C%20height%2C%20title%3DNone)%60%20%20%20%20%20%20%20%20%20%20%7C%20Render%20a%20box%20frame%20as%20string%20%7C%0A%7C%20%60box_at(x%2C%20y%2C%20width%2C%20height%2C%20title%3DNone)%60%20%7C%20Render%20box%20at%20position%20%20%20%20%20%20%20%7C%0A%0A%23%23%23%23%20Theming%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C-------------------%7C-------------------------%7C%0A%7C%20%60set_theme(name)%60%20%7C%20Switch%20theme%20at%20runtime%20%7C%0A%7C%20%60get_theme()%60%20%20%20%20%20%7C%20Get%20current%20theme%20name%20%20%7C%0A%0A%23%23%23%23%20tuiro%20Integration%20(when%20available)%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C---------------------%7C-----------------------------------------%7C%0A%7C%20%60section(title)%60%20%20%20%20%7C%20Render%20a%20section%20header%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60subsection(title)%60%20%7C%20Render%20a%20subsection%20header%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60info(message)%60%20%20%20%20%20%7C%20Info%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60success(message)%60%20%20%7C%20Success%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60warning(message)%60%20%20%7C%20Warning%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60error(message)%60%20%20%20%20%7C%20Error%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60banner(title)%60%20%20%20%20%20%7C%20Render%20a%20banner%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60table(rows)%60%20%20%20%20%20%20%20%7C%20Render%20a%20table%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60spinner(message)%60%20%20%7C%20Show%20a%20spinner%20(context%20manager)%20%20%20%20%20%20%20%20%7C%0A%7C%20%60step(title)%60%20%20%20%20%20%20%20%7C%20Show%20a%20step%20indicator%20(context%20manager)%20%7C%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22Renderer%22%0Adescription%3A%20%22SDK%20Renderer%20class%20reference%22%0A---%0A%0A%23%23%20Renderer%0A%0AThe%20%60Renderer%60%20class%20manages%20terminal%20output%20with%20double-buffering%2C%20themes%2C%20and%20ANSI%20styling.%0A%0A%60%60%60python%0Afrom%20pycomputersdk%20import%20Renderer%0A%60%60%60%0A%0A%23%23%23%20Constructor%0A%0A%60%60%60python%0ARenderer(ci_mode%3DFalse%2C%20theme%3D%22default%22)%0A%60%60%60%0A%0A-%20%60ci_mode%60%20-%20disable%20tuiro%20rendering%20for%20CI%2Foutput-redirected%20environments%0A-%20%60theme%60%20-%20one%20of%20%60%22default%22%60%2C%20%60%22mono%22%60%2C%20%60%22pastel%22%60%2C%20%60%22retro%22%60%2C%20%60%22light%22%60%2C%20%60%22dark%22%60%0A%0A%23%23%23%20Methods%0A%0A%23%23%23%23%20Screen%20Control%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C-----------------%7C------------------------------------------------%7C%0A%7C%20%60clear()%60%20%20%20%20%20%20%20%7C%20Clear%20entire%20screen%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60clear_line()%60%20%20%7C%20Clear%20current%20line%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60move(x%2C%20y)%60%20%20%20%20%7C%20Move%20cursor%20to%20column%20%60x%60%2C%20row%20%60y%60%20(1-indexed)%20%7C%0A%7C%20%60write(text)%60%20%20%20%7C%20Write%20text%20at%20current%20cursor%20position%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60flush()%60%20%20%20%20%20%20%20%7C%20Flush%20output%20buffer%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60hide_cursor()%60%20%7C%20Hide%20terminal%20cursor%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60show_cursor()%60%20%7C%20Show%20terminal%20cursor%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%0A%23%23%23%23%20Styling%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%7C%0A%7C----------------------%7C--------------%7C%0A%7C%20%60bold(text)%60%20%20%20%20%20%20%20%20%20%7C%20Render%20bold%20%20%7C%0A%7C%20%60dim(text)%60%20%20%20%20%20%20%20%20%20%20%7C%20Render%20dim%20%20%20%7C%0A%7C%20%60green(text)%60%20%20%20%20%20%20%20%20%7C%20Green%20text%20%20%20%7C%0A%7C%20%60red(text)%60%20%20%20%20%20%20%20%20%20%20%7C%20Red%20text%20%20%20%20%20%7C%0A%7C%20%60yellow(text)%60%20%20%20%20%20%20%20%7C%20Yellow%20text%20%20%7C%0A%7C%20%60cyan(text)%60%20%20%20%20%20%20%20%20%20%7C%20Cyan%20text%20%20%20%20%7C%0A%7C%20%60bright_green(text)%60%20%7C%20Bright%20green%20%7C%0A%7C%20%60bright_red(text)%60%20%20%20%7C%20Bright%20red%20%20%20%7C%0A%7C%20%60bright_cyan(text)%60%20%20%7C%20Bright%20cyan%20%20%7C%0A%0A%23%23%23%23%20Box%20Drawing%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C-------------------------------------------%7C------------------------------%7C%0A%7C%20%60box(width%2C%20height%2C%20title%3DNone)%60%20%20%20%20%20%20%20%20%20%20%7C%20Render%20a%20box%20frame%20as%20string%20%7C%0A%7C%20%60box_at(x%2C%20y%2C%20width%2C%20height%2C%20title%3DNone)%60%20%7C%20Render%20box%20at%20position%20%20%20%20%20%20%20%7C%0A%0A%23%23%23%23%20Theming%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C-------------------%7C-------------------------%7C%0A%7C%20%60set_theme(name)%60%20%7C%20Switch%20theme%20at%20runtime%20%7C%0A%7C%20%60get_theme()%60%20%20%20%20%20%7C%20Get%20current%20theme%20name%20%20%7C%0A%0A%23%23%23%23%20tuiro%20Integration%20(when%20available)%0A%0A%7C%20Method%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20Description%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C---------------------%7C-----------------------------------------%7C%0A%7C%20%60section(title)%60%20%20%20%20%7C%20Render%20a%20section%20header%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60subsection(title)%60%20%7C%20Render%20a%20subsection%20header%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60info(message)%60%20%20%20%20%20%7C%20Info%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60success(message)%60%20%20%7C%20Success%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60warning(message)%60%20%20%7C%20Warning%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60error(message)%60%20%20%20%20%7C%20Error%20message%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60banner(title)%60%20%20%20%20%20%7C%20Render%20a%20banner%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60table(rows)%60%20%20%20%20%20%20%20%7C%20Render%20a%20table%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%7C%20%60spinner(message)%60%20%20%7C%20Show%20a%20spinner%20(context%20manager)%20%20%20%20%20%20%20%20%7C%0A%7C%20%60step(title)%60%20%20%20%20%20%20%20%7C%20Show%20a%20step%20indicator%20(context%20manager)%20%7C%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -1231,8 +1231,8 @@
 <pre class="hljs"><code><span class="hljs-title function_">Renderer</span>(ci_mode<span class="hljs-punctuation">=</span><span class="hljs-keyword">False</span>, theme<span class="hljs-punctuation">=</span><span class="hljs-string">&quot;default&quot;</span>)
 </code></pre>
 <ul>
-<li><code>ci_mode</code> — disable tuiro rendering for CI/output-redirected environments</li>
-<li><code>theme</code> — one of <code>&quot;default&quot;</code>, <code>&quot;mono&quot;</code>, <code>&quot;pastel&quot;</code>, <code>&quot;retro&quot;</code>, <code>&quot;light&quot;</code>, <code>&quot;dark&quot;</code></li>
+<li><code>ci_mode</code> - disable tuiro rendering for CI/output-redirected environments</li>
+<li><code>theme</code> - one of <code>&quot;default&quot;</code>, <code>&quot;mono&quot;</code>, <code>&quot;pastel&quot;</code>, <code>&quot;retro&quot;</code>, <code>&quot;light&quot;</code>, <code>&quot;dark&quot;</code></li>
 </ul>
 <h3 id="renderer-methods" class="docmd-heading"><a href="#renderer-methods" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Methods</h3>
 <h4 id="renderer-methods-screen-control" class="docmd-heading"><a href="#renderer-methods-screen-control" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Screen Control</h4>
@@ -1528,13 +1528,13 @@
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1781846184000">
+                <span class="git-last-updated" data-timestamp="1781846704000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1781846184000"></span>
+                  <span class="git-time" data-timestamp="1781846704000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
@@ -1547,10 +1547,10 @@
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="Sigh">Sigh</div>
+                            <div class="git-commit-message" title="Add LICENSE and READMEs">Add LICENSE and READMEs</div>
                             <div class="git-commit-meta">
                               <span class="git-commit-author">NellowTCS</span>
-                              <span class="git-commit-date" data-timestamp="1781846184000"></span>
+                              <span class="git-commit-date" data-timestamp="1781846704000"></span>
                             </div>
                           </div>
                         </li>
@@ -1643,14 +1643,14 @@
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mqkh89jz"></script>
+      <script src="../../assets/js/docmd-main.js?v=mqkhjgpa"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mqkh89jz"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mqkh89jz" ></script>
+      <script src="../../assets/js/docmd-git.js?v=mqkhjgpa"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mqkhjgpa" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mqkh89jz" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mqkh89jz" type="module"></script>
-<script src="../../assets/js/docmd-git.js?v=mqkh89jz" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mqkhjgpa" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mqkhjgpa" type="module"></script>
+<script src="../../assets/js/docmd-git.js?v=mqkhjgpa" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-semantic="true" data-show-confidence="true" data-show-filters="true"
