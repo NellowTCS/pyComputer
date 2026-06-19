@@ -10,10 +10,8 @@ import traceback
 import io
 import contextlib
 from collections import deque
-from src.ui.renderer import Renderer
-from src.ui.input import get_key, setup_raw, restore, cleanup, Key, web_input_queue
-from src.fs.vfs import VFS
-from src.utils.platform import is_web
+from pycomputersdk import Renderer, get_key, setup_raw, restore, cleanup, Key, web_input_queue, is_web
+from pycomputersdk.fs import VFS
 
 #  Layout constants
 TOOLBAR_H   = 2   # top toolbar rows
@@ -72,7 +70,7 @@ SYNTAX_KEYWORDS = {
 
 def syntax_highlight_line(line):
     """Very simple token-by-token syntax highlighting."""
-    # We do a basic pass — strings, comments, keywords, numbers
+    # We do a basic pass, strings, comments, keywords, numbers
     result = []
     i = 0
     in_string = None

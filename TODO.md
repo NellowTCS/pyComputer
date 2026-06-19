@@ -10,3 +10,8 @@
 - [ ] Service worker for offline boot
 - [ ] Bundle HTML shell, Pyodide, kernel, UI, etc
 - [ ] Dynamic loading for apps, settings, user files
+- [ ] Checksum verification on .pycapp install
+- [ ] Version checking / upgrade (`pkg update`)
+- [ ] `.pycapp` signing or manifest GPG verification
+- [ ] App metadata screenshots/descriptions in registry
+- [ ] Pagination / categories in `pkg search`

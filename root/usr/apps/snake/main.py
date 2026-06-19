@@ -6,10 +6,7 @@ import random
 import sys
 import time
 from collections import deque
-from src.ui.renderer import Renderer
-from src.ui.input import get_key as _ui_get_key, Key as UI_Key, web_input_queue
-from src.ui.widgets import Dialog
-from src.utils.platform import is_web
+from pycomputersdk import Renderer, get_key as _ui_get_key, Key as UI_Key, web_input_queue, Dialog, is_web
 
 COLS = 30
 ROWS = 15
@@ -221,7 +218,7 @@ def flush_input():
 
 
 def main(*args):
-    from src.ui.input import setup_raw as setup_terminal, restore as restore_terminal, cleanup
+    from pycomputersdk import setup_raw as setup_terminal, restore as restore_terminal, cleanup
 
     game = SnakeGame()
     old_settings = setup_terminal()

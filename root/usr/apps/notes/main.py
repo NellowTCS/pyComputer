@@ -2,9 +2,9 @@
 Notes app entrypoint for pyComputer (separate text files per note)
 """
 
-from src.fs.vfs import VFS
-from src.utils.text import truncate
-from src.stdlib.appstdlib import input, info, error, success, banner, table
+from pycomputersdk.fs import VFS
+from pycomputersdk import truncate
+from pycomputersdk.std import input, info, error, success, banner, table  # noqa: A004
 
 NOTES_DIR = "apps/notes/data"
 

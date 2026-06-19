@@ -6,7 +6,7 @@ Renders a Matrix-style rain animation in the terminal.
 import random
 import sys
 import time
-from src.ui.renderer import Renderer
+from pycomputersdk import Renderer
 
 
 CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()"
