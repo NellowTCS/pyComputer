@@ -1,38 +1,45 @@
-# Deploy pyComputer Web Demo to GitHub Pages
-name: Deploy Web Demo
+name: GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: 20
+          submodules: recursive
+          persist-credentials: false
 
-      - name: Install dependencies
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build demo
+        working-directory: Demo
+        run: npm ci && npm run build
+
+      - name: Build docs
+        working-directory: Docs
+        run: npm ci && npm run build
+
+      - name: Prepare pages root
         run: |
-          cd Demo
-          npm ci
+          mkdir -p pages-root/docs
+          cp -r Demo/dist/* pages-root/
+          cp -r Docs/site/* pages-root/docs/
 
-      - name: Build web demo
-        run: |
-          cd Demo
-          npm run build
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./Demo/dist
+          publish_dir: pages-root
           publish_branch: gh-pages
           cname: nellowtcs.me
+          commit_message: "deploy: demo + docs"

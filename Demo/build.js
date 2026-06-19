@@ -32,7 +32,7 @@ const pyFiles = walk(pycomputerDir, 'pycomputer');
 const sdkFiles = walk(sdkDir, 'pycomputersdk');
 // Include main.py at app root
 pyFiles.push({ full: mainPy, rel: 'main.py' });
-// Walk root files (no prefix — placed at /root/)
+// Walk root files (no prefix, placed at /root/)
 const rootFiles = walk(rootDir, '');
 
 const fileData = {};

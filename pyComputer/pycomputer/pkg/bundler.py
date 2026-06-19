@@ -29,7 +29,7 @@ def _default_apps_root():
 def _should_include(root, name):
     path = os.path.join(root, name)
     if os.path.isdir(path):
-        return name not in _EXCLUDED_DIRS
+        return name not in _EXCLUDED_DIRS and not name.startswith(".")
     return name not in _EXCLUDED_FILES and not name.startswith(".")
 
 

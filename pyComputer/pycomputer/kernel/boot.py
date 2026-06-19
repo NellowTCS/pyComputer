@@ -10,12 +10,18 @@ from pycomputer.fs.vfs import VFS
 
 
 def _data_dir():
+    env = os.environ.get("PYCOMPUTER_DATA_DIR")
+    if env:
+        return os.path.abspath(env)
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../../data")
     )
 
 
 def _root_dir():
+    env = os.environ.get("PYCOMPUTER_ROOT_DIR")
+    if env:
+        return os.path.abspath(env)
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../../root")
     )
