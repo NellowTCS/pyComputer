@@ -7,7 +7,7 @@ path: /apps/building/
 updated: 2026-10-09
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-09T11:53:50.498Z"
+  generated_at: "2026-10-09T11:57:56.497Z"
 ---
 ---
 title: "Building Apps"
