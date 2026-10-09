@@ -1,0 +1,114 @@
+{
+  "tree": [
+    {
+      "title": "Apps",
+      "path": "apps",
+      "children": [
+        {
+          "title": "Building",
+          "path": "apps/building.md"
+        },
+        {
+          "title": "Built-in Apps",
+          "path": "apps/builtin.md"
+        },
+        {
+          "title": "Index",
+          "path": "apps/index.md"
+        },
+        {
+          "title": "Pycapp",
+          "path": "apps/pycapp.md"
+        }
+      ]
+    },
+    {
+      "title": "Architecture",
+      "path": "architecture",
+      "children": [
+        {
+          "title": "Boot",
+          "path": "architecture/boot.md"
+        },
+        {
+          "title": "Index",
+          "path": "architecture/index.md"
+        },
+        {
+          "title": "Kernel",
+          "path": "architecture/kernel.md"
+        },
+        {
+          "title": "Vfs",
+          "path": "architecture/vfs.md"
+        }
+      ]
+    },
+    {
+      "title": "Getting Started",
+      "path": "getting-started",
+      "children": [
+        {
+          "title": "Concepts",
+          "path": "getting-started/concepts.md"
+        },
+        {
+          "title": "Installation",
+          "path": "getting-started/installation.md"
+        },
+        {
+          "title": "Quickstart",
+          "path": "getting-started/quickstart.md"
+        }
+      ]
+    },
+    {
+      "title": "Index",
+      "path": "index.md"
+    },
+    {
+      "title": "Sdk",
+      "path": "sdk",
+      "children": [
+        {
+          "title": "Index",
+          "path": "sdk/index.md"
+        },
+        {
+          "title": "Input",
+          "path": "sdk/input.md"
+        },
+        {
+          "title": "Renderer",
+          "path": "sdk/renderer.md"
+        },
+        {
+          "title": "Stdlib",
+          "path": "sdk/stdlib.md"
+        },
+        {
+          "title": "Vfs",
+          "path": "sdk/vfs.md"
+        }
+      ]
+    },
+    {
+      "title": "Shell",
+      "path": "shell",
+      "children": [
+        {
+          "title": "Commands",
+          "path": "shell/commands.md"
+        },
+        {
+          "title": "Index",
+          "path": "shell/index.md"
+        },
+        {
+          "title": "Pkg",
+          "path": "shell/pkg.md"
+        }
+      ]
+    }
+  ]
+}

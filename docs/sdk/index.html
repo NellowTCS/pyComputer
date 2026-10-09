@@ -10,8 +10,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="generator" content="docmd v0.5.x">
+    <meta name="generator" content="docmd v0.9.7">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script>
+      var root = "../";
+      if (root && !root.endsWith('/')) root += '/';
+      if (root === '') root = './';
+      window.DOCMD_ROOT = root;
+
+      window.DOCMD_SITE_ROOT = "/pyComputer/docs/";
+
+      window.DOCMD_APPEARANCE = "system";
+      window.DOCMD_VERSION_ROOT = "/";
+      window.DOCMD_BASE = "/pyComputer/docs/";
+      window.DOCMD_LOCALE = "";
+      window.DOCMD_DEFAULT_LOCALE = "";
+    </script>
     <script>/**
  * --------------------------------------------------------------------
  * docmd : the zero-config documentation engine.
@@ -29,9 +44,27 @@
 (function () {
   try {
     // 1. Determine Theme
+    //
+    // Resolve from three sources, in priority order:
+    //   1. localStorage explicit user choice (light / dark)
+    //   2. window.DOCMD_APPEARANCE  (current canonical name, set by EJS templates)
+    //   3. window.DOCMD_DEFAULT_MODE (legacy alias kept for pre-0.8.7 outputs)
+    //   4. 'light' as the final fallback
+    //
+    // Note: localStorage is only honoured when it holds an explicit
+    // 'light' or 'dark' value. A stored 'system' value (from a prior
+    // session where the user picked "follow system") must NOT win over
+    // a freshly resolved config value — the resolved value will itself
+    // be 'system' in that case and the OS preference check below takes
+    // over, so this is a no-op for the in-session behaviour but keeps
+    // any future storage migration simple.
     var localValue = localStorage.getItem('docmd-theme');
-    var configValue = window.DOCMD_DEFAULT_MODE || 'light';
-    var theme = localValue ? localValue : configValue;
+    var configValue = window.DOCMD_APPEARANCE
+      || window.DOCMD_DEFAULT_MODE
+      || 'light';
+    var theme = (localValue === 'light' || localValue === 'dark')
+      ? localValue
+      : configValue;
 
     if (theme === 'system') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -65,32 +98,15 @@
         visibility: hidden;
       }
     </style>
+    <title>SDK Reference - pyComputer</title>
     
-    <script>
-      var root = "../";
-      if (root && !root.endsWith('/')) root += '/';
-      if (root === '') root = './';
-      window.DOCMD_ROOT = root;
+    
 
-      var siteRoot = "../";
-      if (siteRoot && !siteRoot.endsWith('/')) siteRoot += '/';
-      if (siteRoot === '') siteRoot = './';
-      window.DOCMD_SITE_ROOT = siteRoot;
-
-      window.DOCMD_APPEARANCE = "system";
-      window.DOCMD_VERSION_ROOT = "/";
-      window.DOCMD_BASE = "/";
-      window.DOCMD_LOCALE = "";
-      window.DOCMD_DEFAULT_LOCALE = "";
-    </script>
-    <title>
-      SDK Reference : pyComputer
-    </title>
+    <link id="site-favicon" rel="icon" href="../assets/favicon.ico?v=mv0wpyya">
+    <link rel="stylesheet" href="../assets/css/docmd-main.css?v=mv0wpyya">
     
-    <link rel="stylesheet" href="../assets/css/docmd-main.css?v=mv0wpm79">
-    
-    <link rel="stylesheet" href="../assets/css/docmd-highlight-light.css?v=mv0wpm79" id="hljs-light" >
-    <link rel="stylesheet" href="../assets/css/docmd-highlight-dark.css?v=mv0wpm79" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../assets/css/docmd-highlight-light.css?v=mv0wpyya" id="hljs-light" >
+    <link rel="stylesheet" href="../assets/css/docmd-highlight-dark.css?v=mv0wpyya" id="hljs-dark" disabled>
     
     
 <meta name="description" content="pyComputer SDK reference">
@@ -102,69 +118,32 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="SDK Reference - pyComputer">
 <meta name="twitter:description" content="pyComputer SDK reference">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"pyComputer","item":"https://nisoku.org/pyComputer/docs/"},{"@type":"ListItem","position":2,"name":"SDK Reference","item":"https://nisoku.org/pyComputer/docs/sdk/"}]}
+</script>
 
 
 
-<link rel="stylesheet" href="../assets/css/docmd-theme-ruby.css?v=mv0wpm79" >
-<link rel="stylesheet" href="../assets/css/docmd-git.css?v=mv0wpm79" >
-<link rel="stylesheet" href="../assets/css/docmd-openapi.css?v=mv0wpm79" >
+
+<link rel="stylesheet" href="../assets/css/docmd-theme-ruby.css?v=mv0wpyya" >
+<link rel="stylesheet" href="../assets/css/docmd-git.css?v=mv0wpyya" >
+<link rel="stylesheet" href="../assets/css/docmd-openapi.css?v=mv0wpyya" >
+<link rel="stylesheet" href="../assets/css/docmd-ai.css?v=mv0wpyya" >
 
     
-    <script>/**
- * --------------------------------------------------------------------
- * docmd : the zero-config documentation engine.
- *
- * @package     @docmd/core (and ecosystem)
- * @website     https://docmd.io
- * @repository  https://github.com/docmd-io/docmd
- * @license     MIT
- * @copyright   Copyright (c) 2025-present docmd.io
- *
- * [docmd-source] - Please do not remove this header.
- * --------------------------------------------------------------------
- */
-
-(function () {
-  try {
-    // 1. Determine Theme
-    var localValue = localStorage.getItem('docmd-theme');
-    var configValue = window.DOCMD_DEFAULT_MODE || 'light';
-    var theme = localValue ? localValue : configValue;
-
-    if (theme === 'system') {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-
-    // 2. Apply to Root
-    document.documentElement.setAttribute('data-theme', theme);
-
-    // 3. Highlight.js Toggle Strategy
-    var lightLink = document.getElementById('hljs-light');
-    var darkLink = document.getElementById('hljs-dark');
-
-    if (lightLink && darkLink) {
-      if (theme === 'dark') {
-        lightLink.disabled = true;
-        darkLink.disabled = false;
-      } else {
-        lightLink.disabled = false;
-        darkLink.disabled = true;
-      }
-    }
-
-    document.documentElement.style.visibility = "visible";
-  } catch (e) {
-    document.documentElement.style.visibility = "visible";
-    console.error('Theme init failed', e);
-  }
-})();</script>
+    
   </head>
   <body
     class="sidebar-collapsible"
     data-default-collapsed="false"
     data-copy-code-enabled="true" data-spa-enabled="true" data-source-file="docs/sdk/index.md">
 
-    <a href="#main-content" class="skip-link">skipToContent</a>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    
+    
+
+    
 
     
     
@@ -201,10 +180,11 @@
           
           
           
+          
         </div>
         
 
-<nav class="sidebar-nav" aria-label="mainNavigation">
+<nav class="sidebar-nav" aria-label="Main Navigation">
   <ul>
     
       <li class="" >
@@ -639,8 +619,8 @@
   stroke-linecap="round"
   stroke-linejoin="round"
 >
-  <path d="M12 7v14" />
-  <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+  <path d="M12 5v16" />
+  <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" />
 </svg>
 
           
@@ -954,24 +934,8 @@
       <li class="" >
       
         <a href="https://github.com/NellowTCS/pyComputer" class=" "
-          target=&quot;_blank&quot; rel=&quot;noopener&quot;>
+          target="_blank" rel="noopener">
            
-<svg class="lucide-icon icon-github " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
-  class="lucide lucide-github"
-  xmlns="http://www.w3.org/2000/svg"
-  width="24"
-  height="24"
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round"
->
-  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-  <path d="M9 18c-4.51 2-5-2-7-2" />
-</svg>
-
           
           <span class="nav-item-title">
             GitHub
@@ -1009,17 +973,19 @@
           
           
           
+          
         </div>
       </aside>
       
       <div class="main-content-wrapper">
         
         
+        
           <header class="page-header">
             <div class="header-left">
               
                 <button id="sidebar-toggle-button" class="sidebar-toggle-button"
-                  aria-label="toggleSidebar">
+                  aria-label="Toggle Sidebar">
                   
 <svg class="lucide-icon icon-chevron-left " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-left"
@@ -1051,7 +1017,7 @@
 
 <div class="docmd-options-menu">
     
-    <button class="docmd-search-trigger" aria-label="search">
+    <button class="docmd-search-trigger" aria-label="Search">
         
 <svg class="lucide-icon icon-search " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-search"
@@ -1069,7 +1035,7 @@
   <circle cx="11" cy="11" r="8" />
 </svg>
 
-        <span class="search-label">search</span>
+        <span class="search-label">Search</span>
         <span class="search-keys"><kbd class="docmd-kbd">⌘</kbd><kbd class="docmd-kbd">K</kbd></span>
     </button>
     
@@ -1079,7 +1045,7 @@
     
 
     
-    <button class="theme-toggle-button" aria-label="toggleTheme">
+    <button class="theme-toggle-button" aria-label="Toggle theme" title="Toggle theme">
         
 <svg class="lucide-icon icon-sun icon-sun" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-sun"
@@ -1123,6 +1089,8 @@
     
 
     
+
+    
 </div>
 
               
@@ -1152,9 +1120,10 @@
                   
 
                   
+                  
                     <div class="docmd-copy-widgets">
                       
-                        <button class="docmd-copy-btn docmd-copy-raw-btn" data-copied="copiedToClipboard" title="copyMarkdown" aria-label="copyMarkdown">
+                        <button class="docmd-copy-btn docmd-copy-raw-btn" data-copied="Copied!" title="Copy Markdown" aria-label="Copy Markdown">
                           <span class="docmd-btn-icon">
 <svg class="lucide-icon icon-copy " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-copy"
@@ -1175,7 +1144,7 @@
                         </button>
                       
                       
-                        <button class="docmd-copy-btn docmd-copy-context-btn" data-copied="copiedToClipboard" title="copyContext">
+                        <button class="docmd-copy-btn docmd-copy-context-btn" data-copied="Copied!" title="Copy Context">
                           <span class="docmd-btn-icon">
 <svg class="lucide-icon icon-message-square " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-message-square"
@@ -1192,51 +1161,56 @@
   <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" />
 </svg>
 </span>
-                          <span class="docmd-btn-text">copyContext</span>
+                          <span class="docmd-btn-text">Copy Context</span>
                         </button>
+                      
                       
                     </div>
                   
                 </div>
                 
+                  <h1 class="docmd-focus-title">
+                    SDK Reference
+                  </h1>
+                
                 <h2 id="sdk-reference" class="docmd-heading"><a href="#sdk-reference" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>SDK Reference</h2>
 <p>The <code>pycomputersdk</code> package provides the public API for building pyComputer apps. It re-exports from <code>pycomputer.*</code> modules and includes a CLI tool for scaffolding, building, running, and testing apps.</p>
 <h3 id="sdk-reference-installation" class="docmd-heading"><a href="#sdk-reference-installation" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Installation</h3>
 <p>Clone the repo and install with uv:</p>
-<pre class="hljs"><code><span class="hljs-keyword">git</span> clone https<span class="hljs-punctuation">://</span>github.<span class="hljs-attr">com</span><span class="hljs-punctuation">/</span>NellowTCS<span class="hljs-punctuation">/</span>pyComputer
-<span class="hljs-keyword">cd</span> pyComputer<span class="hljs-punctuation">/</span>pyComputerSDK
-uv pip install <span class="hljs-punctuation">-</span>e .
+<pre class="hljs"><code class="language-bash"><span class="hljs-keyword">git</span> clone https<span class="hljs-operator">://</span>github.<span class="hljs-attr">com</span><span class="hljs-operator">/</span>NellowTCS<span class="hljs-operator">/</span>pyComputer
+<span class="hljs-keyword">cd</span> pyComputer<span class="hljs-operator">/</span>pyComputerSDK
+uv pip install <span class="hljs-operator">-</span>e .
 </code></pre>
 <p>Or from PyPI:</p>
-<pre class="hljs"><code>uv pip install pycomputersdk
+<pre class="hljs"><code class="language-bash">uv pip install pycomputersdk
 </code></pre>
 <p>Or with pip:</p>
-<pre class="hljs"><code><span class="hljs-keyword">cd</span> pyComputerSDK
-pip install <span class="hljs-punctuation">-</span>e .
+<pre class="hljs"><code class="language-bash"><span class="hljs-keyword">cd</span> pyComputerSDK
+pip install <span class="hljs-operator">-</span>e .
 </code></pre>
 <h3 id="sdk-reference-package-structure" class="docmd-heading"><a href="#sdk-reference-package-structure" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Package Structure</h3>
-<pre class="hljs"><code>pycomputersdk<span class="hljs-punctuation">/</span>
-  __init__.<span class="hljs-attr">py</span>    <span class="hljs-punctuation">-</span> Renderer, Key, VFS, utility exports
-  std.<span class="hljs-attr">py</span>         <span class="hljs-punctuation">-</span> Standard <span class="hljs-title function_">library</span> (input, info, error, etc.)
-  fs.<span class="hljs-attr">py</span>          <span class="hljs-punctuation">-</span> VFS re<span class="hljs-punctuation">-</span><span class="hljs-keyword">export</span>
-  logging.<span class="hljs-attr">py</span>     <span class="hljs-punctuation">-</span> Logger, Level, level functions
-  net.<span class="hljs-attr">py</span>         <span class="hljs-punctuation">-</span> HTTP client
-  <span class="hljs-keyword">pkg</span>.<span class="hljs-attr">py</span>         <span class="hljs-punctuation">-</span> Manifest, bundle, ManifestError
-  testing.<span class="hljs-attr">py</span>     <span class="hljs-punctuation">-</span> MockRenderer, MockInput, assert_screen
-  async_utils.<span class="hljs-attr">py</span> <span class="hljs-punctuation">-</span> debounce, throttle, with_timeout, BackgroundTask, etc.
-  cli<span class="hljs-punctuation">/</span>
-    main.<span class="hljs-attr">py</span>           <span class="hljs-punctuation">-</span> pycomp CLI entry point
-    commands<span class="hljs-punctuation">/</span>
-      init.<span class="hljs-attr">py</span>         <span class="hljs-punctuation">-</span> Scaffold a <span class="hljs-keyword">new</span> app project
-      build.<span class="hljs-attr">py</span>        <span class="hljs-punctuation">-</span> Build a .<span class="hljs-attr">pycapp</span> archive
-      validate.<span class="hljs-attr">py</span>     <span class="hljs-punctuation">-</span> Validate app manifest
-      test.<span class="hljs-attr">py</span>         <span class="hljs-punctuation">-</span> Run app tests <span class="hljs-keyword">with</span> pytest
-      run.<span class="hljs-attr">py</span>          <span class="hljs-punctuation">-</span> Run an app <span class="hljs-keyword">in</span> a full kernel environment
-  root<span class="hljs-punctuation">/</span>               <span class="hljs-punctuation">-</span> Template root <span class="hljs-title function_">filesystem</span> (logo, apps.<span class="hljs-attr">json</span>, motd)
+<pre class="hljs"><code class="language-text">pycomputersdk<span class="hljs-operator">/</span>
+  __init__.<span class="hljs-attr">py</span>    <span class="hljs-operator">-</span> Renderer, Key, VFS, utility exports
+  std.<span class="hljs-attr">py</span>         <span class="hljs-operator">-</span> Standard <span class="hljs-title function_">library</span> (input, info, error, etc.)
+  fs.<span class="hljs-attr">py</span>          <span class="hljs-operator">-</span> VFS re<span class="hljs-operator">-</span><span class="hljs-keyword">export</span>
+  logging.<span class="hljs-attr">py</span>     <span class="hljs-operator">-</span> Logger, Level, level functions
+  net.<span class="hljs-attr">py</span>         <span class="hljs-operator">-</span> HTTP client
+  <span class="hljs-keyword">pkg</span>.<span class="hljs-attr">py</span>         <span class="hljs-operator">-</span> Manifest, bundle, ManifestError
+  testing.<span class="hljs-attr">py</span>     <span class="hljs-operator">-</span> MockRenderer, MockInput, assert_screen
+  async_utils.<span class="hljs-attr">py</span> <span class="hljs-operator">-</span> debounce, throttle, with_timeout, BackgroundTask, etc.
+  cli<span class="hljs-operator">/</span>
+    main.<span class="hljs-attr">py</span>           <span class="hljs-operator">-</span> pycomp CLI entry point
+    commands<span class="hljs-operator">/</span>
+      init.<span class="hljs-attr">py</span>         <span class="hljs-operator">-</span> Scaffold a <span class="hljs-keyword">new</span> app project
+      build.<span class="hljs-attr">py</span>        <span class="hljs-operator">-</span> Build a .<span class="hljs-attr">pycapp</span> archive
+      validate.<span class="hljs-attr">py</span>     <span class="hljs-operator">-</span> Validate app manifest
+      test.<span class="hljs-attr">py</span>         <span class="hljs-operator">-</span> Run app tests <span class="hljs-keyword">with</span> pytest
+      run.<span class="hljs-attr">py</span>          <span class="hljs-operator">-</span> Run an app <span class="hljs-keyword">in</span> a full kernel environment
+  root<span class="hljs-operator">/</span>               <span class="hljs-operator">-</span> Template root <span class="hljs-title function_">filesystem</span> (logo, apps.<span class="hljs-attr">json</span>, motd)
 </code></pre>
 <h3 id="sdk-reference-cli-tool" class="docmd-heading"><a href="#sdk-reference-cli-tool" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>CLI Tool</h3>
 <p>The SDK provides the <code>pycomp</code> CLI for app development:</p>
-<pre class="hljs"><code>pycomp init myapp           <span class="hljs-comment"># Scaffold a new app</span>
+<pre class="hljs"><code class="language-bash">pycomp init myapp           <span class="hljs-comment"># Scaffold a new app</span>
 pycomp validate .           <span class="hljs-comment"># Validate app manifest</span>
 pycomp run .                <span class="hljs-comment"># Run app in kernel environment</span>
 pycomp build .              <span class="hljs-comment"># Build .pycapp archive</span>
@@ -1244,17 +1218,17 @@ pycomp test .               <span class="hljs-comment"># Run app tests</span>
 </code></pre>
 <h3 id="sdk-reference-workspace" class="docmd-heading"><a href="#sdk-reference-workspace" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Workspace</h3>
 <p>The repo uses a uv workspace with two members, managed by the root <code>pyproject.toml</code>:</p>
-<pre class="hljs"><code>[tool.<span class="hljs-attr">uv</span>.<span class="hljs-attr">workspace</span>]
-members <span class="hljs-punctuation">=</span> [<span class="hljs-string">&quot;pyComputer&quot;</span>, <span class="hljs-string">&quot;pyComputerSDK&quot;</span>]
+<pre class="hljs"><code class="language-toml">[tool.<span class="hljs-attr">uv</span>.<span class="hljs-attr">workspace</span>]
+members <span class="hljs-operator">=</span> [<span class="hljs-string">&quot;pyComputer&quot;</span>, <span class="hljs-string">&quot;pyComputerSDK&quot;</span>]
 </code></pre>
 <h3 id="sdk-reference-quick-example" class="docmd-heading"><a href="#sdk-reference-quick-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Quick Example</h3>
-<pre class="hljs"><code><span class="hljs-keyword">from</span> pycomputersdk <span class="hljs-keyword">import</span> Renderer, get_key, Key
+<pre class="hljs"><code class="language-python"><span class="hljs-keyword">from</span> pycomputersdk <span class="hljs-keyword">import</span> Renderer, get_key, Key
 <span class="hljs-keyword">from</span> pycomputersdk.<span class="hljs-attr">std</span> <span class="hljs-keyword">import</span> input, info, success, confirm
 
-r <span class="hljs-punctuation">=</span> <span class="hljs-title function_">Renderer</span>()
+r <span class="hljs-operator">=</span> <span class="hljs-title function_">Renderer</span>()
 r.<span class="hljs-title function_">clear</span>()
 r.<span class="hljs-title function_">banner</span>(<span class="hljs-string">&quot;Hello World&quot;</span>)
-name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">input</span>(<span class="hljs-string">&quot;Name: &quot;</span>)
+name <span class="hljs-operator">=</span> <span class="hljs-title function_">input</span>(<span class="hljs-string">&quot;Name: &quot;</span>)
 <span class="hljs-title function_">info</span>(f<span class="hljs-string">&quot;Hello, {name}!&quot;</span>)
 </code></pre>
 
@@ -1279,14 +1253,14 @@ name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">
   <path d="M19 12H5" />
 </svg>
 
-                        <span><small>previous</small><strong>
+                        <span><small>Previous</small><strong>
                             .pycapp Format
                           </strong></span>
                       </a>
                     
                     
                       <a href="../sdk/renderer/" class="next-page">
-                        <span><small>next</small>
+                        <span><small>Next</small>
                           <strong>
                             Renderer
                           </strong></span>
@@ -1312,12 +1286,16 @@ name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">
                   </div>
                 
               </div>
+              
+              
               <div class="toc-sidebar">
                 
+                
+                  
 
 
   <div class="toc-container">
-    <h2 class="toc-title">onThisPage<span class="mobile-view toc-menu-button float-right">
+    <h2 class="toc-title">On This Page<span class="mobile-view toc-menu-button float-right">
 <svg class="lucide-icon icon-chevron-down " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-down"
   xmlns="http://www.w3.org/2000/svg"
@@ -1362,18 +1340,21 @@ name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">
     </ul>
   </div>
 
+                
+                
               </div>
+              
             </div>
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1791546778000">
+                <span class="git-last-updated" data-timestamp="1791546797000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1791546778000"></span>
+                  <span class="git-time" data-timestamp="1791546797000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
@@ -1386,10 +1367,10 @@ name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="Merge pull request #24 from NellowTCS/dependabot/uv/uv-2a4a739b48">Merge pull request #24 from NellowTCS...</div>
+                            <div class="git-commit-message" title="Merge pull request #26 from NellowTCS/dependabot/npm_and_yarn/Docs/npm_and_yarn-4284d4379f">Merge pull request #26 from NellowTCS...</div>
                             <div class="git-commit-meta">
                               <span class="git-commit-author">NellowTCS</span>
-                              <span class="git-commit-date" data-timestamp="1791546778000"></span>
+                              <span class="git-commit-date" data-timestamp="1791546797000"></span>
                             </div>
                           </div>
                         </li>
@@ -1473,7 +1454,7 @@ name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">
         <div class="user-footer">Built with <a href="https://docmd.io">docmd</a>. <a href="https://github.com/NellowTCS/pyComputer">View on GitHub</a>.</div>
         
           <div class="branding-footer">
-            builtWith <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"></path><path d="m18 15-2-2"></path><path d="m15 18-2-2"></path></svg> <a href="https://docmd.io" target="_blank" rel="noopener">docmd.</a>
+            Built with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"></path><path d="m18 15-2-2"></path><path d="m15 18-2-2"></path></svg> <a href="https://docmd.io" target="_blank" rel="noopener">docmd.</a>
           </div>
         
       </div>
@@ -1482,20 +1463,22 @@ name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">
         </div>
       </div>
       
-      <script src="../assets/js/docmd-main.js?v=mv0wpm79"></script>
+      <script src="../assets/js/docmd-main.js?v=mv0wpyya"></script>
       
-      <script src="../assets/js/docmd-git.js?v=mv0wpm79"></script>
-      <script src="../assets/js/docmd-image-lightbox.js?v=mv0wpm79" ></script>
-<script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../assets/js/docmd-search.js?v=mv0wpm79" ></script>
-<script src="../assets/js/init-mermaid.js?v=mv0wpm79" type="module"></script>
-<script src="../assets/js/docmd-git.js?v=mv0wpm79" type="module"></script>
+      <script src="../assets/js/docmd-git.js?v=mv0wpyya"></script>
+      <script src="../assets/js/docmd-image-lightbox.js?v=mv0wpyya" ></script>
+<script src="../assets/js/vendor/minisearch.js?v=mv0wpyya" ></script>
+<script src="../assets/js/docmd-search.js?v=mv0wpyya" ></script>
+<script src="../assets/js/docmd-git.js?v=mv0wpyya" ></script>
+<script src="../assets/js/docmd-ai.js?v=mv0wpyya" ></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-semantic="true" data-show-confidence="true" data-show-filters="true"
        data-search-placeholder="Search documentation..."
        data-search-no-results="No results found."
        data-search-error="Failed to load search index."
+       data-search-offline="Search requires a web server. Open this site via http://localhost instead of file:// to enable search."
+       data-search-offline-build="Search is disabled because these docs were built with the --offline flag. Rebuild the site without the flag to enable search."
        data-search-initial="Type to start searching..."
        data-search-navigate="to navigate"
        data-search-escape="to close">
@@ -1563,6 +1546,9 @@ name <span class="hljs-punctuation">=</span> <span class="hljs-title function_">
     </script>
 
 <script>window.__git_config={"repo":"https://github.com/NellowTCS/pyComputer/edit/main/","branch":"main","editLink":true,"lastUpdated":true,"commitHistory":true,"maxCommits":5,"dateFormat":"relative"};window.__git_i18n={"lastUpdated":"Last updated","recentCommits":"Recent commits","viewCommitHistory":"View commit history","editOnGitHub":"Edit on GitHub","editOnGitLab":"Edit on GitLab","editOnBitbucket":"Edit on Bitbucket","editThisPage":"Edit this page","justNow":"just now","minutesAgo":"{n}m ago","hoursAgo":"{n}h ago","daysAgo":"{n}d ago"}</script>
+<div id="docmd-ai-root"></div><script>window.__docmd_ai_config={"endpoint":"","cloud":{},"captcha":true,"position":"bottom-center","siteTitle":"pyComputer","siteBase":"/pyComputer/docs/","siteUrl":"https://nisoku.org/pyComputer/docs/","versions":null,"i18n":null,"navigation":[{"title":"Home","path":"/","icon":"home"},{"title":"Getting Started","icon":"rocket","collapsible":false,"children":[{"title":"Quick Start","path":"/getting-started/quickstart/","icon":"play"},{"title":"Installation","path":"/getting-started/installation/","icon":"download"},{"title":"Core Concepts","path":"/getting-started/concepts/","icon":"book"}]},{"title":"Apps","icon":"package","path":"/apps/","collapsible":false,"children":[{"title":"Built-in Apps","path":"/apps/builtin/","icon":"box"},{"title":"Building Apps","path":"/apps/building/","icon":"code"},{"title":".pycapp Format","path":"/apps/pycapp/","icon":"archive"}]},{"title":"SDK Reference","icon":"code","path":"/sdk/","collapsible":false,"children":[{"title":"Renderer","path":"/sdk/renderer/","icon":"monitor"},{"title":"Input","path":"/sdk/input/","icon":"keyboard"},{"title":"Std Library","path":"/sdk/stdlib/","icon":"book-open"},{"title":"VFS","path":"/sdk/vfs/","icon":"folder"}]},{"title":"Shell","icon":"terminal","path":"/shell/","collapsible":false,"children":[{"title":"Commands","path":"/shell/commands/","icon":"list"},{"title":"Package Manager","path":"/shell/pkg/","icon":"package"}]},{"title":"Architecture","icon":"git-commit","path":"/architecture/","collapsible":false,"children":[{"title":"Kernel","path":"/architecture/kernel/","icon":"cpu"},{"title":"VFS Layer","path":"/architecture/vfs/","icon":"hard-drive"},{"title":"Boot Sequence","path":"/architecture/boot/","icon":"power"}]},{"title":"GitHub","path":"https://github.com/NellowTCS/pyComputer","icon":"github","external":true}],"searchCapabilities":{"keyword":true,"semantic":true},"isWorkspace":false,"workspaceProjects":[],"messageActions":false,"contextLimit":5};</script>
+      
+      
       
   </body>
 </html>

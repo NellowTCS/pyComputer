@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "model": "Xenova/all-MiniLM-L6-v2",
+  "dimensions": 384,
+  "status": "complete",
+  "totalFiles": 20,
+  "indexedFiles": 20,
+  "totalChunks": 138,
+  "batchCount": 1,
+  "files": {
+    "apps/building.md": {
+      "mtime": 1791546805604.7156,
+      "size": 2678,
+      "batches": []
+    },
+    "apps/builtin.md": {
+      "mtime": 1791546805604.783,
+      "size": 695,
+      "batches": []
+    },
+    "apps/index.md": {
+      "mtime": 1791546805604.783,
+      "size": 932,
+      "batches": []
+    },
+    "apps/pycapp.md": {
+      "mtime": 1791546805604.783,
+      "size": 1444,
+      "batches": []
+    },
+    "architecture/boot.md": {
+      "mtime": 1791546805604.783,
+      "size": 1083,
+      "batches": []
+    },
+    "architecture/index.md": {
+      "mtime": 1791546805604.9568,
+      "size": 1787,
+      "batches": []
+    },
+    "architecture/kernel.md": {
+      "mtime": 1791546805604.9568,
+      "size": 1272,
+      "batches": []
+    },
+    "architecture/vfs.md": {
+      "mtime": 1791546805604.9568,
+      "size": 1573,
+      "batches": []
+    },
+    "getting-started/concepts.md": {
+      "mtime": 1791546805604.9568,
+      "size": 2926,
+      "batches": []
+    },
+    "getting-started/installation.md": {
+      "mtime": 1791546805605.1836,
+      "size": 1123,
+      "batches": []
+    },
+    "getting-started/quickstart.md": {
+      "mtime": 1791546805605.1836,
+      "size": 927,
+      "batches": []
+    },
+    "index.md": {
+      "mtime": 1791546805605.1836,
+      "size": 2785,
+      "batches": []
+    },
+    "sdk/index.md": {
+      "mtime": 1791546805605.1836,
+      "size": 2198,
+      "batches": []
+    },
+    "sdk/input.md": {
+      "mtime": 1791546805605.3728,
+      "size": 1373,
+      "batches": []
+    },
+    "sdk/renderer.md": {
+      "mtime": 1791546805605.3728,
+      "size": 2942,
+      "batches": []
+    },
+    "sdk/stdlib.md": {
+      "mtime": 1791546805605.3728,
+      "size": 2337,
+      "batches": []
+    },
+    "sdk/vfs.md": {
+      "mtime": 1791546805605.3728,
+      "size": 1452,
+      "batches": []
+    },
+    "shell/commands.md": {
+      "mtime": 1791546805605.3728,
+      "size": 1226,
+      "batches": []
+    },
+    "shell/index.md": {
+      "mtime": 1791546805605.5857,
+      "size": 1161,
+      "batches": []
+    },
+    "shell/pkg.md": {
+      "mtime": 1791546805605.5857,
+      "size": 1606,
+      "batches": []
+    }
+  }
+}

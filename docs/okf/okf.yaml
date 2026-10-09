@@ -1,0 +1,196 @@
+okf_version: 0.9.7
+bundle:
+  name: pycomputer
+  title: pyComputer
+  description: ""
+  url: "https://nisoku.org/pyComputer/docs/"
+  generated_by: "@docmd/plugin-okf"
+  generated_at: "2026-10-09T11:53:50.510Z"
+  default_type: concept
+stats:
+  concepts: 20
+  by_type:
+    concept: 20
+  locales: 
+  versions: 
+concepts:
+  - id: apps-building
+    type: concept
+    title: "Building Apps"
+    description: "How to create a pyComputer application"
+    path: /apps/building/
+    file: concepts/apps-building.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: apps-builtin
+    type: concept
+    title: "Built-in Apps"
+    description: ""
+    path: /apps/builtin/
+    file: concepts/apps-builtin.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: apps
+    type: concept
+    title: Apps
+    description: "Overview of pyComputer's app system"
+    path: /apps/
+    file: concepts/apps.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: apps-pycapp
+    type: concept
+    title: ".pycapp Format"
+    description: "The .pycapp distribution format"
+    path: /apps/pycapp/
+    file: concepts/apps-pycapp.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: architecture-boot
+    type: concept
+    title: "Boot Sequence"
+    description: "What happens when pyComputer starts"
+    path: /architecture/boot/
+    file: concepts/architecture-boot.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: architecture
+    type: concept
+    title: Architecture
+    description: "pyComputer architecture overview"
+    path: /architecture/
+    file: concepts/architecture.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: architecture-kernel
+    type: concept
+    title: Kernel
+    description: "pyComputer kernel architecture"
+    path: /architecture/kernel/
+    file: concepts/architecture-kernel.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: architecture-vfs
+    type: concept
+    title: "VFS Layer"
+    description: "Virtual filesystem architecture"
+    path: /architecture/vfs/
+    file: concepts/architecture-vfs.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: getting-started-concepts
+    type: concept
+    title: "Core Concepts"
+    description: "How pyComputer works"
+    path: /getting-started/concepts/
+    file: concepts/getting-started-concepts.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: getting-started-installation
+    type: concept
+    title: Installation
+    description: "Install pyComputer on your system"
+    path: /getting-started/installation/
+    file: concepts/getting-started-installation.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: getting-started-quickstart
+    type: concept
+    title: "Quick Start"
+    description: "Get pyComputer running in under a minute"
+    path: /getting-started/quickstart/
+    file: concepts/getting-started-quickstart.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: root
+    type: concept
+    title: pyComputer
+    description: "A virtual computer in your terminal."
+    path: /
+    file: concepts/root.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: sdk
+    type: concept
+    title: "SDK Reference"
+    description: "pyComputer SDK reference"
+    path: /sdk/
+    file: concepts/sdk.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: sdk-input
+    type: concept
+    title: "Input Handling"
+    description: "SDK keyboard input reference"
+    path: /sdk/input/
+    file: concepts/sdk-input.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: sdk-renderer
+    type: concept
+    title: Renderer
+    description: "SDK Renderer class reference"
+    path: /sdk/renderer/
+    file: concepts/sdk-renderer.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: sdk-stdlib
+    type: concept
+    title: "Standard Library"
+    description: "SDK std module reference"
+    path: /sdk/stdlib/
+    file: concepts/sdk-stdlib.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: sdk-vfs
+    type: concept
+    title: "Virtual Filesystem"
+    description: "VFS SDK reference"
+    path: /sdk/vfs/
+    file: concepts/sdk-vfs.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: shell-commands
+    type: concept
+    title: "Shell Commands"
+    description: "Detailed shell command reference"
+    path: /shell/commands/
+    file: concepts/shell-commands.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: shell
+    type: concept
+    title: Shell
+    description: "pyComputer shell overview"
+    path: /shell/
+    file: concepts/shell.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: shell-pkg
+    type: concept
+    title: "Package Manager"
+    description: "The pkg command reference"
+    path: /shell/pkg/
+    file: concepts/shell-pkg.md
+    locale: ""
+    version: ""
+    tags: 
