@@ -4,10 +4,10 @@ title: "Boot Sequence"
 description: "What happens when pyComputer starts"
 source: "https://nisoku.org/pyComputer/docs/architecture/boot/"
 path: /architecture/boot/
-updated: 2026-10-09
+updated: 2026-10-15
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-09T11:57:56.499Z"
+  generated_at: "2026-10-15T23:54:32.142Z"
 ---
 ---
 title: "Boot Sequence"

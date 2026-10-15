@@ -4,10 +4,10 @@ title: "Shell Commands"
 description: "Detailed shell command reference"
 source: "https://nisoku.org/pyComputer/docs/shell/commands/"
 path: /shell/commands/
-updated: 2026-10-09
+updated: 2026-10-15
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-09T11:57:56.504Z"
+  generated_at: "2026-10-15T23:54:32.151Z"
 ---
 ---
 title: "Shell Commands"

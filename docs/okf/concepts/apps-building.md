@@ -4,10 +4,10 @@ title: "Building Apps"
 description: "How to create a pyComputer application"
 source: "https://nisoku.org/pyComputer/docs/apps/building/"
 path: /apps/building/
-updated: 2026-10-09
+updated: 2026-10-15
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-09T11:57:56.497Z"
+  generated_at: "2026-10-15T23:54:32.139Z"
 ---
 ---
 title: "Building Apps"
