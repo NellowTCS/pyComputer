@@ -4,10 +4,10 @@ title: pyComputer
 description: "A virtual computer in your terminal."
 source: "https://nisoku.org/pyComputer/docs/"
 path: /
-updated: 2026-10-15
+updated: 2026-10-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-15T23:54:32.147Z"
+  generated_at: "2026-10-23T04:33:48.693Z"
 ---
 ---
 title: "pyComputer"

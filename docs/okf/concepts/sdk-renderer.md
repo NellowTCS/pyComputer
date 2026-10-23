@@ -4,10 +4,10 @@ title: Renderer
 description: "SDK Renderer class reference"
 source: "https://nisoku.org/pyComputer/docs/sdk/renderer/"
 path: /sdk/renderer/
-updated: 2026-10-15
+updated: 2026-10-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-15T23:54:32.149Z"
+  generated_at: "2026-10-23T04:33:48.694Z"
 ---
 ---
 title: "Renderer"

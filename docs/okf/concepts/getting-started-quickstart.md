@@ -4,10 +4,10 @@ title: "Quick Start"
 description: "Get pyComputer running in under a minute"
 source: "https://nisoku.org/pyComputer/docs/getting-started/quickstart/"
 path: /getting-started/quickstart/
-updated: 2026-10-15
+updated: 2026-10-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-15T23:54:32.146Z"
+  generated_at: "2026-10-23T04:33:48.693Z"
 ---
 ---
 title: "Quick Start"

@@ -3,10 +3,10 @@ type: concept
 title: "Built-in Apps"
 source: "https://nisoku.org/pyComputer/docs/apps/builtin/"
 path: /apps/builtin/
-updated: 2026-10-15
+updated: 2026-10-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-15T23:54:32.140Z"
+  generated_at: "2026-10-23T04:33:48.689Z"
 ---
 # Built-in Apps
 
