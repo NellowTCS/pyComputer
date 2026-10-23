@@ -6,7 +6,7 @@ path: /apps/builtin/
 updated: 2026-10-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-23T04:33:48.689Z"
+  generated_at: "2026-10-23T14:18:07.893Z"
 ---
 # Built-in Apps
 
