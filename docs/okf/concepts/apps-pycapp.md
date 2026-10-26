@@ -4,10 +4,10 @@ title: ".pycapp Format"
 description: "The .pycapp distribution format"
 source: "https://nisoku.org/pyComputer/docs/apps/pycapp/"
 path: /apps/pycapp/
-updated: 2026-10-23
+updated: 2026-10-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-23T19:17:55.208Z"
+  generated_at: "2026-10-26T18:38:09.344Z"
 ---
 ---
 title: ".pycapp Format"

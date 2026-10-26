@@ -4,10 +4,10 @@ title: Kernel
 description: "pyComputer kernel architecture"
 source: "https://nisoku.org/pyComputer/docs/architecture/kernel/"
 path: /architecture/kernel/
-updated: 2026-10-23
+updated: 2026-10-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-23T19:17:55.210Z"
+  generated_at: "2026-10-26T18:38:09.345Z"
 ---
 ---
 title: "Kernel"

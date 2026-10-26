@@ -4,10 +4,10 @@ title: Installation
 description: "Install pyComputer on your system"
 source: "https://nisoku.org/pyComputer/docs/getting-started/installation/"
 path: /getting-started/installation/
-updated: 2026-10-23
+updated: 2026-10-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-23T19:17:55.212Z"
+  generated_at: "2026-10-26T18:38:09.347Z"
 ---
 ---
 title: "Installation"

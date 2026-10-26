@@ -9,102 +9,102 @@
   "batchCount": 1,
   "files": {
     "apps/building.md": {
-      "mtime": 1792783049117.7375,
+      "mtime": 1793039863271.285,
       "size": 2678,
       "batches": []
     },
     "apps/builtin.md": {
-      "mtime": 1792783049117.8105,
+      "mtime": 1793039863271.3586,
       "size": 695,
       "batches": []
     },
     "apps/index.md": {
-      "mtime": 1792783049117.8105,
+      "mtime": 1793039863271.3586,
       "size": 932,
       "batches": []
     },
     "apps/pycapp.md": {
-      "mtime": 1792783049117.8105,
+      "mtime": 1793039863271.3586,
       "size": 1444,
       "batches": []
     },
     "architecture/boot.md": {
-      "mtime": 1792783049117.8105,
+      "mtime": 1793039863271.3586,
       "size": 1083,
       "batches": []
     },
     "architecture/index.md": {
-      "mtime": 1792783049118.0034,
+      "mtime": 1793039863271.5317,
       "size": 1787,
       "batches": []
     },
     "architecture/kernel.md": {
-      "mtime": 1792783049118.0034,
+      "mtime": 1793039863271.5317,
       "size": 1272,
       "batches": []
     },
     "architecture/vfs.md": {
-      "mtime": 1792783049118.0034,
+      "mtime": 1793039863271.5317,
       "size": 1573,
       "batches": []
     },
     "getting-started/concepts.md": {
-      "mtime": 1792783049118.0034,
+      "mtime": 1793039863271.5317,
       "size": 2926,
       "batches": []
     },
     "getting-started/installation.md": {
-      "mtime": 1792783049118.201,
+      "mtime": 1793039863271.7163,
       "size": 1123,
       "batches": []
     },
     "getting-started/quickstart.md": {
-      "mtime": 1792783049118.201,
+      "mtime": 1793039863271.7163,
       "size": 927,
       "batches": []
     },
     "index.md": {
-      "mtime": 1792783049118.201,
+      "mtime": 1793039863271.7163,
       "size": 2785,
       "batches": []
     },
     "sdk/index.md": {
-      "mtime": 1792783049118.201,
+      "mtime": 1793039863271.7163,
       "size": 2198,
       "batches": []
     },
     "sdk/input.md": {
-      "mtime": 1792783049118.456,
+      "mtime": 1793039863271.9084,
       "size": 1373,
       "batches": []
     },
     "sdk/renderer.md": {
-      "mtime": 1792783049118.456,
+      "mtime": 1793039863271.9084,
       "size": 2942,
       "batches": []
     },
     "sdk/stdlib.md": {
-      "mtime": 1792783049118.456,
+      "mtime": 1793039863271.9084,
       "size": 2337,
       "batches": []
     },
     "sdk/vfs.md": {
-      "mtime": 1792783049118.456,
+      "mtime": 1793039863271.9084,
       "size": 1452,
       "batches": []
     },
     "shell/commands.md": {
-      "mtime": 1792783049118.456,
+      "mtime": 1793039863271.9084,
       "size": 1226,
       "batches": []
     },
     "shell/index.md": {
-      "mtime": 1792783049118.688,
+      "mtime": 1793039863272.122,
       "size": 1161,
       "batches": []
     },
     "shell/pkg.md": {
-      "mtime": 1792783049118.688,
+      "mtime": 1793039863272.122,
       "size": 1606,
       "batches": []
     }
